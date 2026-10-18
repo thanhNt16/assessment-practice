@@ -235,7 +235,8 @@ html.dark .dg-dark{display:block}
 .scenario{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);overflow:hidden}
 .sc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--vp-c-divider);font-weight:600;font-size:14px}
 .sc-head .sc-ic{margin-right:6px}
-.sc-body{overflow-x:auto;padding:14px}
+.sc-body{overflow:auto;padding:14px;cursor:grab;overscroll-behavior:contain}
+.sc-body.dragging{cursor:grabbing;user-select:none}
 .sc-svg{display:block;margin:0 auto;font-family:Excalifont,cursive}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
@@ -853,7 +854,10 @@ function mountScenario(div,d,idx){
   const zPct=div.querySelector('[data-a="zpct"]');
   const zSteps=[0.5,0.67,0.8,1,1.25,1.5,2,2.5,3];
   let zl=1;
-  const zSet=v=>{zl=v;svg.style.width=(L.W*v)+'px';svg.style.height=(L.H*v)+'px';
+  const zSet=v=>{const r=v/zl||1;
+    const cx=body.scrollLeft+body.clientWidth/2,cy=body.scrollTop+body.clientHeight/2;
+    zl=v;svg.style.width=(L.W*v)+'px';svg.style.height=(L.H*v)+'px';
+    body.scrollLeft=cx*r-body.clientWidth/2;body.scrollTop=cy*r-body.clientHeight/2;
     if(zPct)zPct.textContent=Math.round(v*100)+'%';};
   const zIn=d=>{const n=zSteps.filter(s=>d>0?s>zl+0.001:s<zl-0.001);
     zSet(d>0?(n[0]||3):(n[n.length-1]||0.5))};
@@ -861,6 +865,22 @@ function mountScenario(div,d,idx){
   if(zi)zi.onclick=()=>zIn(1);
   if(zo)zo.onclick=()=>zIn(-1);
   if(zPct)zPct.onclick=()=>zSet(1);
+  // drag-to-pan on the scroll body
+  let drag=null;
+  svg.addEventListener('pointerdown',e=>{
+    if(e.button!==0||hlMode)return;
+    drag={x:e.clientX,y:e.clientY,l:body.scrollLeft,t:body.scrollTop,moved:false};
+    svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const dx=drag.x-e.clientX,dy=drag.y-e.clientY;
+    if(Math.abs(dx)+Math.abs(dy)>4){drag.moved=true;body.classList.add('dragging');}
+    if(drag.moved){body.scrollLeft=drag.l+dx;body.scrollTop=drag.t+dy;}});
+  const dragEnd=()=>{if(drag&&drag.moved){
+    svg.addEventListener('click',ev=>ev.stopPropagation(),{capture:true,once:true});}
+    drag=null;body.classList.remove('dragging');};
+  svg.addEventListener('pointerup',dragEnd);
+  svg.addEventListener('pointercancel',dragEnd);
   svg.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zIn(e.deltaY<0?1:-1)},{passive:false});
   enter(d.start);
 }
