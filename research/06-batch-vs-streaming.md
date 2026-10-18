@@ -2,19 +2,33 @@
 
 Batch answers "what is true given all data up to now" over bounded input; streaming answers "what is true right now" over unbounded input — the real trade is latency vs reprocessing cost, not throughput.
 
-:::glide Glide — From Bounded Batch to Exactly-Once
-1) Pick the domain :: **Batch** = what is true given all data up to now over bounded input; **streaming** = what is true right now over unbounded input — the real trade is latency vs reprocessing cost, not throughput.
-2) Reason in event time :: Only **event time** (when the event occurred) is reproducible; processing time is for lag monitoring, ingestion time is rarely correct — windows, billing, analytics all hang off it.
-3) Trust the watermark :: `W = maxObservedEventTime − allowedLateness` (typically 20 s–5 min) is a monotonic promise "no event ≤ W arrives later"; it is the engine's permission slip to close a window.
-4) Emit when W passes the end :: Window `[10:00,10:05)` fires once W ≥ 10:05; in parallel pipelines W = **min across partitions**, so one idle source stalls all progress.
-5) Handle the stragglers :: A late event **within allowedLateness** re-accumulates and re-fires (retraction/upsert); **beyond** it goes to a side output or dead-letter — too tight drops data, too loose delays results and grows state.
-6) Bound your state :: Window contents, join buffers, dedup keys live keyed in RocksDB/heap — they grow **forever without TTL**.
-7) Make exactly-once end-to-end :: Three layers must align: replayable source (offsets in the checkpoint), exactly-once state (Flink snapshot/restore), exactly-once sink (Kafka transactions or idempotent upsert) — otherwise settle for at-least-once plus dedupe.
-8) Escalate by SLA :: Batch → micro-batch (~500 ms floor) → true streaming (10–100 ms) — every step up is a permanent tax of state ops, checkpoints, and watermark tuning; fraud SLA < 5 s demands streaming, an hourly dashboard gets cheap batch.
-? Why does one idle parallel source freeze the whole pipeline? :: Because W = **min across partitions** — a stalled partition pins the min-watermark, so no window can emit anywhere.
-? A batch job double-counts on retry — why, and the fix? :: Non-idempotent `INSERT INTO` + retry silently appends twice; rerun safely with `INSERT OVERWRITE` on the partition or a keyed `MERGE`.
-? Why does "exactly-once" fail into a plain non-transactional HTTP sink? :: Layer 3 is missing — no transactional or idempotent sink means the best possible is at-least-once delivery with dedupe downstream.
-? When does the watermark dial break in each direction? :: Too tight → events beyond allowedLateness are dropped to side outputs; too loose → results are delayed and state grows longer.
+:::scenario Scenario — Batch or Streaming?
+@start Frame the question :: Batch answers what is true given all data up to now over bounded input; streaming answers what is true right now.
+-> frame => @sla
+@sla Pick by SLA :: Fraud under 5 s is product-correctness; an hourly dashboard gets cheap batch; between them, micro-batch.
+? SLA under 5 seconds? => @stream |success
+-> hourly => @batch
+@batch Schedule the batch :: Bounded input, logical execution date, partition filters; backfill by rerunning old partitions deterministically.
+? Freshness now hurts decisions? => @micro |success
+-> rerun => @eos
+@micro Step up to micro-batch :: Spark Structured Streaming: about a 500 ms floor, batch SQL reuse, coarse watermarks.
+-> eventtime => @etime
+@stream Go true streaming :: Flink or Kafka Streams at 10–100 ms — and a permanent tax of state ops, checkpoints, watermark tuning.
+-> eventtime => @etime
+@etime Reason in event time :: Only event time is reproducible; windows, billing, analytics hang off it; processing time is for lag monitoring.
+-> watch => @wm
+@wm Trust the watermark :: W = maxObservedEventTime minus allowedLateness, a monotonic promise; a window emits when W passes its end.
+? One partition goes idle? => @idle |success
+-> closes => @late
+@idle Pin the min-watermark :: W is the min across partitions, so one stalled source freezes every window; idle sources need special handling.
+-> resume => @wm
+@late Handle the stragglers :: Within allowedLateness: re-accumulate and re-fire as a retraction; beyond it: side output or dead-letter queue.
+-> bound => @state
+@state Bound the state :: Window contents, join buffers, dedup keys live in RocksDB or heap and grow forever without a TTL.
+-> guarantee => @eos
+@eos Make it exactly-once :: Replayable source, exactly-once state, transactional or idempotent sink — otherwise at-least-once plus dedupe.
+? Sink is plain non-transactional HTTP? => @dedupe |fail
+@dedupe Dedupe downstream :: No transactional or idempotent sink means at-least-once is the ceiling — dedupe by key at the consumer.
 :::
 ::::diagram batch-vs-stream.png
 :::

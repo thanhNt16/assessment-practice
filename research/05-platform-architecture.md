@@ -2,19 +2,29 @@
 
 A data platform moves data from operational systems to analytical consumers reliably and on time; interviews ask you to draw it, defend each layer boundary, and match modeling to workload.
 
-:::glide Glide — Source to Gold
-1) Sources → ingestion :: Move data with **no business logic** — batch extract, CDC stream, or queue; first decisions are pull vs push, full vs incremental.
-2) Bronze lands raw :: Immutable append-only copy plus ingest metadata is your **replay insurance** — never edited downstream.
-3) Silver validates :: Deduplicated, typed, conformed; the quality gate sends failures to **quarantine** so bad data never poisons gold.
-4) Gold serves :: Dimensional models and aggregates for BI/ML — warehouse tables, dashboards, features, reverse-ETL.
-5) Declare the grain :: "One row per order line" — model the *business process*, not the source system; grain is the #1 modeling question.
-6) Pin facts with SCD2 :: The surrogate FK pins each fact to the dimension version true at event time — without it there is **no as-of join**.
-7) Contract the interface :: Versioned, machine-enforceable producer→consumer agreements catch renames at **producer build time**, not as NULLs in gold weeks later.
-8) Run the spine :: Orchestration, catalog, observability, security cut across every layer — mention them **unprompted**.
-? Why log-based CDC over polling `updated_at`? :: Polling misses hard deletes and untouched rows; log-based (binlog/WAL → Debezium → Kafka) has minimal source overhead, captures deletes, seconds latency. Triggers slow every write inline — legacy-only red flag.
-? When do you skip a medallion layer? :: Where no trust boundary exists — teams making all three copies of every dataset get blank tables and tripled storage.
-? Why does SCD2 need a surrogate key, not just valid dates? :: The fact's FK pins the row to the version true at event time; re-keying facts later is a full rewrite — the MERGE must run in one transaction or a crash leaves no current row.
-? Star, Data Vault, or OBT? :: Star for BI aggregations by conformed dimensions; Data Vault for regulated multi-source integration with full attribute history; OBT for one consumer scanning whole rows where joins dominate latency.
+:::scenario Scenario — Source to Gold
+@start Draw the spine first :: Sources, raw, validated, curated, then the cross-cutting spine: orchestration, catalog, observability, security.
+-> frame => @ingest
+@ingest Move, don't transform :: Ingestion carries no business logic — pick transport only: pull vs push, full vs incremental.
+? OLTP source with hard deletes? => @cdc |success
+-> batch => @bronze
+@cdc Stream the change log :: Polling misses hard deletes; triggers slow every write; binlog/WAL to Debezium to Kafka is the default.
+-> land => @bronze
+@bronze Land raw bronze :: Immutable append-only copy plus ingest metadata — replay insurance, never edited downstream.
+-> validate => @silver
+@silver Validate and conform :: Dedupe, type, conform; the quality gate decides what ever reaches gold.
+? Row fails the gate? => @quarantine |fail
+-> clean => @model
+@quarantine Quarantine, don't poison :: Bad rows stop with reason and lineage; fix upstream and replay — gold stays clean.
+-> recheck => @silver
+@model Declare the grain :: "One row per order line" — model the business process, not the source system; grain is the #1 modeling question.
+? Attributes change over time? => @scd |success
+-> serve => @gold
+@scd Pin facts with SCD2 :: The surrogate FK pins each fact to the dimension version true at event time; expire plus insert in one transaction.
+-> serve => @gold
+@gold Serve curated gold :: Dimensional models and aggregates for BI and ML; enforce versioned producer-consumer contracts at this boundary.
+-> across => @spine
+@spine Run the spine :: Orchestration, catalog, observability, security cut across every layer — mention them unprompted.
 :::
 
 ::::diagram platform-layers.png

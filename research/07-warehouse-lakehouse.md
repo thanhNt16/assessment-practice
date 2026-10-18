@@ -2,18 +2,26 @@
 
 Analytics storage evolved through four generations because each one's failure mode became the next one's feature list — know the mechanisms, not just the product names.
 
-:::glide Glide — Four Generations, Four Failure Modes
-1) **EDW** couples storage with compute :: $/TB too high; can't hold logs, JSON, images, ML assets — raw data has nowhere cheap to live
-2) **Lake** lands anything, schema-on-read :: the writer checks nothing — a renamed column silently poisons every downstream job
-3) **Lake breaks structurally** :: no atomic commits, no enforcement, no stats/compaction, no governance → the equilibrium is a data swamp
-4) **Fix one: cloud DW** decouples compute :: micro-partitions (~16 MB) + min/max pruning, isolated virtual warehouses, auto-suspend bills $0 while idle
-5) **Cloud DW breaks** :: proprietary formats → lake + warehouse = two synced copies of data, lock-in
-6) **Fix two: lakehouse** adds an open ACID table format :: Parquet + table format + object storage + catalog + any engine — the format + catalog *is* the platform
-7) **ELT displaces ETL** :: decoupled storage made landing raw cheap, elastic compute made in-warehouse transforms cheap — ETL survives only at trust boundaries (PII masking, cross-region compliance)
-8) **Choose by workload** :: utilization <30% → per-second auto-suspend; >60% sustained → always-on/reserved; workload mix, team size, and lock-in tolerance pick warehouse vs lakehouse vs OLAP serving tier
-? Why is blaming "bad engineers" the junior answer for lake failure? :: The platform made hygiene expensive and sloppiness free — no atomic commits (concurrent writers corrupted partitions), no schema enforcement, no compaction (millions of small files), no governance (duplicate contradictory datasets) — so at scale the equilibrium is a swamp.
-? What does the lakehouse add that finally fixes the swamp? :: A transactional table format over open Parquet: ACID commits, time travel, schema-on-write with late binding (enforce on commit, evolve without rewriting files), stats for pruning — with the catalog as the platform and any engine (Spark, Trino, Flink, DuckDB) on top.
-? When does an always-on cluster beat auto-suspend? :: When utilization is sustained >60%. The 2h-nightly workload runs at ~17% utilization and pays ~6× compute for idle; flipped to steady 24/7 BI, always-on ≈ $2.3k vs auto-suspend Large ≈ $11.7k — a 5× win the other way.
+:::scenario Scenario — Storage Generation Choice
+@start Scope the estate :: Structured BI only, or raw logs, JSON, images, ML too? Utilization and lock-in tolerance pick the storage generation.
+? Analytics needs raw logs, JSON, images, ML assets? => @lake |success
+-> structured-bi-only => @dw
+@dw Run the cloud DW :: Disaggregated compute, micro-partition pruning, auto-suspend bills zero while idle — but formats stay proprietary.
+-> copies => @lakehouse
+@lake Land everything raw :: Open object storage plus schema-on-read: landing anything is free — including silence about schema drift.
+-> breaks => @swamp
+@swamp Hit the swamp :: No atomic commits corrupt partitions, no enforcement, no compaction, no governance — structural, not bad engineers.
+-> fix-open => @lakehouse
+@lakehouse Add the table format :: Parquet plus a transactional table format plus catalog plus any engine — the format and catalog are the platform.
+? Compliance forbids raw PII landing? => @etl |success
+-> pick-compute => @tco
+@etl Keep ETL at the boundary :: Mask PII before load, honor cross-region rules — transform before the trust boundary; ELT everywhere else.
+-> pick-compute => @tco
+@tco Right-size the compute :: Under 30 percent utilization, per-second auto-suspend; over 60 sustained, always-on or reserved — watch egress.
+? Sub-second high-QPS dashboards? => @olap |success
+-> own => @own
+@olap Add an OLAP serving tier :: MPP warehouses trade latency for SQL breadth; feed a hot engine from the lake or DW for interactive serving.
+@own Mesh the ownership :: Centralize the substrate — storage, formats, catalog, governance — and decentralize product ownership on top.
 :::
 ::::diagram lakehouse-stack.png
 :::

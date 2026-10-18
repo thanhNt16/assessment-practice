@@ -2,19 +2,27 @@
 
 Two platforms converging from opposite origins — Snowflake grew a SQL warehouse outward into the lakehouse, Databricks grew a Spark lakehouse inward into SQL/BI — so the honest comparison is mechanisms and tradeoffs, not feature checklists.
 
-:::glide Glide — Who Owns the Storage
-1) Converging origins :: Snowflake grew a SQL warehouse outward into the lakehouse; Databricks grew a Spark lakehouse inward into SQL/BI — compare mechanisms, not feature checklists
-2) Storage ownership :: **Snowflake abstracts storage away** (micro-partitions, ~16 MB, bundled bill); **Databricks makes your lake the source of truth** (your S3 + Delta ACID log) — this one choice explains pricing, governance, and lock-in
-3) Compute model :: Warehouses XS→6XL auto-suspend to zero vs Spark + **Photon** clusters — why BI defaults to Snowflake and code-heavy pipelines to Databricks
-4) Billing shape :: **Credits bundle IaaS**; **DBUs stack on the VM bill** — never compare list rates; the ~15% Databricks edge in the worked example is entirely assumption-driven
-5) Workload verdicts :: SQL/BI → Snowflake; ML/GPU/code-first pipelines and continuous streaming → Databricks; governance is capability parity but openness favors Unity Catalog
-6) Lock-in asymmetry :: Snowflake locks in **data gravity** (exit = unload proprietary native tables to Iceberg); Databricks locks in **workflows** (exit = re-platform notebooks/jobs, data stays in your bucket)
-7) The neutral layer :: **Iceberg + one REST catalog** (Open Catalog/Polaris or UC) lets both engines read shared data — no efficient cross-read of Snowflake native tables otherwise
-8) The exit :: Iceberg support is table stakes on both sides now; catalog ownership is the live differentiator — design the exit before you need it
-? Why is Databricks ~15% cheaper in the worked example, and why not trust that number? :: It is entirely assumption-driven — swap the credit price ($2–4 by cloud/region), warehouse sizes, or the analyst/ETL mix and either side wins; model 3-year all-in TCO on your workload, never list rates.
-? Where does each platform's lock-in actually bite? :: **Snowflake locks in data gravity**: native tables are proprietary, so exiting means re-platforming storage by unloading to Iceberg. **Databricks locks in workflows**: exiting means re-platforming notebooks/jobs, but data stays in your cloud account.
-? Why can't the two platforms just share data naively? :: Snowflake native tables are proprietary and Spark can't scan them efficiently — the neutral pattern is Iceberg in S3 with a REST catalog (Open Catalog/Polaris or UC) both engines read, at the cost of two contracts, two governance models, two teams.
-? Why discount vendor benchmarks like TPC-DS 2023 or TPC-DI 2025? :: Claims contradict each other year over year (~3× DBX, then ~5× for DBX SQL Serverless, Snowflake's Gen2 rebuttal, consultancies reporting the reverse on pure BI) — workload shape dominates, so run a 2-week PoC with your schemas, query mix, and concurrency profile.
+:::scenario Scenario — Snowflake or Databricks
+@start Compare mechanisms, not checklists :: Both converge from opposite origins; one choice — who owns storage — explains pricing, governance, and lock-in.
+-> frame => @owner
+@owner Decide storage ownership :: Snowflake abstracts storage away in a bundled bill; Databricks makes your lake the source of truth in your bucket.
+? Lake must be the source of truth? => @dbx |success
+-> bundled => @sf
+@sf Run Snowflake :: Warehouses XS to 6XL auto-suspend, micro-partition pruning, cloning and Time Travel included — near-zero ops.
+-> price => @bill
+@dbx Run Databricks :: Spark plus Photon over your S3 with the Delta ACID log; MLflow, GPU clusters, model serving for ML teams.
+-> price => @bill
+@bill Model the real bill :: Credits bundle IaaS; DBUs stack on the VM bill — the worked example's 15 percent edge is entirely assumption-driven.
+? Deciding from list rates or vendor benchmarks? => @poc |fail
+-> workload => @work
+@poc Run a two-week PoC :: Dueling TPC claims invert by workload shape; only your schemas, query mix, and concurrency profile settle it.
+-> workload => @work
+@work Match workload to platform :: SQL and BI to Snowflake; ML, GPU, code-first pipelines, continuous streaming to Databricks; governance parity.
+? Heavy BI plus heavy ML on shared data? => @iceberg |success
+-> exit => @lockin
+@lockin Design the exit :: Snowflake locks data gravity — unload native tables to Iceberg; Databricks locks workflows — data stays in your bucket.
+-> neutral => @iceberg
+@iceberg Meet at the neutral layer :: Iceberg plus one REST catalog — Open Catalog, Polaris, or UC — lets both engines read shared data.
 :::
 
 ::::diagram vendor-arch.png
