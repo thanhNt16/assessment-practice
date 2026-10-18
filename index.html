@@ -304,6 +304,17 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
 @media (max-width:640px){.dg-frame iframe{height:480px}}
+/* glossary terms, popups, related chips */
+.term{border-bottom:1px dotted var(--vp-c-brand-1);cursor:help}
+.term-pop{position:absolute;max-width:340px;background:var(--vp-c-bg-elv);border:1px solid var(--vp-c-divider);border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);font-size:13px;z-index:60;color:var(--vp-c-text-1)}
+.term-pop b{font-size:14px}
+.term-pop p{margin:6px 0 0;line-height:1.55}
+.term-pop .tp-links{margin-top:8px;font-size:12px;color:var(--vp-c-text-3)}
+.term-pop .tp-links a{color:var(--vp-c-brand-1)}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+a.chip{padding:6px 12px;border-radius:16px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);font-size:13px;color:var(--vp-c-text-1);text-decoration:none}
+a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -981,6 +992,25 @@ SC_FONT_OK.then(()=>{
     mountScenario(dv,data,i);
   });
 });
+// glossary term popups
+function closeTerm(){document.querySelectorAll('.term-pop').forEach(p=>p.remove())}
+function showTerm(el){
+  closeTerm();
+  const t=el.dataset.term, d=(window.STUDY_TERMS||{})[t]; if(!d) return;
+  const p=document.createElement('div'); p.className='term-pop';
+  const secs=(window.STUDY_TERMREFS||{})[t]||[];
+  p.innerHTML=`<b>${t}</b><p>${d}</p>`+(secs.length>1?`<div class="tp-links">Seen in: ${secs.map(s=>`<a href="s${String(s).padStart(2,'0')}.html">${s}</a>`).join(' · ')}</div>`:'');
+  document.body.appendChild(p);
+  const r=el.getBoundingClientRect(), w=Math.min(340,innerWidth-24);
+  p.style.width=w+'px';
+  p.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+scrollX+'px';
+  p.style.top=(r.bottom+8+scrollY)+'px';
+}
+document.addEventListener('click',e=>{const t=e.target.closest('.term'); t?showTerm(t):closeTerm()});
+if(matchMedia('(hover:hover)').matches){
+  document.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(t)showTerm(t)});
+}
+
 </script>
 <script type="module">
 import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';

@@ -131,6 +131,17 @@ def preprocess(src):
         mer.append(m.group(1).strip())
         return f"\nMERMAIDPLOT{len(mer)-1}X\n"
     src = MERMAID_FENCE_RE.sub(stash, src)
+
+    used_terms = set()
+    def term_wrap(line):
+        for t in GLOSS_TERMS:
+            if t.lower() in used_terms: continue
+            m = re.search(r'\b' + re.escape(t) + r's?\b', line, re.I)
+            if m:
+                used_terms.add(t.lower())
+                return (line[:m.start()] + f'<span class="term" data-term="{html.escape(t)}">'
+                        + m.group(0) + '</span>' + line[m.end():])
+        return line
     tldrs, cardss = [], []
     out, in_c, lines_acc = [], False, []
     for line in src.split("\n"):
@@ -177,6 +188,8 @@ def preprocess(src):
         if in_c in ("scenario", "tldr", "cards"):
             lines_acc.append(line)
             continue
+        if not in_c and not s.startswith('#') and '`' not in line and '|' not in line:
+            line = term_wrap(line)
         out.append(line)
     if in_c in ("scenario", "tldr", "cards"):
         raise ValueError(f"Unclosed :::{in_c} block")
@@ -261,6 +274,24 @@ def render_page(src, sec_no):
         out = out.replace(f"SCENARIOPLOT{i}X", scenario_html(g, i))
     return out, h1_title, subs, tldrs, cardss
 
+# ---------------- glossary (loaded before section collection for term wrapping) ----------------
+def parse_glossary(text):
+    terms, edges = [], []
+    for ln in text.split("\n"):
+        s = ln.strip()
+        if not s or s.startswith("#") or s.startswith("- "): continue
+        m = re.match(r'^(.+?)\s*>\s*(.+?)\s*::\s*(.+)$', s)
+        if m: edges.append({"a": m.group(1).strip(), "b": m.group(2).strip(), "why": m.group(3).strip()}); continue
+        m = re.match(r'^(.+?)\s*::\s*(.+)$', s)
+        if m: terms.append({"t": m.group(1).strip(), "def": m.group(2).strip()})
+    return terms, edges
+
+study = {"cards": [], "terms": [], "edges": [], "termRefs": {}, "tldr": {}}
+_glossary_path = RESEARCH / "glossary.md"
+if _glossary_path.exists():
+    study["terms"], study["edges"] = parse_glossary(_glossary_path.read_text())
+GLOSS_TERMS = sorted((t["t"] for t in study["terms"]), key=len, reverse=True)
+
 # ---------------- collect sections ----------------
 sections = []
 for idx, fname in enumerate(FILES):
@@ -273,16 +304,6 @@ for idx, fname in enumerate(FILES):
                      "tldr": tldrs[0] if tldrs else [], "cards": cardss[0] if cardss else []})
 
 # ---------------- study.json ----------------
-def parse_glossary(text):
-    terms, edges = [], []
-    for ln in text.split("\n"):
-        s = ln.strip()
-        if not s or s.startswith("#") or s.startswith("- "): continue
-        m = re.match(r'^(.+?)\s*>\s*(.+?)\s*::\s*(.+)$', s)
-        if m: edges.append({"a": m.group(1).strip(), "b": m.group(2).strip(), "why": m.group(3).strip()}); continue
-        m = re.match(r'^(.+?)\s*::\s*(.+)$', s)
-        if m: terms.append({"t": m.group(1).strip(), "def": m.group(2).strip()})
-    return terms, edges
 
 def parse_study(src, sec_no):
     """Extract tldr bullets + flashcards from one section's raw markdown."""
@@ -338,13 +359,9 @@ if "--selftest" in __import__("sys").argv:
     validate_study(ok)
     print("selftest OK"); __import__("sys").exit(0)
 
-study = {"cards": [], "terms": [], "edges": [], "termRefs": {}, "tldr": {}}
 for s in sections:
     if s["tldr"]: study["tldr"][s["i"] + 1] = s["tldr"]
     study["cards"] += parse_study((RESEARCH / s["file"]).read_text(), s["i"] + 1)[1]
-glossary_path = RESEARCH / "glossary.md"
-if glossary_path.exists():
-    study["terms"], study["edges"] = parse_glossary(glossary_path.read_text())
 for t in study["terms"]:
     pat = re.compile(rf'\b{re.escape(t["t"])}\b', re.I)
     study["termRefs"][t["t"]] = [s["i"] + 1 for s in sections
@@ -734,6 +751,17 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
 @media (max-width:640px){.dg-frame iframe{height:480px}}
+/* glossary terms, popups, related chips */
+.term{border-bottom:1px dotted var(--vp-c-brand-1);cursor:help}
+.term-pop{position:absolute;max-width:340px;background:var(--vp-c-bg-elv);border:1px solid var(--vp-c-divider);border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);font-size:13px;z-index:60;color:var(--vp-c-text-1)}
+.term-pop b{font-size:14px}
+.term-pop p{margin:6px 0 0;line-height:1.55}
+.term-pop .tp-links{margin-top:8px;font-size:12px;color:var(--vp-c-text-3)}
+.term-pop .tp-links a{color:var(--vp-c-brand-1)}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+a.chip{padding:6px 12px;border-radius:16px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);font-size:13px;color:var(--vp-c-text-1);text-decoration:none}
+a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+
 """
 
 JS = r"""
@@ -1049,6 +1077,25 @@ SC_FONT_OK.then(()=>{
     mountScenario(dv,data,i);
   });
 });
+// glossary term popups
+function closeTerm(){document.querySelectorAll('.term-pop').forEach(p=>p.remove())}
+function showTerm(el){
+  closeTerm();
+  const t=el.dataset.term, d=(window.STUDY_TERMS||{})[t]; if(!d) return;
+  const p=document.createElement('div'); p.className='term-pop';
+  const secs=(window.STUDY_TERMREFS||{})[t]||[];
+  p.innerHTML=`<b>${t}</b><p>${d}</p>`+(secs.length>1?`<div class="tp-links">Seen in: ${secs.map(s=>`<a href="s${String(s).padStart(2,'0')}.html">${s}</a>`).join(' · ')}</div>`:'');
+  document.body.appendChild(p);
+  const r=el.getBoundingClientRect(), w=Math.min(340,innerWidth-24);
+  p.style.width=w+'px';
+  p.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+scrollX+'px';
+  p.style.top=(r.bottom+8+scrollY)+'px';
+}
+document.addEventListener('click',e=>{const t=e.target.closest('.term'); t?showTerm(t):closeTerm()});
+if(matchMedia('(hover:hover)').matches){
+  document.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(t)showTerm(t)});
+}
+
 """
 
 MERMAID_JS = r"""
@@ -1147,8 +1194,40 @@ index_body = main_with_sidebar(-1, f"""      <div class="hero">
 (ROOT / "index.html").write_text(shell("Learn Data Platform Engineering — A3 Senior DE Assessment Prep", index_body))
 
 # ---------------- section pages ----------------
+def chips_for(sec_no):
+    refs = study["termRefs"]
+    here = {t for t, rs in refs.items() if sec_no in rs}
+    seen, chips = set(), []
+    for e in study["edges"]:
+        if not ({e["a"], e["b"]} & here):
+            continue
+        for other in (e["a"], e["b"]):
+            if other in here:
+                continue
+            for tgt in refs.get(other, []):
+                if tgt == sec_no or (other.lower(), tgt) in seen:
+                    continue
+                seen.add((other.lower(), tgt))
+                subs_ = sections[tgt - 1]["subs"]
+                a = f"#{subs_[0][1]}" if subs_ else ""
+                chips.append(f'<a class="chip" href="s{tgt:02d}.html{a}" title="{html.escape(e["why"])}">{html.escape(other)}</a>')
+                break
+            if len(chips) >= 6:
+                return chips
+    return chips
+
+def study_extra():
+    def script_json(obj):
+        return (json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+                .replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e"))
+    terms = {t["t"]: t["def"] for t in study["terms"]}
+    return (f'<script>window.STUDY_TERMS={script_json(terms)};'
+            f'window.STUDY_TERMREFS={script_json(study["termRefs"])}</script>')
+
 for s in sections:
-    inner = f"""{s['html']}
+    chips = chips_for(s["i"] + 1)
+    chip_row = f'<div class="chip-row">{"".join(chips)}</div>' if chips else ""
+    inner = f"""{s['html']}{chip_row}
       <button class="mark-done" id="markDone">Mark section as done</button>
 {pager(s['i'])}
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>"""
@@ -1160,7 +1239,8 @@ for s in sections:
   </aside>"""
     body = main_with_sidebar(s["i"], inner, outline)
     (ROOT / s["url"]).write_text(
-        shell(s["title"], body, section_attr=f' data-section="{s["i"]}"', active=s["i"]))
+        shell(s["title"], body, section_attr=f' data-section="{s["i"]}"', active=s["i"],
+              extra=study_extra()))
     print(f"  wrote {s['url']}: '{s['title']}' +{len(s['subs'])} subs")
 
 print(f"Done — index.html + {len(FILES)} section pages")
