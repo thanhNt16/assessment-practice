@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -763,8 +779,9 @@ SELECT count(*) FROM orders VERSION AS OF 1041;  -- the 400 rows reappear
 </ul>
 <div class="chip-row"><a class="chip" href="s05.html#layered-reference-architecture" title="platform governance features publish contract-backed datasets.">Data contracts</a><a class="chip" href="s04.html#cap-the-consistency-spectrum" title="exactly-once recovery replays from durable state snapshots.">Exactly-once</a><a class="chip" href="s05.html#layered-reference-architecture" title="lakehouse layers are stored in open columnar formats.">Medallion</a><a class="chip" href="s03.html#python-patterns-for-data-work" title="stage boundaries in the DAG are exactly where shuffles happen.">Shuffle</a><a class="chip" href="s12.html#queues-pubsub-and-logs" title="the outbox table is the CDC source that publishes reliable domain events.">Outbox pattern</a><a class="chip" href="s04.html#cap-the-consistency-spectrum" title="change capture streams the OLTP log into analytics.">OLTP</a></div>
 <div class="selfcheck"><h3 class="sc-title">Self-check — 7 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s09-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>What does a table format add over bare Parquet?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s09-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>Describe Delta&#x27;s metadata structure.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>One <code>_delta_log</code> of JSON commits with a Parquet checkpoint every 10th commit.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s09-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>Walk the Iceberg metadata tree.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Catalog CAS pointer → metadata.json → manifest list → manifests → data files, pruned at each level.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s09-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>What is Iceberg hidden partitioning?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Transforms like <code>days(ts)</code> live in the spec — engines never hand-write partition filters; evolution is metadata-only.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s09-5"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>Name the four delete strategies by cost ladder.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>CoW rewrites, position deletes, deletion-vector bitmaps, MoR log records — write cost falls, read cost rises.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s09-6"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>When is data actually deleted?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Only by VACUUM/expire_snapshots/clean — time travel is replay, not deletion.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s09-7"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s09.html">s9 · Formats</a><p>Commit size of one 400-row UPDATE across formats?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Delta/Iceberg ~KBs via DVs; Hudi CoW ~100 MB rewritten; Hudi MoR ~50 KB log append.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#why-parquet-alone-is-not-enough">Why Parquet Alone Is Not Enough</option><option value="#delta-lake-one-transaction-log">Delta Lake: One Transaction Log</option><option value="#apache-iceberg-a-metadata-tree-and-a-catalog">Apache Iceberg: A Metadata Tree and a Catalog</option><option value="#apache-hudi-timeline-file-groups-and-morcow">Apache Hudi: Timeline, File Groups, and MoR/CoW</option><option value="#deletes-four-strategies">Deletes: Four Strategies</option><option value="#worked-example-one-update-then-time-travel">Worked Example: One UPDATE, Then Time Travel</option><option value="#feature-comparison">Feature Comparison</option><option value="#engine-matrix-202526">Engine Matrix (2025–26)</option><option value="#decision-table-when-each-wins">Decision Table: When Each Wins</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s08.html"><div class="plabel">Previous</div><div class="ptitle">← Snowflake vs Databricks</div></a><a class="next" href="s10.html"><div class="plabel">Next</div><div class="ptitle">Compute Engines: Spark vs Flink →</div></a></div>
+<div class="study-pager" data-sec="9"><a class="sp-prev" href="s08.html">‹ Snowflake vs Databricks</a><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><a class="sp-next" href="s10.html">Compute Engines: Spark vs Flink ›</a></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -1156,6 +1173,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">

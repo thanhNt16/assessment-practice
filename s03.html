@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -665,8 +681,9 @@ result = (stage1.groupBy(&quot;user_id&quot;)
 </ul>
 <div class="chip-row"><a class="chip" href="s01.html#how-internal-assessment-works" title="Delta Lake is the platform&#x27;s native table format.">Delta Lake</a><a class="chip" href="s05.html#layered-reference-architecture" title="lakehouse layers are stored in open columnar formats.">Medallion</a><a class="chip" href="s10.html#spark-dag-shuffle-catalyst" title="salted keys break up the hot partitions that skew stages.">Salting</a><a class="chip" href="s04.html#cap-the-consistency-spectrum" title="Iceberg tables store data as Parquet files behind the metadata tree.">Iceberg</a><a class="chip" href="s01.html#how-internal-assessment-works" title="Kafka partitions topics for parallel consumption the way compute partitions data.">Kafka</a></div>
 <div class="selfcheck"><h3 class="sc-title">Self-check — 7 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s03-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>File won&#x27;t fit in memory — expected plain-Python answer?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Stream it with a generator: yield, don&#x27;t return.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s03-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>When do you choose PySpark over pandas?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Over ~10 GB, multi-file/Parquet input, cross-dataset joins, or explicit distribution requirements.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s03-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>Name two causes of driver OOM.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p><code>collect()</code> and <code>toPandas()</code> pulling full results into driver RAM (also oversized <code>take()</code>).</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s03-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>Name three causes of executor OOM.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>One giant partition (skew), <code>repartition(1)</code> before a heavy stage, cache without MEMORY_AND_DISK.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s03-5"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>Relative cost of native vs pandas vs Python UDFs?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Native 1×; pandas UDFs ~2–5× via Arrow batches; Python UDFs ~10×+.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s03-6"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>How do you fix a skewed groupBy?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Salt the hot key into N buckets and aggregate in two stages; or let AQE split skewed partitions.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s03-7"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s03.html">s3 · PySpark</a><p>When is cache() justified?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Only when a DataFrame is reused ≥2× — persist MEMORY_AND_DISK, then unpersist.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#python-patterns-for-data-work">Python Patterns for Data Work</option><option value="#pyspark-driver-vs-executors">PySpark: Driver vs Executors</option><option value="#the-10-patterns-that-cover-most-screens">The 10 Patterns That Cover Most Screens</option><option value="#pyspark-performance">PySpark Performance</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s02.html"><div class="plabel">Previous</div><div class="ptitle">← SQL Deep Dive: The Problems EPAM Actually Asks</div></a><a class="next" href="s04.html"><div class="plabel">Next</div><div class="ptitle">Distributed Systems Fundamentals →</div></a></div>
+<div class="study-pager" data-sec="3"><a class="sp-prev" href="s02.html">‹ SQL Deep Dive: The Problems EPAM Actually Asks</a><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><a class="sp-next" href="s04.html">Distributed Systems Fundamentals ›</a></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -1053,6 +1070,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">
