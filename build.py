@@ -102,30 +102,24 @@ md = MarkdownIt("commonmark", {"html": True, "linkify": True, "breaks": False})
 md.enable("table")
 
 MERMAID_FENCE_RE = re.compile(r'```mermaid\n(.*?)```', re.S)
-CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|glide|diagram|scenario)\s*(.*)$')
-GLIDE_STEP_RE = re.compile(r'^(\d+)\)\s+(.*?)\s*::\s*(.+)$')
-GLIDE_QUIZ_RE = re.compile(r'^\?\s+(.*?)\s*::\s*(.+)$')
+CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario)\s*(.*)$')
 SC_NODE_RE  = re.compile(r'^@(\w+)\s+(.*?)\s*::\s*(.+)$')
 SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(?:(.*?)\s*=>\s*)?@(\w+)(\s*\|\s*(success|fail))?$')
 def preprocess(src):
-    """Extract mermaid fences; convert :::containers (incl. glide) to placeholders."""
-    mer, glides = [], []
+    """Extract mermaid fences; convert :::containers to placeholders."""
+    mer, scenarios = [], []
     def stash(m):
         mer.append(m.group(1).strip())
         return f"\nMERMAIDPLOT{len(mer)-1}X\n"
     src = MERMAID_FENCE_RE.sub(stash, src)
-    out, in_c, glide_lines = [], False, []
-    scenarios, sc_title = [], None
+    out, in_c, lines_acc = [], False, []
     for line in src.split("\n"):
         s = line.strip()
         mo = CONTAINER_OPEN_RE.match(s)
         if mo and not in_c:
             typ, title = mo.group(1), mo.group(2).strip()
-            if typ == "glide":
-                in_c, glide_lines, glide_title = "glide", [], title
-                continue
             if typ == "scenario":
-                in_c, glide_lines, sc_title = "scenario", [], title
+                in_c, lines_acc, sc_title = "scenario", [], title
                 continue
             if typ == "diagram":
                 slug = title or "diagram"
@@ -143,36 +137,21 @@ def preprocess(src):
             continue
         if re.match(r'^:{3,}$', s) and in_c:
             if in_c == "scenario":
-                scenarios.append(scenario_parse(sc_title, glide_lines))
+                scenarios.append(scenario_parse(sc_title, lines_acc))
                 out.append(f"\nSCENARIOPLOT{len(scenarios)-1}X\n")
-            elif in_c == "glide":
-                payload = {"title": glide_title, "steps": [], "quiz": []}
-                for gl in glide_lines:
-                    if not gl.strip(): continue
-                    ms, mq = GLIDE_STEP_RE.match(gl.strip()), GLIDE_QUIZ_RE.match(gl.strip())
-                    if ms:
-                        payload["steps"].append({"n": int(ms.group(1)),
-                            "label": md.renderInline(ms.group(2)), "caption": md.renderInline(ms.group(3))})
-                    elif mq:
-                        payload["quiz"].append({"q": md.renderInline(mq.group(1)),
-                            "a": md.renderInline(mq.group(2))})
-                    else:
-                        raise ValueError(f"Malformed glide line: {gl!r}")
-                glides.append(payload)
-                out.append(f"\nGLIDEPLOT{len(glides)-1}X\n")
             elif in_c == "skip":
                 pass
             else:
                 out += ["", "</div>"]
             in_c = False
             continue
-        if in_c in ("glide", "scenario"):
-            glide_lines.append(line)
+        if in_c == "scenario":
+            lines_acc.append(line)
             continue
         out.append(line)
-    if in_c in ("glide", "scenario"):
-        raise ValueError(f"Unclosed :::{in_c} block")
-    return "\n".join(out), mer, glides, scenarios
+    if in_c == "scenario":
+        raise ValueError("Unclosed :::scenario block")
+    return "\n".join(out), mer, scenarios
 
 def scenario_parse(title, lines):
     nodes, edges, order, last = [], [], [], None
@@ -201,26 +180,6 @@ def scenario_parse(title, lines):
     return {"title": title, "nodes": nodes, "edges": edges,
             "start": order[0] if order else None}
 
-def glide_html(g):
-    chips = "".join(
-        f'<li class="glide-chip" data-i="{s["n"]-1}"><b>{s["n"]}</b>{s["label"]}</li>'
-        for s in g["steps"])
-    caps = "".join(f'<div class="glide-cap" data-i="{i}">{s["caption"]}</div>'
-                   for i, s in enumerate(g["steps"]))
-    quiz = "".join(
-        f'<button class="qflip" type="button" aria-expanded="false">'
-        f'<span class="qf">? {q["q"]}</span><span class="qa">{q["a"]}</span></button>'
-        for q in g["quiz"])
-    return (f'<div class="glide" tabindex="0">'
-            f'<div class="glide-h"><span class="glide-ic">🧩</span>'
-            f'<b>Glide · {html.escape(g["title"])}</b>'
-            f'<span class="glide-ct">1/{len(g["steps"])}</span></div>'
-            f'<ol class="glide-steps">{chips}</ol>'
-            f'<div class="glide-caps">{caps}</div>'
-            f'<div class="glide-ctl"><button class="gprev" type="button">◀</button>'
-            f'<button class="gnext" type="button">▶</button></div>'
-            f'<div class="glide-quiz">{quiz}</div></div>')
-
 def scenario_html(g, idx):
     return (f'<div class="scenario" data-sc="{idx}">'
             f'<div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · {html.escape(g["title"])}</b></span></div>'
@@ -231,7 +190,7 @@ def scenario_html(g, idx):
 
 def render_page(src, sec_no):
     """Render a section file: ## → h1, ### → h2 with anchors."""
-    src, mer, glides, scenarios = preprocess(src)
+    src, mer, scenarios = preprocess(src)
     lines = src.split("\n")
     subs = []
     h1_title = None
@@ -269,8 +228,6 @@ def render_page(src, sec_no):
     out = "\n".join(parts)
     for i, m in enumerate(mer):
         out = out.replace(f"MERMAIDPLOT{i}X", f'<div class="mermaid">\n{m}\n</div>')
-    for i, g in enumerate(glides):
-        out = out.replace(f"GLIDEPLOT{i}X", glide_html(g))
     for i, g in enumerate(scenarios):
         out = out.replace(f"SCENARIOPLOT{i}X", scenario_html(g, i))
     return out, h1_title, subs
@@ -585,28 +542,6 @@ html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
   .vm-svg{width:min(300px,85vw)}
 }
 @media(max-width:420px){.features{grid-template-columns:1fr}}
-.glide{margin:18px 0 26px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 16px}
-.glide:focus{outline:2px solid var(--vp-c-brand-1);outline-offset:2px}
-.glide-h{display:flex;align-items:center;gap:8px;font-weight:600}
-.glide-h b{flex:1}
-.glide-ic{font-size:18px}
-.glide-ct{font-family:var(--vp-font-family-mono);font-size:12px;color:var(--vp-c-text-3)}
-.glide-steps{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:10px 0;margin:0}
-.glide-chip{flex:1 1 auto;min-width:70px;text-align:center;padding:8px 10px;border-radius:8px;background:var(--vp-c-bg-alt);color:var(--vp-c-text-2);font-size:13px;line-height:1.3;transition:all .2s;border:1px solid transparent}
-.glide-chip b{display:block;font-family:var(--vp-font-family-mono);font-size:11px;color:var(--vp-c-text-3)}
-.glide-chip.lit{background:rgba(217,92,65,.12);border-color:var(--vp-c-brand-1);color:var(--vp-c-text-1)}
-.glide-chip.lit b{color:var(--vp-c-brand-1)}
-.glide-caps{position:relative;min-height:44px}
-.glide-cap{display:none;font-size:14px;color:var(--vp-c-text-2);padding:6px 0}
-.glide-cap.on{display:block}
-.glide-ctl{display:flex;gap:6px;margin-top:4px}
-.gprev,.gnext{width:34px;height:30px;border-radius:8px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);cursor:pointer;font-size:13px}
-.gprev:hover,.gnext:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
-.glide-quiz{margin-top:10px;display:flex;flex-direction:column;gap:6px}
-.qflip{text-align:left;width:100%;border:1px dashed var(--vp-c-divider);border-radius:8px;background:transparent;padding:8px 10px;cursor:pointer;font:inherit;color:var(--vp-c-text-1)}
-.qflip .qa{display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
-.qflip.show .qa{display:block}
-.qflip.show{border-style:solid;border-color:var(--vp-c-brand-1)}
 .dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
 .dg-frame iframe{display:block;width:100%;height:640px;border:0}
 .dg-png img{display:block;width:100%;height:auto}
@@ -660,7 +595,6 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
 @media (max-width:640px){.dg-frame iframe{height:480px}}
-@media (max-width:640px){.glide-chip{min-width:56px;font-size:12px;padding:6px}}
 """
 
 JS = r"""
@@ -744,25 +678,6 @@ vmNodes.forEach(n=>{
   });
 });
 document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
-document.querySelectorAll('.glide').forEach(gl=>{
-  const chips=[...gl.querySelectorAll('.glide-chip')];
-  const caps=[...gl.querySelectorAll('.glide-cap')];
-  const ct=gl.querySelector('.glide-ct');
-  let i=0;const n=caps.length;
-  const show=k=>{i=Math.max(0,Math.min(n-1,k));
-    chips.forEach((c,j)=>c.classList.toggle('lit',j<=i));
-    caps.forEach((c,j)=>c.classList.toggle('on',j===i));
-    if(ct)ct.textContent=(i+1)+'/'+n;};
-  gl.querySelector('.gprev').onclick=()=>show(i-1);
-  gl.querySelector('.gnext').onclick=()=>show(i+1);
-  gl.addEventListener('keydown',e=>{
-    if(e.key==='ArrowLeft'){e.preventDefault();show(i-1)}
-    if(e.key==='ArrowRight'){e.preventDefault();show(i+1)}});
-  chips.forEach((c,j)=>{c.style.cursor='pointer';c.onclick=()=>show(j)});
-  show(0);
-});
-document.querySelectorAll('.qflip').forEach(q=>q.onclick=()=>{
-  q.classList.toggle('show');q.setAttribute('aria-expanded',q.classList.contains('show'))});
 // diagram zoom lightbox
 const lb=document.createElement('div');lb.className='lb';
 lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
