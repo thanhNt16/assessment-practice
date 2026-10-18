@@ -239,8 +239,11 @@ html.dark .dg-dark{display:block}
 .sc-svg{display:block;margin:0 auto;font-family:Excalifont,cursive}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
-.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+.sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
+.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:3.5px}
 html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-node text{stroke:#e5e7eb;stroke-width:.55px}
+html.dark .sc-node.hl text{stroke:#ffffff}
 html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
 html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
 html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
@@ -267,6 +270,9 @@ html.dark .sc-node.hl text{fill:#ffffff !important}
 .sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-zoom{margin-left:auto;display:flex;gap:4px}
+.sc-zoom .sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+.sc-body{position:relative}
 html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
 .lb.open{display:block}
@@ -357,7 +363,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 4 of 17</div><h1>Distributed Systems Fundamentals</h1>
 <p>Interviewers rarely say &quot;CAP theorem&quot; — they test it by asking why your Kafka topic has 3 replicas with <code>min.insync.replicas=2</code>, whether a retried Spark job double-counts, or why Snowflake loads can safely re-run.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — The Quorum Decision</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — The Quorum Decision", "nodes": [{"id": "start", "label": "A partition occurs", "cap": "CAP only forces a choice **under partition** — before that, CA is coherent and you get both C and A."}, {"id": "cp", "label": "CP: consistency over availability", "cap": "CP blocks or rejects rather than serve stale — ZooKeeper, etcd, HBase; Kafka `min.insync.replicas=2` leans here."}, {"id": "ap", "label": "AP: availability over consistency", "cap": "AP answers with possibly stale data — Cassandra, DynamoDB, DNS; staleness is handled at the app level."}, {"id": "quorum", "label": "Apply the quorum rule", "cap": "`R + W > N` forces read/write overlap so reads see the newest value; `W > N/2` prevents split-brain."}, {"id": "w1", "label": "W=1/R=5 on N=5", "cap": "any node accepts writes (~99.999% availability, lowest latency) but reads need all 5 — only ~59.0% read availability."}, {"id": "w3", "label": "W=3/R=3 on N=5", "cap": "99.1% availability on both paths; `acks=all` + `min.insync.replicas=2` is this posture, CP-leaning over the ISR."}, {"id": "retries", "label": "Accept retries", "cap": "retries are mandatory, so delivery is **at-least-once** and duplicates are guaranteed, not exceptional."}, {"id": "idempotent", "label": "Make replays harmless", "cap": "idempotency keys, dedup tables, upserts and transactional offsets turn duplicate delivery into no-ops."}, {"id": "lww", "label": "Quorums don't stop LWW loss", "cap": "last-write-wins silently discards concurrent updates — causal ordering (vector clocks) and event time matter too."}, {"id": "eventtime", "label": "Order with event time", "cap": "wall clocks lie across machines — windows close deterministically only via **event time + watermarks**."}], "edges": [{"src": "start", "label": "CP — refuse stale answers", "dst": "cp", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "AP — serve possibly stale", "dst": "ap", "kind": "fail", "choice": true, "loop": false}, {"src": "cp", "label": "enforce the write quorum", "dst": "quorum", "kind": null, "choice": false, "loop": false}, {"src": "ap", "label": "still size the overlap", "dst": "quorum", "kind": null, "choice": false, "loop": false}, {"src": "quorum", "label": "Size for writes", "dst": "w1", "kind": "success", "choice": true, "loop": false}, {"src": "quorum", "label": "Balanced quorum", "dst": "w3", "kind": "fail", "choice": true, "loop": false}, {"src": "w1", "label": "rarely-read telemetry only", "dst": "retries", "kind": null, "choice": false, "loop": false}, {"src": "w3", "label": "duplicates still coming", "dst": "retries", "kind": null, "choice": false, "loop": false}, {"src": "retries", "label": "make replays no-ops", "dst": "idempotent", "kind": null, "choice": false, "loop": false}, {"src": "idempotent", "label": "Concurrent updates in flight", "dst": "lww", "kind": "success", "choice": true, "loop": false}, {"src": "idempotent", "label": "otherwise", "dst": "eventtime", "kind": null, "choice": false, "loop": false}, {"src": "lww", "label": "keep causal order", "dst": "eventtime", "kind": null, "choice": false, "loop": false}, {"src": "eventtime", "label": "next partition hits", "dst": "start", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — The Quorum Decision</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button><span class="sc-zoom"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button></span></div></div><script type="application/json" class="sc-json">{"title": "Scenario — The Quorum Decision", "nodes": [{"id": "start", "label": "A partition occurs", "cap": "CAP only forces a choice **under partition** — before that, CA is coherent and you get both C and A."}, {"id": "cp", "label": "CP: consistency over availability", "cap": "CP blocks or rejects rather than serve stale — ZooKeeper, etcd, HBase; Kafka `min.insync.replicas=2` leans here."}, {"id": "ap", "label": "AP: availability over consistency", "cap": "AP answers with possibly stale data — Cassandra, DynamoDB, DNS; staleness is handled at the app level."}, {"id": "quorum", "label": "Apply the quorum rule", "cap": "`R + W > N` forces read/write overlap so reads see the newest value; `W > N/2` prevents split-brain."}, {"id": "w1", "label": "W=1/R=5 on N=5", "cap": "any node accepts writes (~99.999% availability, lowest latency) but reads need all 5 — only ~59.0% read availability."}, {"id": "w3", "label": "W=3/R=3 on N=5", "cap": "99.1% availability on both paths; `acks=all` + `min.insync.replicas=2` is this posture, CP-leaning over the ISR."}, {"id": "retries", "label": "Accept retries", "cap": "retries are mandatory, so delivery is **at-least-once** and duplicates are guaranteed, not exceptional."}, {"id": "idempotent", "label": "Make replays harmless", "cap": "idempotency keys, dedup tables, upserts and transactional offsets turn duplicate delivery into no-ops."}, {"id": "lww", "label": "Quorums don't stop LWW loss", "cap": "last-write-wins silently discards concurrent updates — causal ordering (vector clocks) and event time matter too."}, {"id": "eventtime", "label": "Order with event time", "cap": "wall clocks lie across machines — windows close deterministically only via **event time + watermarks**."}], "edges": [{"src": "start", "label": "CP — refuse stale answers", "dst": "cp", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "AP — serve possibly stale", "dst": "ap", "kind": "fail", "choice": true, "loop": false}, {"src": "cp", "label": "enforce the write quorum", "dst": "quorum", "kind": null, "choice": false, "loop": false}, {"src": "ap", "label": "still size the overlap", "dst": "quorum", "kind": null, "choice": false, "loop": false}, {"src": "quorum", "label": "Size for writes", "dst": "w1", "kind": "success", "choice": true, "loop": false}, {"src": "quorum", "label": "Balanced quorum", "dst": "w3", "kind": "fail", "choice": true, "loop": false}, {"src": "w1", "label": "rarely-read telemetry only", "dst": "retries", "kind": null, "choice": false, "loop": false}, {"src": "w3", "label": "duplicates still coming", "dst": "retries", "kind": null, "choice": false, "loop": false}, {"src": "retries", "label": "make replays no-ops", "dst": "idempotent", "kind": null, "choice": false, "loop": false}, {"src": "idempotent", "label": "Concurrent updates in flight", "dst": "lww", "kind": "success", "choice": true, "loop": false}, {"src": "idempotent", "label": "otherwise", "dst": "eventtime", "kind": null, "choice": false, "loop": false}, {"src": "lww", "label": "keep causal order", "dst": "eventtime", "kind": null, "choice": false, "loop": false}, {"src": "eventtime", "label": "next partition hits", "dst": "start", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/quorum-replication.png" alt="quorum-replication.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/quorum-replication.dark.png" alt="quorum-replication.png diagram (dark)" loading="lazy"></div>
 <h2 id="cap-the-consistency-spectrum" tabindex="-1">CAP &amp; the Consistency Spectrum<a class="header-anchor" href="#cap-the-consistency-spectrum">&ZeroWidthSpace;</a></h2>
 <ul>
@@ -660,14 +666,14 @@ function scLayout(d,W){
   const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
   // measure
   const cv=document.createElement('canvas').getContext('2d');
-  cv.font='16px Excalifont';
+  cv.font='18px Excalifont';
   const pos={};
-  const ROWH=110,PAD=26;
+  const ROWH=124,PAD=30;
   Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
-    const ids=rows[dp];const ws=ids.map(id=>Math.max(120,cv.measureText(d.nodes.find(n=>n.id===id).label).width+44));
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(140,cv.measureText(d.nodes.find(n=>n.id===id).label).width+48));
     const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
     let x=Math.max(PAD,(W-total)/2);
-    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:56};x+=ws[i]+PAD});
+    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
   });
   const maxY=60+Math.max(...Object.values(depth))*ROWH+90;
   return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
@@ -716,7 +722,7 @@ function mountScenario(div,d,idx){
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
     const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
-    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2.5');
     p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
@@ -724,7 +730,7 @@ function mountScenario(div,d,idx){
     if(e.label){const t=document.createElementNS(NS,'text');
       const mx=(a.x+a.w/2+b.x+b.w/2)/2,my=(a.y+a.h+b.y)/2-8;
       t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
-      t.setAttribute('font-size','13');t.setAttribute('fill','#64748b');t.textContent=e.label;
+      t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
@@ -736,8 +742,8 @@ function mountScenario(div,d,idx){
     r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
     const t=document.createElementNS(NS,'text');
     t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
-    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','16');
-    t.setAttribute('fill','#374151');
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','18');
+    t.setAttribute('fill','#1f2937');
     // wrap label into ≤2 tspans
     const words=n.label.split(' ');const lines=['',''];let li=0;
     words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
@@ -757,7 +763,7 @@ function mountScenario(div,d,idx){
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
       c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
-      c.r.setAttribute('stroke-width',n.id===cur?3.5:2);});
+      c.r.setAttribute('stroke-width',n.id===cur?4:2.5);});
     svg.querySelectorAll('.sc-edge').forEach(p=>{
       const e=d.edges[+p.dataset.ei];
       const on=visited.has(e.src)&&visited.has(e.dst);
@@ -787,6 +793,19 @@ function mountScenario(div,d,idx){
   const hlBtn=div.querySelector('[data-a="hl"]');
   hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
     hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
+  // zoom controls
+  const zPct=div.querySelector('[data-a="zpct"]');
+  const zSteps=[0.5,0.67,0.8,1,1.25,1.5,2,2.5,3];
+  let zl=1;
+  const zSet=v=>{zl=v;svg.style.width=(L.W*v)+'px';svg.style.height=(L.H*v)+'px';
+    if(zPct)zPct.textContent=Math.round(v*100)+'%';};
+  const zIn=d=>{const n=zSteps.filter(s=>d>0?s>zl+0.001:s<zl-0.001);
+    zSet(d>0?(n[0]||3):(n[n.length-1]||0.5))};
+  const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
+  if(zi)zi.onclick=()=>zIn(1);
+  if(zo)zo.onclick=()=>zIn(-1);
+  if(zPct)zPct.onclick=()=>zSet(1);
+  svg.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zIn(e.deltaY<0?1:-1)},{passive:false});
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{

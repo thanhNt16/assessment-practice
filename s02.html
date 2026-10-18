@@ -239,8 +239,11 @@ html.dark .dg-dark{display:block}
 .sc-svg{display:block;margin:0 auto;font-family:Excalifont,cursive}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
-.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+.sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
+.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:3.5px}
 html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-node text{stroke:#e5e7eb;stroke-width:.55px}
+html.dark .sc-node.hl text{stroke:#ffffff}
 html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
 html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
 html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
@@ -267,6 +270,9 @@ html.dark .sc-node.hl text{fill:#ffffff !important}
 .sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-zoom{margin-left:auto;display:flex;gap:4px}
+.sc-zoom .sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+.sc-body{position:relative}
 html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
 .lb.open{display:block}
@@ -357,7 +363,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 2 of 17</div><h1>SQL Deep Dive: The Problems EPAM Actually Asks</h1>
 <p>EPAM senior DE screens live in SQL mechanics — windows, dedup, grouping traps — and in whether you know how the engine logically executes a query.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — SQL Execution &amp; Window Playbook</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — SQL Execution & Window Playbook", "nodes": [{"id": "start", "label": "FROM and JOIN", "cap": "Base rows enter first; duplicate join keys fan out and silently double sums — check row counts at FROM/JOIN."}, {"id": "dedup", "label": "Dedup with ROW_NUMBER", "cap": "`PARTITION BY customer_id ORDER BY order_ts DESC, id DESC`, keep rn=1 — one scan, deterministic ties, one row per key."}, {"id": "where", "label": "WHERE", "cap": "Filters **rows only** — keep predicates SARGable so the engine can prune partitions."}, {"id": "sarg", "label": "Fix the SARGability break", "cap": "`WHERE CAST(dt AS STRING)=...` full-scans; compare `dt = DATE '2024-01-01'` and let partition pruning work."}, {"id": "group", "label": "GROUP BY and HAVING", "cap": "Groups form after WHERE; HAVING filters groups. Need a value on **every row** instead? Windows run here."}, {"id": "window", "label": "SELECT + window functions", "cap": "One pass, every row survives — unlike GROUP BY. RANK 1,1,3 vs DENSE_RANK 1,1,2: should ties consume ranks?"}, {"id": "qualify", "label": "QUALIFY variant", "cap": "Snowflake and Databricks SQL filter windows natively; the rn=1 subquery collapses into a single clause."}, {"id": "limit", "label": "ORDER BY and LIMIT", "cap": "Aliases and windows finally visible — windows already ran. Re-explain the plan: pushdown, pruning, shuffle size."}], "edges": [{"src": "start", "label": "Join keys duplicated", "dst": "dedup", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "Rows come back clean", "dst": "where", "kind": "fail", "choice": true, "loop": false}, {"src": "dedup", "label": "deduplicated", "dst": "where", "kind": null, "choice": false, "loop": false}, {"src": "where", "label": "Predicate SARGable", "dst": "group", "kind": "success", "choice": true, "loop": false}, {"src": "where", "label": "Column wrapped in a function", "dst": "sarg", "kind": "fail", "choice": true, "loop": false}, {"src": "sarg", "label": "unwrapped and pruning", "dst": "group", "kind": null, "choice": false, "loop": false}, {"src": "group", "label": "Need per-row values over a frame", "dst": "window", "kind": "success", "choice": true, "loop": false}, {"src": "group", "label": "collapse and filter groups", "dst": "limit", "kind": null, "choice": false, "loop": false}, {"src": "window", "label": "Engine has QUALIFY", "dst": "qualify", "kind": "success", "choice": true, "loop": false}, {"src": "window", "label": "OSS Spark, no QUALIFY", "dst": "limit", "kind": "fail", "choice": true, "loop": false}, {"src": "qualify", "label": "native window filter", "dst": "limit", "kind": null, "choice": false, "loop": false}, {"src": "limit", "label": "keep tuning", "dst": "start", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — SQL Execution &amp; Window Playbook</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button><span class="sc-zoom"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button></span></div></div><script type="application/json" class="sc-json">{"title": "Scenario — SQL Execution & Window Playbook", "nodes": [{"id": "start", "label": "FROM and JOIN", "cap": "Base rows enter first; duplicate join keys fan out and silently double sums — check row counts at FROM/JOIN."}, {"id": "dedup", "label": "Dedup with ROW_NUMBER", "cap": "`PARTITION BY customer_id ORDER BY order_ts DESC, id DESC`, keep rn=1 — one scan, deterministic ties, one row per key."}, {"id": "where", "label": "WHERE", "cap": "Filters **rows only** — keep predicates SARGable so the engine can prune partitions."}, {"id": "sarg", "label": "Fix the SARGability break", "cap": "`WHERE CAST(dt AS STRING)=...` full-scans; compare `dt = DATE '2024-01-01'` and let partition pruning work."}, {"id": "group", "label": "GROUP BY and HAVING", "cap": "Groups form after WHERE; HAVING filters groups. Need a value on **every row** instead? Windows run here."}, {"id": "window", "label": "SELECT + window functions", "cap": "One pass, every row survives — unlike GROUP BY. RANK 1,1,3 vs DENSE_RANK 1,1,2: should ties consume ranks?"}, {"id": "qualify", "label": "QUALIFY variant", "cap": "Snowflake and Databricks SQL filter windows natively; the rn=1 subquery collapses into a single clause."}, {"id": "limit", "label": "ORDER BY and LIMIT", "cap": "Aliases and windows finally visible — windows already ran. Re-explain the plan: pushdown, pruning, shuffle size."}], "edges": [{"src": "start", "label": "Join keys duplicated", "dst": "dedup", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "Rows come back clean", "dst": "where", "kind": "fail", "choice": true, "loop": false}, {"src": "dedup", "label": "deduplicated", "dst": "where", "kind": null, "choice": false, "loop": false}, {"src": "where", "label": "Predicate SARGable", "dst": "group", "kind": "success", "choice": true, "loop": false}, {"src": "where", "label": "Column wrapped in a function", "dst": "sarg", "kind": "fail", "choice": true, "loop": false}, {"src": "sarg", "label": "unwrapped and pruning", "dst": "group", "kind": null, "choice": false, "loop": false}, {"src": "group", "label": "Need per-row values over a frame", "dst": "window", "kind": "success", "choice": true, "loop": false}, {"src": "group", "label": "collapse and filter groups", "dst": "limit", "kind": null, "choice": false, "loop": false}, {"src": "window", "label": "Engine has QUALIFY", "dst": "qualify", "kind": "success", "choice": true, "loop": false}, {"src": "window", "label": "OSS Spark, no QUALIFY", "dst": "limit", "kind": "fail", "choice": true, "loop": false}, {"src": "qualify", "label": "native window filter", "dst": "limit", "kind": null, "choice": false, "loop": false}, {"src": "limit", "label": "keep tuning", "dst": "start", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/sql-pipeline.png" alt="sql-pipeline.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/sql-pipeline.dark.png" alt="sql-pipeline.png diagram (dark)" loading="lazy"></div>
 
 <h2 id="window-functions" tabindex="-1">Window Functions<a class="header-anchor" href="#window-functions">&ZeroWidthSpace;</a></h2>
@@ -693,14 +699,14 @@ function scLayout(d,W){
   const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
   // measure
   const cv=document.createElement('canvas').getContext('2d');
-  cv.font='16px Excalifont';
+  cv.font='18px Excalifont';
   const pos={};
-  const ROWH=110,PAD=26;
+  const ROWH=124,PAD=30;
   Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
-    const ids=rows[dp];const ws=ids.map(id=>Math.max(120,cv.measureText(d.nodes.find(n=>n.id===id).label).width+44));
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(140,cv.measureText(d.nodes.find(n=>n.id===id).label).width+48));
     const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
     let x=Math.max(PAD,(W-total)/2);
-    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:56};x+=ws[i]+PAD});
+    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
   });
   const maxY=60+Math.max(...Object.values(depth))*ROWH+90;
   return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
@@ -749,7 +755,7 @@ function mountScenario(div,d,idx){
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
     const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
-    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2.5');
     p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
@@ -757,7 +763,7 @@ function mountScenario(div,d,idx){
     if(e.label){const t=document.createElementNS(NS,'text');
       const mx=(a.x+a.w/2+b.x+b.w/2)/2,my=(a.y+a.h+b.y)/2-8;
       t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
-      t.setAttribute('font-size','13');t.setAttribute('fill','#64748b');t.textContent=e.label;
+      t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
@@ -769,8 +775,8 @@ function mountScenario(div,d,idx){
     r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
     const t=document.createElementNS(NS,'text');
     t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
-    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','16');
-    t.setAttribute('fill','#374151');
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','18');
+    t.setAttribute('fill','#1f2937');
     // wrap label into ≤2 tspans
     const words=n.label.split(' ');const lines=['',''];let li=0;
     words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
@@ -790,7 +796,7 @@ function mountScenario(div,d,idx){
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
       c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
-      c.r.setAttribute('stroke-width',n.id===cur?3.5:2);});
+      c.r.setAttribute('stroke-width',n.id===cur?4:2.5);});
     svg.querySelectorAll('.sc-edge').forEach(p=>{
       const e=d.edges[+p.dataset.ei];
       const on=visited.has(e.src)&&visited.has(e.dst);
@@ -820,6 +826,19 @@ function mountScenario(div,d,idx){
   const hlBtn=div.querySelector('[data-a="hl"]');
   hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
     hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
+  // zoom controls
+  const zPct=div.querySelector('[data-a="zpct"]');
+  const zSteps=[0.5,0.67,0.8,1,1.25,1.5,2,2.5,3];
+  let zl=1;
+  const zSet=v=>{zl=v;svg.style.width=(L.W*v)+'px';svg.style.height=(L.H*v)+'px';
+    if(zPct)zPct.textContent=Math.round(v*100)+'%';};
+  const zIn=d=>{const n=zSteps.filter(s=>d>0?s>zl+0.001:s<zl-0.001);
+    zSet(d>0?(n[0]||3):(n[n.length-1]||0.5))};
+  const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
+  if(zi)zi.onclick=()=>zIn(1);
+  if(zo)zo.onclick=()=>zIn(-1);
+  if(zPct)zPct.onclick=()=>zSet(1);
+  svg.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zIn(e.deltaY<0?1:-1)},{passive:false});
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{

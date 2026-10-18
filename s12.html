@@ -239,8 +239,11 @@ html.dark .dg-dark{display:block}
 .sc-svg{display:block;margin:0 auto;font-family:Excalifont,cursive}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
-.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+.sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
+.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:3.5px}
 html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-node text{stroke:#e5e7eb;stroke-width:.55px}
+html.dark .sc-node.hl text{stroke:#ffffff}
 html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
 html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
 html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
@@ -267,6 +270,9 @@ html.dark .sc-node.hl text{fill:#ffffff !important}
 .sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-zoom{margin-left:auto;display:flex;gap:4px}
+.sc-zoom .sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+.sc-body{position:relative}
 html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
 .lb.open{display:block}
@@ -357,7 +363,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 12 of 17</div><h1>Messaging &amp; Streaming Backbones: Kafka and Friends</h1>
 <p>Queues distribute work, pub/sub fans out events, and Kafka is a third model — the partitioned, replayable log — from which most modern backbones derive.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Call the Kafka Durability Shots</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Call the Kafka Durability Shots", "nodes": [{"id": "produce", "label": "Produce to the leader", "cap": "batches per partition (linger.ms, batch.size); murmur2 key hash fixes ordering"}, {"id": "isr", "label": "ISR caught up?", "cap": "replicas within replica.lag.time.max.ms (30s) stay in-sync"}, {"id": "acks", "label": "acks level?", "cap": "acks=1 covers only the leader's local write"}, {"id": "durfail", "label": "Durability lost", "cap": "acks=1 loses acknowledged data on leader crash; ISR=1 → NOT_ENOUGH_REPLICAS, explicit not silent"}, {"id": "hw", "label": "HW advances past the write", "cap": "consumers only read offsets replicated to all ISR"}, {"id": "elect", "label": "unclean.leader.election?", "cap": "controller picks the new leader"}, {"id": "clean", "label": "Zero acknowledged-data loss", "cap": "availability traded for durability — the canonical recipe holds"}, {"id": "unclean", "label": "Acknowledged offsets vanish", "cap": "out-of-sync leader truncates what the old leader had committed"}, {"id": "eos", "label": "Need exactly-once across a boundary?", "cap": "EOS stops at Kafka's edge — outside it's at-least-once"}, {"id": "eidok", "label": "Transactions + read_committed", "cap": "atomic multi-partition writes inside Kafka — real EOS"}, {"id": "dual", "label": "Crash-in-between loses the event", "cap": "DB committed, Kafka never saw it — dual-write is not atomic"}, {"id": "outbox", "label": "CDC publishes the outbox row", "cap": "atomic DB↔Kafka — the only boundary-safe pattern"}], "edges": [{"src": "produce", "label": "followers fetch", "dst": "isr", "kind": null, "choice": false, "loop": false}, {"src": "isr", "label": "yes, all in ISR", "dst": "acks", "kind": null, "choice": true, "loop": false}, {"src": "isr", "label": "ISR shrunk to 1", "dst": "durfail", "kind": "fail", "choice": true, "loop": false}, {"src": "acks", "label": "acks=1, leader writes", "dst": "durfail", "kind": "fail", "choice": true, "loop": false}, {"src": "acks", "label": "acks=all + min.insync=2", "dst": "hw", "kind": "success", "choice": true, "loop": false}, {"src": "durfail", "label": "retry when ISR recovers", "dst": "isr", "kind": null, "choice": false, "loop": true}, {"src": "hw", "label": "leader dies", "dst": "elect", "kind": null, "choice": false, "loop": false}, {"src": "elect", "label": "false (default): wait for ISR member", "dst": "clean", "kind": "success", "choice": true, "loop": false}, {"src": "elect", "label": "true: elect out-of-sync replica", "dst": "unclean", "kind": "fail", "choice": true, "loop": false}, {"src": "unclean", "label": "durable recipe", "dst": "eos", "kind": null, "choice": false, "loop": false}, {"src": "eos", "label": "inside Kafka only: idempotent producer + txns", "dst": "eidok", "kind": "success", "choice": true, "loop": false}, {"src": "eos", "label": "db.save + kafka.send dual-write", "dst": "dual", "kind": "fail", "choice": true, "loop": false}, {"src": "eos", "label": "outbox row commits with business change", "dst": "outbox", "kind": "success", "choice": true, "loop": false}], "start": "produce"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Call the Kafka Durability Shots</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button><span class="sc-zoom"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button></span></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Call the Kafka Durability Shots", "nodes": [{"id": "produce", "label": "Produce to the leader", "cap": "batches per partition (linger.ms, batch.size); murmur2 key hash fixes ordering"}, {"id": "isr", "label": "ISR caught up?", "cap": "replicas within replica.lag.time.max.ms (30s) stay in-sync"}, {"id": "acks", "label": "acks level?", "cap": "acks=1 covers only the leader's local write"}, {"id": "durfail", "label": "Durability lost", "cap": "acks=1 loses acknowledged data on leader crash; ISR=1 → NOT_ENOUGH_REPLICAS, explicit not silent"}, {"id": "hw", "label": "HW advances past the write", "cap": "consumers only read offsets replicated to all ISR"}, {"id": "elect", "label": "unclean.leader.election?", "cap": "controller picks the new leader"}, {"id": "clean", "label": "Zero acknowledged-data loss", "cap": "availability traded for durability — the canonical recipe holds"}, {"id": "unclean", "label": "Acknowledged offsets vanish", "cap": "out-of-sync leader truncates what the old leader had committed"}, {"id": "eos", "label": "Need exactly-once across a boundary?", "cap": "EOS stops at Kafka's edge — outside it's at-least-once"}, {"id": "eidok", "label": "Transactions + read_committed", "cap": "atomic multi-partition writes inside Kafka — real EOS"}, {"id": "dual", "label": "Crash-in-between loses the event", "cap": "DB committed, Kafka never saw it — dual-write is not atomic"}, {"id": "outbox", "label": "CDC publishes the outbox row", "cap": "atomic DB↔Kafka — the only boundary-safe pattern"}], "edges": [{"src": "produce", "label": "followers fetch", "dst": "isr", "kind": null, "choice": false, "loop": false}, {"src": "isr", "label": "yes, all in ISR", "dst": "acks", "kind": null, "choice": true, "loop": false}, {"src": "isr", "label": "ISR shrunk to 1", "dst": "durfail", "kind": "fail", "choice": true, "loop": false}, {"src": "acks", "label": "acks=1, leader writes", "dst": "durfail", "kind": "fail", "choice": true, "loop": false}, {"src": "acks", "label": "acks=all + min.insync=2", "dst": "hw", "kind": "success", "choice": true, "loop": false}, {"src": "durfail", "label": "retry when ISR recovers", "dst": "isr", "kind": null, "choice": false, "loop": true}, {"src": "hw", "label": "leader dies", "dst": "elect", "kind": null, "choice": false, "loop": false}, {"src": "elect", "label": "false (default): wait for ISR member", "dst": "clean", "kind": "success", "choice": true, "loop": false}, {"src": "elect", "label": "true: elect out-of-sync replica", "dst": "unclean", "kind": "fail", "choice": true, "loop": false}, {"src": "unclean", "label": "durable recipe", "dst": "eos", "kind": null, "choice": false, "loop": false}, {"src": "eos", "label": "inside Kafka only: idempotent producer + txns", "dst": "eidok", "kind": "success", "choice": true, "loop": false}, {"src": "eos", "label": "db.save + kafka.send dual-write", "dst": "dual", "kind": "fail", "choice": true, "loop": false}, {"src": "eos", "label": "outbox row commits with business change", "dst": "outbox", "kind": "success", "choice": true, "loop": false}], "start": "produce"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/kafka-write-path.png" alt="kafka-write-path.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/kafka-write-path.dark.png" alt="kafka-write-path.png diagram (dark)" loading="lazy"></div>
 
 <h2 id="queues-pubsub-and-logs" tabindex="-1">Queues, Pub/Sub, and Logs<a class="header-anchor" href="#queues-pubsub-and-logs">&ZeroWidthSpace;</a></h2>
@@ -783,14 +789,14 @@ function scLayout(d,W){
   const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
   // measure
   const cv=document.createElement('canvas').getContext('2d');
-  cv.font='16px Excalifont';
+  cv.font='18px Excalifont';
   const pos={};
-  const ROWH=110,PAD=26;
+  const ROWH=124,PAD=30;
   Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
-    const ids=rows[dp];const ws=ids.map(id=>Math.max(120,cv.measureText(d.nodes.find(n=>n.id===id).label).width+44));
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(140,cv.measureText(d.nodes.find(n=>n.id===id).label).width+48));
     const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
     let x=Math.max(PAD,(W-total)/2);
-    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:56};x+=ws[i]+PAD});
+    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
   });
   const maxY=60+Math.max(...Object.values(depth))*ROWH+90;
   return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
@@ -839,7 +845,7 @@ function mountScenario(div,d,idx){
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
     const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
-    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2.5');
     p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
@@ -847,7 +853,7 @@ function mountScenario(div,d,idx){
     if(e.label){const t=document.createElementNS(NS,'text');
       const mx=(a.x+a.w/2+b.x+b.w/2)/2,my=(a.y+a.h+b.y)/2-8;
       t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
-      t.setAttribute('font-size','13');t.setAttribute('fill','#64748b');t.textContent=e.label;
+      t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
@@ -859,8 +865,8 @@ function mountScenario(div,d,idx){
     r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
     const t=document.createElementNS(NS,'text');
     t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
-    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','16');
-    t.setAttribute('fill','#374151');
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','18');
+    t.setAttribute('fill','#1f2937');
     // wrap label into ≤2 tspans
     const words=n.label.split(' ');const lines=['',''];let li=0;
     words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
@@ -880,7 +886,7 @@ function mountScenario(div,d,idx){
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
       c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
-      c.r.setAttribute('stroke-width',n.id===cur?3.5:2);});
+      c.r.setAttribute('stroke-width',n.id===cur?4:2.5);});
     svg.querySelectorAll('.sc-edge').forEach(p=>{
       const e=d.edges[+p.dataset.ei];
       const on=visited.has(e.src)&&visited.has(e.dst);
@@ -910,6 +916,19 @@ function mountScenario(div,d,idx){
   const hlBtn=div.querySelector('[data-a="hl"]');
   hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
     hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
+  // zoom controls
+  const zPct=div.querySelector('[data-a="zpct"]');
+  const zSteps=[0.5,0.67,0.8,1,1.25,1.5,2,2.5,3];
+  let zl=1;
+  const zSet=v=>{zl=v;svg.style.width=(L.W*v)+'px';svg.style.height=(L.H*v)+'px';
+    if(zPct)zPct.textContent=Math.round(v*100)+'%';};
+  const zIn=d=>{const n=zSteps.filter(s=>d>0?s>zl+0.001:s<zl-0.001);
+    zSet(d>0?(n[0]||3):(n[n.length-1]||0.5))};
+  const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
+  if(zi)zi.onclick=()=>zIn(1);
+  if(zo)zo.onclick=()=>zIn(-1);
+  if(zPct)zPct.onclick=()=>zSet(1);
+  svg.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zIn(e.deltaY<0?1:-1)},{passive:false});
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{
