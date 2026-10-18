@@ -2,19 +2,30 @@
 
 Interviewers rarely say "CAP theorem" — they test it by asking why your Kafka topic has 3 replicas with `min.insync.replicas=2`, whether a retried Spark job double-counts, or why Snowflake loads can safely re-run.
 
-:::glide Glide — The Quorum Decision
-1) A partition occurs :: CAP only forces a choice under partition — before that, CA is coherent
-2) Pick C or A :: CP blocks or rejects rather than serve stale; AP answers with possibly stale data
-3) Apply the quorum rule :: `R + W > N` forces read and write sets to overlap, so every read sees the newest value
-4) Guard against split-brain :: `W > N/2` prevents two write quorums from forming
-5) Size the quorum :: W=3/R=3 on N=5 gives 99.1% availability on both paths; W=1/R=5 gives ~99.999% writes but 59.0% reads
-6) Accept retries :: retries are mandatory, so delivery is at-least-once and duplicates are guaranteed, not exceptional
-7) Make replays harmless :: idempotency keys, dedup tables, upserts, and transactional offsets turn duplicate delivery into no-ops
-8) Order with event time :: wall clocks lie across machines, so windows close deterministically only via event time + watermarks
-? Why is Kafka's W=3/R=3-style `acks=all` + `min.insync.replicas=2` treated as CP-leaning? :: It approximates a write quorum over the ISR: `unclean.leader.election.enable` is the explicit switch that decides whether the cluster refuses stale leaders (CP) or keeps serving (AP).
-? Why does W=1/R=5 only suit rarely-read telemetry? :: Any single node accepts writes (~99.999% write availability, lowest latency), but reads need all 5 nodes — only 59.0% read availability, tolerable only when a failed read can simply be retried.
-? What does "exactly-once" actually guarantee? :: Effectively-once end-to-end: at-least-once delivery plus idempotent, transactional sinks — Kafka EOS (PID + per-partition sequence numbers) only works if the sink commits transactionally; no system executes a side effect literally once.
-? When does quorum sizing still lose data? :: It doesn't prevent LWW-style loss — last-write-wins silently discards concurrent updates, which is why causal ordering (vector clocks) and event time matter alongside replication.
+:::scenario Scenario — The Quorum Decision
+@start A partition occurs :: CAP only forces a choice **under partition** — before that, CA is coherent and you get both C and A.
+? CP — refuse stale answers => @cp |success
+? AP — serve possibly stale => @ap |fail
+@cp CP: consistency over availability :: CP blocks or rejects rather than serve stale — ZooKeeper, etcd, HBase; Kafka `min.insync.replicas=2` leans here.
+-> enforce the write quorum => @quorum
+@ap AP: availability over consistency :: AP answers with possibly stale data — Cassandra, DynamoDB, DNS; staleness is handled at the app level.
+-> still size the overlap => @quorum
+@quorum Apply the quorum rule :: `R + W > N` forces read/write overlap so reads see the newest value; `W > N/2` prevents split-brain.
+? Size for writes => @w1 |success
+? Balanced quorum => @w3 |fail
+@w1 W=1/R=5 on N=5 :: any node accepts writes (~99.999% availability, lowest latency) but reads need all 5 — only ~59.0% read availability.
+-> rarely-read telemetry only => @retries
+@w3 W=3/R=3 on N=5 :: 99.1% availability on both paths; `acks=all` + `min.insync.replicas=2` is this posture, CP-leaning over the ISR.
+-> duplicates still coming => @retries
+@retries Accept retries :: retries are mandatory, so delivery is **at-least-once** and duplicates are guaranteed, not exceptional.
+-> make replays no-ops => @idempotent
+@idempotent Make replays harmless :: idempotency keys, dedup tables, upserts and transactional offsets turn duplicate delivery into no-ops.
+? Concurrent updates in flight => @lww |success
+-> otherwise => @eventtime
+@lww Quorums don't stop LWW loss :: last-write-wins silently discards concurrent updates — causal ordering (vector clocks) and event time matter too.
+-> keep causal order => @eventtime
+@eventtime Order with event time :: wall clocks lie across machines — windows close deterministically only via **event time + watermarks**.
+-> next partition hits => @start
 :::
 
 ::::diagram quorum-replication.png

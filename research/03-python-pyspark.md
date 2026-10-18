@@ -1,19 +1,26 @@
 ## Python & PySpark: Coding Patterns
 
 The live-coding round tests whether you can write **correct data transformations fast** — first in plain Python (logic), then in PySpark (scale). Interviewers care about memory discipline, join/groupBy fluency, and knowing *where your data lives*.
-:::glide Glide — Where the Job Dies
-1) Driver plans, executors run :: pandas is one eager process; Spark builds a **lazy DAG** on the driver and runs tasks on partitions across executor JVMs.
-2) Nothing big crosses to the driver :: `collect()`, `toPandas()`, `take(10**9)` land full results in driver RAM — the classic **driver OOM**.
-3) Executor OOM is data shape :: one giant partition (**skew**), `repartition(1)` before a heavy stage, or `cache()` without `MEMORY_AND_DISK`.
-4) Climb the UDF ladder last :: native functions ride Tungsten at 1×; pandas UDFs amortize per **Arrow batch** (~2–5×); row-wise Python UDFs pay serialization into CPython every row (~10×+).
-5) Windows carry the screens :: `row_number`/`dense_rank` over `partitionBy` solve **latest per key**, **top-k per group**, and **sessionize** in one API.
-6) Diagnose skew before fixing it :: `groupBy(col).count().orderBy(desc("count"))` or the Spark UI — 199 tasks in 2 min, one straggler in 38 min = hot key.
-7) Salt the hot key, re-aggregate :: random salt splits 400 M rows into 16 sub-groups; stage 2 sums only 16 partials per key, so all tasks finish together.
-8) Cheap knobs first :: `repartition(n, col)` shuffles and balances; `coalesce(n)` skips shuffle but can leave skew; cache only when reused ≥2×, then `unpersist()`.
-? Why is a row-wise Python UDF so much slower than a native function? :: Every row pays JVM → serialized bytes → CPython process → back, single-threaded; pandas UDFs amortize that crossing per Arrow batch.
-? Interviewer says "the file won't fit in memory" in plain Python — expected answer? :: **Yield, don't return**: a generator streams at O(1) RAM while dicts/sets are O(n).
-? Why salt a skewed `groupBy` instead of just repartitioning? :: The hot key's partition must hold 400 M partial aggregates in one task; salting splits it into N sub-groups so tasks finish together — `coalesce`-style merging can leave skew, and AQE's skew-join split (`spark.sql.adaptive.skewJoin.enabled`) only helps joins automatically.
-? "pandas code works but Spark gives wrong results" — what broke? :: Row order isn't guaranteed across partitions: window frames need explicit `orderBy`, and nondeterministic UDFs break re-execution.
+:::scenario Scenario — Where the Spark Job Dies
+@start Driver plans, executors run :: pandas is one eager process; Spark builds a **lazy DAG** and runs tasks on partitions across executor JVMs.
+? Driver OOM => @driveroom |success
+? Executor OOM => @executoroom |fail
+@driveroom Driver OOM :: `collect()`, `toPandas()`, oversized `take()` land the full result in driver RAM — nothing big crosses to the driver.
+-> aggregate on executors instead => @udf
+@executoroom Executor OOM is data shape :: one giant partition (**skew**), `repartition(1)` before a heavy stage, or `cache()` without MEMORY_AND_DISK.
+? UI shows one straggler task => @skew |success
+? Memory pressure everywhere => @knobs |fail
+@skew Diagnose before fixing :: `groupBy(col).count().orderBy(desc("count"))` or the Spark UI — 199 tasks in 2 min, one straggler in 38 min = hot key.
+? Hot key confirmed => @salt |success
+? No single hot key => @knobs |fail
+@salt Salt the hot key, re-aggregate :: a random salt splits 400 M rows into 16 sub-groups; stage 2 sums only 16 partials per key — tasks finish together.
+-> balanced stages => @knobs
+@udf Climb the UDF ladder last :: native functions ride Tungsten at 1×; pandas UDFs amortize per **Arrow batch** (~2–5×); row-wise Python UDFs pay ~10×+.
+? Results wrong, not just slow => @order |success
+? Correct but slow => @knobs |fail
+@order Wrong results = row order :: partitions guarantee no order — window frames need explicit `orderBy`, nondeterministic UDFs break re-execution.
+-> deterministic rewrite => @knobs
+@knobs Cheap knobs first :: `repartition(n, col)` shuffles and balances; `coalesce(n)` skips shuffle but can leave skew; cache only when reused ≥2×.
 :::
 
 ::::diagram spark-runtime.png

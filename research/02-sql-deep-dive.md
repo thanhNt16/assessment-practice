@@ -2,19 +2,27 @@
 
 EPAM senior DE screens live in SQL mechanics — windows, dedup, grouping traps — and in whether you know how the engine logically executes a query.
 
-:::glide Glide — SQL Execution & Window Playbook
-1) FROM and JOIN :: base rows enter; duplicate join keys fan out and silently double sums
-2) WHERE :: filters **rows only** — keep it SARGable so partition pruning works
-3) GROUP BY and HAVING :: groups form; WHERE can't hold aggregates, HAVING filters groups
-4) SELECT + window functions :: one window pass — every row survives, unlike GROUP BY
-5) Dedup with ROW_NUMBER :: `PARTITION BY customer_id ORDER BY order_ts DESC, id DESC`, keep `rn = 1` — one scan, deterministic ties, no duplicates
-6) QUALIFY variant :: Snowflake and Databricks SQL filter windows natively; OSS Spark needs the subquery
-7) Sessionize with LAG :: flag rows where the gap exceeds 30 minutes, running SUM becomes the session id
-8) ORDER BY and LIMIT :: aliases and windows finally visible; windows ran *before* this
-? Why pick the windowed dedup over the correlated-subquery self-join? :: The self-join re-scans the table per row and returns duplicates on ties; the window does a single scan plus one sort, breaks ties deterministically with `id DESC`, and yields exactly one row per key.
-? On scores 100, 100, 90 — what do RANK and DENSE_RANK return? :: RANK gives `1,1,3` (gaps after ties); DENSE_RANK gives `1,1,2` (no gaps) — pick per whether ties should consume ranks.
-? A LEFT JOIN plus WHERE on the right table's column returns more rows than the left table — what happened? :: The WHERE silently converted it to an INNER JOIN, and duplicate join keys caused row fan-out; move the condition into ON.
-? Why does `WHERE CAST(dt AS STRING) = '2024-01-01'` full-scan? :: Wrapping the filtered column in a function breaks SARGability, so the engine can't prune partitions — compare `dt = DATE '2024-01-01'`.
+:::scenario Scenario — SQL Execution & Window Playbook
+@start FROM and JOIN :: Base rows enter first; duplicate join keys fan out and silently double sums — check row counts at FROM/JOIN.
+? Join keys duplicated => @dedup |success
+? Rows come back clean => @where |fail
+@dedup Dedup with ROW_NUMBER :: `PARTITION BY customer_id ORDER BY order_ts DESC, id DESC`, keep rn=1 — one scan, deterministic ties, one row per key.
+-> deduplicated => @where
+@where WHERE :: Filters **rows only** — keep predicates SARGable so the engine can prune partitions.
+? Predicate SARGable => @group |success
+? Column wrapped in a function => @sarg |fail
+@sarg Fix the SARGability break :: `WHERE CAST(dt AS STRING)=...` full-scans; compare `dt = DATE '2024-01-01'` and let partition pruning work.
+-> unwrapped and pruning => @group
+@group GROUP BY and HAVING :: Groups form after WHERE; HAVING filters groups. Need a value on **every row** instead? Windows run here.
+? Need per-row values over a frame => @window |success
+-> collapse and filter groups => @limit
+@window SELECT + window functions :: One pass, every row survives — unlike GROUP BY. RANK 1,1,3 vs DENSE_RANK 1,1,2: should ties consume ranks?
+? Engine has QUALIFY => @qualify |success
+? OSS Spark, no QUALIFY => @limit |fail
+@qualify QUALIFY variant :: Snowflake and Databricks SQL filter windows natively; the rn=1 subquery collapses into a single clause.
+-> native window filter => @limit
+@limit ORDER BY and LIMIT :: Aliases and windows finally visible — windows already ran. Re-explain the plan: pushdown, pruning, shuffle size.
+-> keep tuning => @start
 :::
 ::::diagram sql-pipeline.png
 :::

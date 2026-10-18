@@ -2,19 +2,26 @@
 
 You are already inside EPAM. "Assessment" here is not a hiring loop — it is EPAM's formal internal process for evaluating whether an existing employee's demonstrated work justifies a title/grade change (e.g., A3 confirmation or A3→A4 promotion). The currency is not quiz answers: it is a **narrative presentation of your progression**, delivered to a peer/expert committee and scored against the competency matrix ([EPAM careers blog](https://www.epam.com/careers/blog/assessment-at-epam-what-it-means-for-your-career-growth)). Employees still billable on client engagements (~56,600 of ~62,850 staff; [FY2025 results](https://investors.epam.com/news/news-details/2026/EPAM-Reports-Results-for-Fourth-Quarter-and-Full-Year-2025/default.aspx)) — the bar is "your delivered project proves the next grade," not "did you pass a test."
 
-:::glide Glide — From Nomination to Matrix Verdict
-1) Pick the target grade :: **A3 confirmation** (defend with ~1 year of delivery evidence) vs **A3→A4** (leadership delta: mentoring, review leadership, workstream direction) — different evidence, same process.
-2) Secure manager sponsorship :: Advocacy is a **stated gate** — assessments stall regardless of skill; start the conversation quarters before applying.
-3) Apply year-round :: Applications accepted **any time**; many roles add an **annual promotion-eligibility review** on top.
-4) Assemble one real project :: Progression narrative anchored to **real delivered work** — decisions owned, not tasks done; resume adjectives read junior.
-5) Map to the competency matrix :: Cover every dimension: **engineering depth, architecture (≥2 options per decision), delivery impact, mentoring, English B2+**.
-6) Build the defense deck :: Context → Architecture → Impact → Growth → Mentoring; each bullet = one dimension, **one artifact, one number**.
-7) Face the committee :: Peer/expert panel probes **one level deeper than your deck** — Spark execution model, Delta MERGE, window functions from your own war stories.
-8) Matrix-anchored verdict :: Pass confirms the grade; gaps (e.g. mentoring below the A4 line) loop you back to reapply when evidence matures.
-? Why does sponsorship matter when skill already clears the bar? :: Skill clears the bar; **sponsorship and project visibility open the door** — if your manager cannot narrate your impact, the committee never sees your best evidence.
-? What is the classic A3→A4 failure mode? :: **A3-grade evidence with an A4 label** — the promotion needs a leadership delta (formal mentoring, review leadership, workstream direction), not more of the same component-level evidence.
-? There is no Codility in an internal Assessment — what is judged instead? :: **Actual delivered work**: impact metrics, owned decisions with trade-offs and alternatives, mentored people, progression over time — scored against the matrix from real project examples.
-? Why rehearse the deck spoken and timed? :: English **B2+ is scored and gates client staffing**; the defense itself is an English delivery test, so rehearse the hardest follow-ups aloud, not just the slides.
+:::scenario Scenario — From Nomination to Matrix Verdict
+@start Pick the target grade :: **A3 confirmation** (~1 year of delivery evidence) vs **A3→A4** (leadership delta): different evidence, same process.
+-> grade picked => @sponsor
+@sponsor Secure manager sponsorship :: Advocacy is a **stated gate** — assessments stall regardless of skill; open the conversation quarters ahead.
+? Manager actively sponsors => @assemble |success
+? Sponsorship missing => @stalled |fail
+@stalled No sponsorship, no assessment :: Re-approach with visible impact and a narrated delivery record; reapply next cycle regardless of skill.
+-> rebuild the case => @sponsor
+@assemble Apply year-round, assemble one real project :: Applications are open any time; anchor the narrative to **real delivered work** — decisions owned, not tasks done.
+-> narrative anchored => @matrix
+@matrix Map to the competency matrix :: Cover all dimensions: engineering depth, **≥2 options per decision**, delivery impact, mentoring, English B2+.
+-> dimensions covered => @deck
+@deck Build the defense deck :: Context → Architecture → Impact → Growth → Mentoring; one artifact, one number per bullet — rehearse spoken and timed.
+-> rehearsed aloud => @committee
+@committee Face the committee :: Peer/expert panel probes **one level deeper** than your deck — Spark execution model, Delta MERGE, your own war stories.
+? Evidence clears the target grade => @verdict |success
+? A4 label on A3-grade evidence => @deltagap |fail
+@deltagap The classic A3→A4 failure :: Needs a **leadership delta** — formal mentoring, review leadership, workstream direction — not more component work.
+-> gather leadership evidence => @assemble
+@verdict Matrix-anchored verdict :: Pass confirms the grade; gaps below the line (e.g. mentoring under the A4 bar) loop you back until evidence matures.
 :::
 
 ::::diagram assessment-loop.png
