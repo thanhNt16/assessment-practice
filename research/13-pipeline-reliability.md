@@ -2,22 +2,30 @@
 
 Production pipelines fail more often through silent bad data than loud crashes — the senior differentiator is treating quality gates, tests, and observability as first-class pipeline code, not an afterthought.
 
-:::glide Glide — The Incident Loop
-1) Alert fires :: monitoring must catch silent bad data — quarantine rate, freshness lag, test pass rate — never wait for "when someone complains"
-2) Classify the root cause :: the branch decides containment: upstream schema/source change, bad deploy, or corrupt partition
-3) Contain: pause ingest, rollback, or quarantine the partition :: stop the bleeding — publish to staging and promote only when gates pass, so consumers keep last-known-good data
-4) Fix and add the missing check :: every incident ends as a new automated check; that is how reliability compounds
-5) Backfill idempotently :: lineage enumerates impacted tables so you reprocess only affected partitions — `DELETE + INSERT` per partition or `MERGE`, never blind append
-6) Verify reconciliation and tests :: row counts per partition, `SUM(hash(...))` checksums on business keys, sampled source-vs-target diff
-7) Blameless postmortem :: close the loop — the new check from step 4 is what makes the next alert fire earlier
-
-? Why page on the *first* miss of a 99% daily freshness SLO? :: 30 daily runs give an error budget of (1 − 0.99) × 30 = 0.3 runs — below one run — so a single miss already yields 96.7% and breaches; otherwise reshape the SLI as 15-minute probes (≈28 late samples/month) and alert on fast burn
-
-? Why must backfills be idempotent? :: Same input → same output is what makes retries and surgical backfills safe; blind append would duplicate partitions already loaded
-
-? What does the circuit breaker do when a gate fails? :: Stops the swap: publish to staging and atomically promote, so consumers receive last-known-good data instead of garbage
-
-? Why is lineage a pillar of observability, not optional? :: Metrics say *what* broke and logs *where*, but lineage answers "which dashboards and models are downstream?" — bounding the blast radius and scoping the backfill
+:::scenario Scenario — Bad-Data Incident
+@start Alert fires :: gates catch silent bad data — quarantine rate, freshness lag, test pass rate; never wait for complaints
+-> classify => @classify
+@classify Classify the root cause :: the branch decides containment: upstream change, bad deploy, or corrupt partition
+? upstream schema or source change => @pause |success
+? deploy correlated with the break => @rollback |fail
+? isolated corrupt partition => @quarantine
+@pause Pause ingest :: circuit breaker stops the swap — publish to staging, promote only when gates pass; consumers keep last-known-good
+-> fix => @fix
+@rollback Rollback the deploy :: revert to last-known-good code; the pipeline resumes from checkpointed offsets and state
+-> fix => @fix
+@quarantine Quarantine the partition :: fence the bad slices so healthy partitions keep flowing — lineage bounds the blast radius
+-> fix => @fix
+@fix Fix and add the check :: every incident ends as a new automated check — that is how reliability compounds
+-> backfill => @backfill
+@backfill Idempotent backfill :: DELETE + INSERT per partition or MERGE — never blind append; same input must give same output
+? blast radius known => @verify |success
+? downstream impact unclear => @lineage |fail
+@lineage Map the lineage :: OpenLineage answers "which dashboards and models are downstream?" — bounding scope before reprocessing
+-> verify => @verify
+@verify Verify reconciliation :: row counts per partition, SUM(hash(...)) on business keys, sampled source-vs-target diff
+? gates pass => @postmortem |success
+? still failing => @classify |fail
+@postmortem Blameless postmortem :: close the loop — the check added at fix time is what makes the next alert fire earlier
 :::
 ::::diagram incident-loop.png
 ::::

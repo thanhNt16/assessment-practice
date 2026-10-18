@@ -2,21 +2,32 @@
 
 A table format is a transactional metadata layer over Parquet/ORC files that turns an object-storage prefix into a versioned ACID table — same goal, three different metadata structures.
 
-:::glide Glide — Log, Tree, Timeline
-1) Parquet alone is not a table :: a **file format** says nothing about the collection — no atomicity, no updates/deletes, and planning is O(all files)
-2) Delta = one log :: commits append `_delta_log` JSONs (`add`/`remove`/`metaData`/`txn`); a **checkpoint every 10th commit** keeps replay short
-3) Delta commit = create file N+1 :: **optimistic concurrency**; conditional put arbitrates, losers re-validate against new state and retry
-4) Iceberg = a metadata tree :: catalog pointer → `metadata.json` → manifest-list → manifests → data files, with partition and min/max pruning at every level
-5) Iceberg commit = **catalog pointer swap** :: arbitration lives in the catalog (CAS), not on storage; REST catalog decouples engines and vendors short-lived credentials
-6) Hudi = a timeline over file groups :: instants (`commit`/`delta-commit`/`compaction`) are the WAL; **CoW** rewrites bases, **MoR** appends logs until background compaction folds them
-7) Deletes are a cost ladder :: CoW rewrite → Iceberg v2 position deletes → DV bitmaps (Delta 2.x/Iceberg v3) → Hudi MoR log records — write cost falls, read cost rises
-8) Time travel is replay :: old log / old snapshot / old slices resurrect the rows; only `VACUUM` / `expire_snapshots` / `clean` truly delete
-9) Pick by estate, not benchmark :: multi-engine → Iceberg REST; Databricks/Spark → Delta + UniForm; keyed CDC upsert-heavy → Hudi — and every published benchmark is vendor-shaped
-
-? Why is Iceberg planning O(pruned metadata) instead of O(all files)? :: Manifest lists carry **partition-range summaries** and manifests carry per-column min/max/null counts, so data files are pruned before any I/O.
-? One `UPDATE` on 10 files: why does Delta write ~KBs while Hudi CoW writes ~100 MB? :: Delta appends 1 log JSON + 10 DV bitmaps on existing `add` entries; Hudi CoW must rewrite all 10 base files as new slices.
-? Why does Iceberg partition evolution need no rewrite? :: Partition transforms live in the **spec**, attached per file — old files stay queryable under their old spec, and engines never hand-write partition filters (hidden partitioning).
-? The delete question is a trap ladder — name the rungs. :: CoW rewrite → position deletes (Iceberg v2) → deletion vectors → MoR logs, naming write-vs-read cost at each rung.
+:::scenario Scenario — Table Format Triage
+@start Name the estate :: every published benchmark is vendor-shaped — decide from estate and workload shape, not a leaderboard
+? multi-engine or external readers => @iceberg |success
+? all-in Databricks / Spark => @delta |fail
+? keyed CDC, upsert-heavy => @hudi
+@iceberg Iceberg — metadata tree :: catalog CAS pointer swap → metadata.json → manifest-list → manifests → data files, pruned at every level
+-> where do deletes land? => @ladder
+@delta Delta — one log :: commits append `_delta_log` JSONs; optimistic concurrency — losers re-validate and retry; checkpoint every 10th
+-> where do deletes land? => @ladder
+@hudi Hudi — timeline :: instants are the WAL over file groups; CoW rewrites bases, MoR appends logs until compaction folds them
+-> where do deletes land? => @ladder
+@ladder Deletes are a cost ladder :: same rows, four rungs — write cost falls and read cost rises as you descend
+? GDPR row deletes => @dv |success
+? streaming delete-heavy CDC => @mor |fail
+? tiny table, simplest reads => @cow
+@dv Deletion vectors :: DV bitmaps (Delta 2.x / Iceberg v3) make compliance deletes KB-scale instead of base-file rewrites
+-> what does time travel cost? => @replay
+@mor MoR log records :: delete records are write-cheap; background compaction folds them in and readers pay at query time
+-> what does time travel cost? => @replay
+@cow Copy-on-write :: full base-file rewrites per touch — brutal write cost, simplest reads; reserve for tiny tables
+-> what does time travel cost? => @replay
+@replay Time travel = replay :: old log / old snapshot / old slices resurrect rows; only VACUUM / expire_snapshots / clean truly delete
+-> set the maintenance gate => @maintenance
+@maintenance Checkpoint + expire :: Delta checkpoints every 10th commit keeps replay short; schedule snapshot expiry or metadata bloats
+-> publish the decision => @done
+@done Publish the table :: pick justified by estate + delete workload; benchmark on your own data, never the vendor's
 :::
 
 ::::diagram table-format-commit.png

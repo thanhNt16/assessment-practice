@@ -3,14 +3,30 @@
 Catalyst compiles your query into fused machine code, AQE repairs bad plans mid-flight using runtime stats, and nearly every production Spark incident reduces to one UI metric: shuffle size, skew, spill, or GC.
 
 :::scenario Scenario — Skew Diagnosis
-@a Slow stage :: find the hot stage
--> p50 vs max => @b
-@b p50 much less than max? :: skew vs uniform
-? yes skewed key => @fix |success
-? no all slow => @agg |fail
-@fix Salt or broadcast :: under 10MB broadcast
-@agg Agg vs join skew :: check exchange
--> back to monitoring => @a
+@start Hot stage in the UI :: one stage's max task time dwarfs the rest — name the metric before touching any config
+-> compare task times => @p50
+@p50 p50 vs max fork :: median healthy, max huge → skew; every task slow → sizing, not hot keys
+? max far above p50 => @operator |success
+? all tasks uniformly slow => @uniform |fail
+@uniform Right-size partitions :: spill and GC, not skew — 500 GB ÷ 200 = 2.5 GB tasks; size ≈ shuffle bytes ÷ 128 MB, AQE coalesces down
+-> re-check the stage => @verify
+@operator Join or groupBy? :: AQE de-skews joins only; aggregation skew needs salting — name the operator before choosing a fix
+? skewed join => @bytes |success
+? skewed groupBy => @salt |fail
+@bytes Measure partition bytes :: AQE splits only above skewedPartitionFactor (5× median) AND skewedPartitionThresholdInBytes (256 MB)
+? both thresholds met => @aeskew |success
+? under one threshold => @manual |fail
+@manual Threshold miss :: below either knob AQE never fires — find a broadcastable side or salt the key yourself
+? small side ≤ 10 MB => @broadcast |success
+? big-big join => @salt |fail
+@aeskew AQE skew split :: skewJoin splits the fat side toward advisory 64 MB subtasks; SMJ/SHJ only — confirm in the AQE plan
+-> re-check the stage => @verify
+@broadcast Broadcast the dim :: honest stats ≤ autoBroadcastJoinThreshold (10 MB) remove the skew-prone shuffle; misestimate → driver OOM
+-> re-check the stage => @verify
+@salt Salt the hot key :: random prefix, partial agg, then final agg — the only fix that de-skews groupBy; AQE split does not
+-> re-check the stage => @verify
+@verify Confirm the repair :: max ≈ p50 again, no spill, plan shows split/broadcast (isFinalPlan=true) — else diagnose again
+-> diagnose again => @p50
 :::
 ::::diagram skew-diagnosis.png
 ::::

@@ -2,20 +2,32 @@
 
 Spark is a batch engine that grew streaming (micro-batches); Flink is a streaming engine that grew batch — scheduling, state, and failure handling all follow from that one choice.
 
-:::glide Glide — Exactly-Once, Barrier by Barrier
-1) Streaming-first model :: records flow one at a time → ~10 ms floor; batch is just a bounded stream — every mechanism below follows from this choice.
-2) Native watermarks :: sources emit timestamps plus a *monotonic promise*; windows/timers fire when the watermark passes, late data goes to side outputs.
-3) Keyed state on a backend :: heap for small/low-latency, RocksDB for TBs, **ForSt/disaggregated** for cloud — the backend choice *is* the capacity decision.
-4) Checkpoint = async barrier snapshot :: barriers flow with the data (Chandy–Lamport); processing never pauses while state is snapshotted to DFS.
-5) Barrier alignment :: an operator snapshots only once barriers arrive from **all** inputs — that alignment is what makes the snapshot a consistent global cut.
-6) Unaligned under backpressure :: barriers overtake in-flight buffers and snapshot those too — larger snapshots, but *steady* checkpoint duration.
-7) Sink 2PC :: `TwoPhaseCommittingSink` pre-commits at checkpoint, commits on `notifyCheckpointComplete` — Kafka becomes exactly-once, not at-least-once.
-8) Exactly-once assembly :: rewindable source + barrier snapshot + 2PC/idempotent sink — remove any one piece and the guarantee degrades.
-9) Savepoints for surgery :: manually triggered checkpoints in canonical format enable upgrades, rescaling, migration — plain checkpoints optimize speed, not compatibility.
-? Why does checkpoint interval bound deliverable latency? :: 2PC sinks commit only when a checkpoint completes, so nothing becomes visible downstream until then — checkpoint interval sets the visibility floor.
-? When do unaligned checkpoints help, and what do they cost? :: Under backpressure: barriers overtake in-flight buffers and snapshot them too, giving steady checkpoint duration at the price of larger snapshots.
-? Why can't a Flink 1.x savepoint be restored in 2.x? :: There is no 1.x→2.x state compatibility; plain checkpoints optimize speed, not the canonical version-stable format savepoints use.
-? Why does naive HPA break stateful Flink jobs? :: Rescaling a stateful job changes key-group distribution and checkpointed state; the Flink K8s operator autoscaler (FLIP-271) reads per-vertex lag/backpressure instead.
+:::scenario Scenario — Exactly-Once Assembly
+@start Latency floor :: streaming-first: records one at a time → ~10 ms floor; batch is just a bounded stream of the same machinery
+? sub-second stateful event-time => @flink |success
+? batch ETL, SQL, ML breadth => @spark |fail
+@spark Spark micro-batch :: incremental batches with offset+state checkpoints; commit overhead pins p99 near the batch interval — fine ≥ 1 min
+@flink Watermarked topology :: native watermarks: a monotonic promise fires windows/timers when passed; late data routes to side outputs
+-> pick the state backend => @backend
+@backend Backend = capacity plan :: heap for small/low-latency, RocksDB for TBs, ForSt/disaggregated for cloud
+? TB-scale or cloud state => @incremental |success
+? small hot state, lowest latency => @heap |fail
+@heap Heap backend :: fastest access with full-snapshot checkpoints — comfortable under a few GB of keyed state
+-> design checkpoints => @barrier
+@incremental RocksDB incremental :: snapshots upload only changed sstables, keeping duration flat as state grows to TBs
+-> design checkpoints => @barrier
+@barrier Barrier snapshot :: Chandy–Lamport barriers ride the data; processing never pauses while state lands on DFS
+? backpressure stretches duration => @unaligned |success
+? consumption keeps up => @aligned |fail
+@aligned Aligned cut :: the operator waits for barriers from all inputs — cheapest consistent global cut when flow is steady
+-> choose the sink => @sink
+@unaligned Unaligned cut :: barriers overtake in-flight buffers and snapshot those too — larger snapshots, steady duration
+-> choose the sink => @sink
+@sink Sink two-phase commit :: TwoPhaseCommittingSink pre-commits at checkpoint, commits on notifyCheckpointComplete — Kafka exactly-once
+-> audit the guarantee => @assemble
+@assemble Assembly audit :: rewindable source + barrier snapshot + 2PC/idempotent sink — drop any one piece and it degrades
+? upgrades, rescaling, migration ahead => @savepoint |success
+@savepoint Savepoint surgery :: canonical version-stable manual checkpoint; plain checkpoints optimize speed, not 1.x→2.x compatibility
 :::
 
 ::::diagram engine-runtimes.png
