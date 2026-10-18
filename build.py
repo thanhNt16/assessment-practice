@@ -779,6 +779,144 @@ document.addEventListener('keydown',e=>{
   if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
   if(e.key==='0')lbSet(1);
 });
+// === scenario engine ===
+const SC_FONT_OK=document.fonts?document.fonts.load('16px Excalifont'):Promise.resolve();
+const SK_ID='scSketch';
+function scLayout(d,W){
+  // ranks: BFS depth from start; loop edges (dst already seen at insert) excluded
+  const adj={};d.nodes.forEach(n=>adj[n.id]=[]);
+  d.edges.forEach(e=>{if(!e.loop&&e.src)adj[e.src].push(e)});
+  const depth={};const q=[d.start];depth[d.start]=0;
+  while(q.length){const u=q.shift();(adj[u]||[]).forEach(e=>{if(depth[e.dst]===undefined){depth[e.dst]=depth[u]+1;q.push(e.dst)}})}
+  d.nodes.forEach(n=>{if(depth[n.id]===undefined)depth[n.id]=Object.keys(depth).length}); // unreachable → tail
+  const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
+  // measure
+  const cv=document.createElement('canvas').getContext('2d');
+  cv.font='16px Excalifont';
+  const pos={},NW=[];
+  const ROWH=110,PAD=26;
+  Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(120,cv.measureText(d.nodes.find(n=>n.id===id).label).width+44));
+    const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
+    let x=Math.max(PAD,(W-total)/2);
+    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:56};x+=ws[i]+PAD});
+  });
+  const maxY=60+Math.max(...Object.values(depth))*ROWH+90;
+  return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
+}
+function scPath(a,b){ // cubic connector bottom->top
+  const x1=a.x+a.w/2,y1=a.y+a.h,x2=b.x+b.w/2,y2=b.y;
+  const dy=Math.max(24,(y2-y1)*0.45);
+  return `M${x1} ${y1} C${x1} ${y1+dy} ${x2} ${y2-dy} ${x2} ${y2}`;
+}
+const NS='http://www.w3.org/2000/svg';
+function mountScenario(div,d,idx){
+  const body=div.querySelector('.sc-body'),cap=div.querySelector('.sc-cap'),
+        ch=div.querySelector('.sc-choices');
+  const W=Math.min(1100,body.clientWidth||900);
+  const L=scLayout(d,W);
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('class','sc-svg');svg.setAttribute('viewBox',`0 0 ${L.W} ${L.H}`);
+  svg.setAttribute('width',L.W);svg.setAttribute('height',L.H);
+  svg.innerHTML=`<defs>
+   <filter id="${SK_ID}${idx}"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
+   <marker id="scA${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#1e3a5f"/></marker>
+   <marker id="scAg${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#047857"/></marker>
+   <marker id="scAr${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#dc2626"/></marker>
+  </defs>`;
+  const kindOf=id=>{const n=d.nodes.find(n=>n.id===id);
+    const out=d.edges.filter(e=>e.src===id&&e.choice).length;
+    if(id===d.start)return ['#fed7aa','#c2410c'];
+    if(out>0)return ['#fef3c7','#b45309'];
+    const inbound=d.edges.find(e=>e.dst===id);
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626'];
+    return ['#dbeafe','#1e3a5f'];};
+  const el={};
+  // edges first (under nodes)
+  d.edges.forEach((e,i)=>{
+    if(!e.src||!L.pos[e.src]||!L.pos[e.dst])return;
+    const p=document.createElementNS(NS,'path');
+    const a=L.pos[e.src],b=L.pos[e.dst];
+    let dstr;
+    if(e.loop||b.y<=a.y){ // back-edge: route right margin
+      const rx=L.W-24;
+      dstr=`M${a.x+a.w} ${a.y+a.h/2} C${rx} ${a.y} ${rx} ${b.y} ${b.x+b.w} ${b.y+b.h/2}`;
+      p.setAttribute('stroke-dasharray','7 5');
+    } else dstr=scPath(a,b);
+    p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
+    p.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
+    if(e.label){const t=document.createElementNS(NS,'text');
+      const mx=(a.x+a.w/2+b.x+b.w/2)/2,my=(a.y+a.h+b.y)/2-8;
+      t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','13');t.setAttribute('fill','#64748b');t.textContent=e.label;
+      t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
+  });
+  d.nodes.forEach(n=>{
+    const p=L.pos[n.id],[fill,stroke]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
+    r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
+    r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','16');
+    t.setAttribute('fill','#374151');
+    // wrap label into ≤2 tspans
+    const words=n.label.split(' ');const lines=['',''];let li=0;
+    words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
+    lines.forEach((ln,i)=>{if(!ln)return;const ts=document.createElementNS(NS,'tspan');
+      ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
+      if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
+    g.addEventListener('click',()=>enter(n.id));
+  });
+  body.appendChild(svg);
+  // interaction state
+  let cur=null;const visited=new Set();
+  function paint(){
+    d.nodes.forEach(n=>{const c=el[n.id];
+      c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
+      c.r.setAttribute('stroke-width',n.id===cur?3.5:2);});
+    svg.querySelectorAll('.sc-edge').forEach(p=>{
+      const e=d.edges[+p.dataset.ei];
+      const on=visited.has(e.src)&&visited.has(e.dst);
+      p.style.opacity=on?1:.3;});
+    svg.querySelectorAll('.sc-edge-lbl').forEach(t=>{
+      const e=d.edges[+t.dataset.ei];
+      t.style.opacity=(visited.has(e.src)&&visited.has(e.dst))?1:.35;});
+  }
+  function enter(id){
+    cur=id;visited.add(id);
+    const n=d.nodes.find(n=>n.id===id);
+    cap.textContent=n.cap;
+    ch.innerHTML='';
+    d.edges.filter(e=>e.src===id&&e.choice).forEach(e=>{
+      const b=document.createElement('button');b.className='sc-btn'+(e.kind==='success'?' ok':e.kind==='fail'?' bad':'');
+      b.textContent='? '+e.label;b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    const nx=d.edges.filter(e=>e.src===id&&!e.choice&&!e.loop);
+    nx.forEach(e=>{const b=document.createElement('button');b.className='sc-btn';b.textContent='→ '+(e.label||'continue');b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    if(!d.edges.some(e=>e.src===id&&!e.loop)){const s=document.createElement('div');
+      s.className='sc-cap';s.style.marginTop='6px';
+      const win=n.cap;s.style.color='#047857';s.textContent='◼ outcome — '+win;ch.appendChild(s);}
+    paint();
+  }
+  div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
+  div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
+    d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  enter(d.start);
+}
+SC_FONT_OK.then(()=>{
+  document.querySelectorAll('.scenario').forEach((dv,i)=>{
+    const data=JSON.parse(dv.querySelector('.sc-json').textContent);
+    mountScenario(dv,data,i);
+  });
+});
 """
 
 MERMAID_JS = r"""

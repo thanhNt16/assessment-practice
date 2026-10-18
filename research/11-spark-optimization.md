@@ -2,19 +2,15 @@
 
 Catalyst compiles your query into fused machine code, AQE repairs bad plans mid-flight using runtime stats, and nearly every production Spark incident reduces to one UI metric: shuffle size, skew, spill, or GC.
 
-:::glide Glide — Diagnosing the Slow Spark Join
-1) Find the hot stage :: Open the stage with the **largest shuffle read** — nearly every production incident is shuffle size, skew, spill, or GC.
-2) Compare task p50 vs max :: Summary metrics show **median 35 s, max 24 min** — a huge max-vs-p50 gap means skew, not slow code.
-3) Read the partition bytes :: the max task (partition 113) reads **40 GB** while a median partition is 500 GB ÷ 200 = **2.5 GB** — one fat key.
-4) Check the AQE skew thresholds :: 40 GB > `skewedPartitionThresholdInBytes` (256 MB) **and** > 5 × 2.5 GB = 12.5 GB — both conditions met, so the skew-join split fires (joins only).
-5) Verify the split math :: 40 GB ÷ 64 MB target ≈ **625 subtasks** of ~0.6 s each — stage wall drops from 24 min to the runner-up ≈ **40 s**.
-6) Aggregate skew? Salt instead :: AQE skew split does not help `groupBy` — use `pmod(hash(key, rand()), N)`, partial-aggregate salted, second pass strips the salt.
-7) Check the broadcast escape hatch :: dim table is 8 GB ≫ 10 MB threshold — forcing `/*+ BROADCAST */` would collect it all on the driver and OOM.
-8) No skew? Read spill and GC :: `spill (disk) > 0` → per-task memory short (partitions ↑, memory ↑); GC time > 10–15% of task time → G1GC and smaller objects.
-? Why is the 200 default for `spark.sql.shuffle.partitions` wrong in both directions? :: 500 GB shuffle → 2.5 GB partitions (spill, skew); 2 GB shuffle → 200 tasks of 10 MB (scheduling overhead). Size from bytes: `partitions ≈ shuffle_bytes / (128–256 MB)` — or over-provision and let AQE coalesce.
-? When can AQE not rescue a plan at runtime? :: Nothing to re-plan without an `Exchange`; coalesce skips user-forced `repartition(n)`; skew split covers joins only — aggregate skew needs salting.
-? Why does execution memory spill to disk while storage memory does not? :: In the unified model storage and execution borrow from each other, but storage blocks evict under pressure while **execution never evicts — it spills**; per-task execution memory ≈ pool ÷ concurrent tasks.
-? Why is forcing `/*+ BROADCAST */` on stale statistics dangerous? :: The hint overrides stats — after heavy appends the "small" side can be huge at runtime, the driver collects it all and dies. Verify `sizeInBytes` in the plan first.
+:::scenario Scenario — Skew Diagnosis
+@a Slow stage :: find the hot stage
+-> p50 vs max => @b
+@b p50 much less than max? :: skew vs uniform
+? yes skewed key => @fix |success
+? no all slow => @agg |fail
+@fix Salt or broadcast :: under 10MB broadcast
+@agg Agg vs join skew :: check exchange
+-> back to monitoring => @a
 :::
 ::::diagram skew-diagnosis.png
 ::::
