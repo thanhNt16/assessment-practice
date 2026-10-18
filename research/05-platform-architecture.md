@@ -43,6 +43,7 @@ A data platform moves data from operational systems to analytical consumers reli
 
 ### Layered Reference Architecture
 
+:::steps The platform pipeline, step by step
 ```mermaid
 flowchart LR
     S[Sources: Postgres OLTP - Stripe API - clickstream - SFTP files]
@@ -54,6 +55,13 @@ flowchart LR
     O[Orchestration: Airflow or Dagster]
     O -.-> I & T
 ```
+Sources and ingestion move data with no business logic: batch extract via Fivetran, CDC stream via Debezium, events via Kafka — choose pull vs push and full vs incremental. :: S,I
+Bronze storage is the immutable append-only raw copy on S3 + Delta or Iceberg — your replay insurance, never edited downstream. :: B
+Transform is the heavy lift: Spark and dbt clean, conform, and aggregate SQL-first. :: T
+Serve exposes the gold layer: Snowflake tables, Power BI, ML features, reverse ETL. :: V
+Orchestration (Airflow or Dagster) belongs to the cross-cutting spine — orchestration, catalog, observability, security; mention it unprompted. :: O
+End to end: raw lands immutable, transforms are SQL-first, serving is denormalized — the spine wraps it all. :: S,I,B,T,V,O
+:::
 
 - **Sources + ingestion** — OLTP DBs, SaaS APIs, events, files; moved with no business logic via batch extract (Fivetran), CDC stream (Debezium), or queue. First choices: pull vs push, full vs incremental.
 - **Storage** — immutable append-only raw copy (bronze); your replay insurance, never edited downstream.

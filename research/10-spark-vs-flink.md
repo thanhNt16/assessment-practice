@@ -84,6 +84,7 @@ AQE at the boundary: coalesce 200 -> 24  |  skew split 512 GB -> 8192
 
 - **Checkpoint = asynchronous barrier snapshot** (Chandy–Lamport): barriers flow with the data; an operator snapshots state once barriers arrive from all inputs; processing never pauses ([internals](https://nightlies.apache.org/flink/flink-docs-stable/docs/internals/stream_checkpointing.html)).
 
+:::steps Checkpoint to 2PC commit, barrier by barrier
 ```mermaid
 sequenceDiagram
     participant JM as [JobManager]
@@ -99,6 +100,12 @@ sequenceDiagram
     JM->>SK: notifyCheckpointComplete n
     SK->>SK: commit tx - visible downstream
 ```
+JobManager injects barrier n at the source — barriers flow with the data and align to cut a consistent snapshot.
+Each operator asynchronously snapshots state to DFS: source offsets first, then keyed window state.
+The Kafka sink pre-commits its transaction when the barrier arrives — records are staged but not yet visible downstream.
+JobManager calls notifyCheckpointComplete(n) once every operator has acknowledged.
+The sink commits the transaction: records become visible — exactly-once = rewindable source + barrier snapshot + 2PC sink.
+:::
 
 - **Unaligned checkpoints**: under backpressure, barriers overtake in-flight buffers and snapshot those too — steady checkpoint duration, larger snapshots.
 - **Exactly-once** = rewindable source (Kafka) + barrier snapshot + **2PC sink**: `TwoPhaseCommittingSink` pre-commits on checkpoint, commits on `notifyCheckpointComplete`; idempotent commits (Iceberg) also qualify.

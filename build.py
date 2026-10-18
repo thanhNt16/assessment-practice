@@ -120,10 +120,40 @@ md = MarkdownIt("commonmark", {"html": True, "linkify": True, "breaks": False})
 md.enable("table")
 
 MERMAID_FENCE_RE = re.compile(r'```mermaid\n(.*?)```', re.S)
-CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario|tldr|cards)\s*(.*)$')
+CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario|tldr|cards|steps)\s*(.*)$')
 STUDY_SLOT_RE = re.compile(r'^(TLDRSLOT|CARDSLOT)\d+X$')
 SC_NODE_RE  = re.compile(r'^@(\w+)\s+(.*?)\s*::\s*(.+)$')
 SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(?:(.*?)\s*=>\s*)?@(\w+)(\s*\|\s*(success|fail))?$')
+def steps_parse(lines, mer):
+    """Parse a :::steps body: MERMAIDPLOTkX line, then `caption :: id,id` steps."""
+    mi, steps = None, []
+    for l in lines:
+        s = l.strip()
+        if not s: continue
+        m = re.fullmatch(r'MERMAIDPLOT(\d+)X', s)
+        if m: mi = int(m.group(1)); continue
+        cap, _, ids = s.partition('::')
+        steps.append({"c": cap.strip(), "n": [i.strip() for i in ids.split(',') if i.strip()]})
+    if mi is None or not steps:
+        raise SystemExit(":::steps needs a mermaid fence and at least one `caption :: ids` line")
+    src = mer[mi]
+    for st in steps:
+        for nid in st["n"]:
+            if not re.search(r'\b' + re.escape(nid) + r'\b', src):
+                raise SystemExit(f":::steps node id {nid!r} not found in diagram")
+    return steps, mi
+
+def steps_html(steps, mi, mer):
+    data = (json.dumps(steps, ensure_ascii=False, separators=(",", ":"))
+            .replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e")
+            .replace('"', "&quot;"))
+    return (f'<div class="steps" data-steps="{data}">'
+            f'<div class="mermaid">\n{mer[mi]}\n</div>'
+            f'<div class="steps-ui"><button class="step-btn prev" aria-label="Previous step">&#8249;</button>'
+            f'<div class="step-cap"></div>'
+            f'<button class="step-btn next" aria-label="Next step">&#8250;</button>'
+            f'<div class="step-dots"></div></div></div>')
+
 def preprocess(src):
     """Extract mermaid fences; convert :::containers to placeholders."""
     mer, scenarios = [], []
@@ -155,6 +185,9 @@ def preprocess(src):
             if typ == "scenario":
                 in_c, lines_acc, sc_title = "scenario", [], title
                 continue
+            if typ == "steps":
+                in_c, lines_acc, sc_title = "steps", [], title
+                continue
             if typ == "diagram":
                 slug = title or "diagram"
                 s = html.escape(slug)
@@ -179,19 +212,22 @@ def preprocess(src):
             elif in_c == "cards":
                 cardss.append([l for l in lines_acc if l.strip()])
                 out.append(f"\nCARDSLOT{len(cardss)-1}X\n")
+            elif in_c == "steps":
+                steps, mer_i = steps_parse(lines_acc, mer)
+                out.append(steps_html(steps, mer_i, mer))
             elif in_c == "skip":
                 pass
             else:
                 out += ["", "</div>"]
             in_c = False
             continue
-        if in_c in ("scenario", "tldr", "cards"):
+        if in_c in ("scenario", "tldr", "cards", "steps"):
             lines_acc.append(line)
             continue
         if not in_c and not s.startswith('#') and '`' not in line and '|' not in line:
             line = term_wrap(line)
         out.append(line)
-    if in_c in ("scenario", "tldr", "cards"):
+    if in_c in ("scenario", "tldr", "cards", "steps"):
         raise ValueError(f"Unclosed :::{in_c} block")
     return "\n".join(out), mer, scenarios, tldrs, cardss
 
@@ -830,6 +866,17 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 @media(min-width:1080px){.outline-jump{display:none}}
 @media(min-width:1280px){.main{max-width:880px}}
 @media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
+/* diagram stepper */
+.steps{margin:20px 0;border:1px solid var(--vp-c-divider);border-radius:10px;padding:12px 16px;background:var(--vp-c-bg-alt)}
+.steps .mermaid{display:flex;justify-content:center;overflow-x:auto}
+.steps .mermaid svg{max-width:100%;height:auto}
+.steps-ui{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:8px}
+.step-btn{border:1px solid var(--vp-c-divider);background:var(--vp-c-bg);color:var(--vp-c-text-1);border-radius:6px;width:30px;height:30px;font-size:18px;line-height:1;cursor:pointer;flex:none}
+.step-btn:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.steps .step-cap{flex:1;min-width:220px;min-height:2.6em;font-size:14px;color:var(--vp-c-text-2);display:flex;align-items:center}
+.step-dots{display:flex;align-items:center;flex:none}
+.step-dots i{width:8px;height:8px;border-radius:50%;background:var(--vp-c-divider);display:inline-block;margin:0 3px}
+.step-dots i.on{background:var(--vp-c-brand-1)}
 """
 
 JS = r"""
@@ -1226,6 +1273,34 @@ window.__ringRefresh=renderRings;
 addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
 document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
+// ---- diagram stepper ----
+window.__stepsInit=function(){
+  const blocks=[...document.querySelectorAll('.steps')];if(!blocks.length)return;
+  let act=null;
+  blocks.forEach(st=>{
+    const steps=JSON.parse(st.dataset.steps),svg=st.querySelector('svg');if(!svg)return;
+    const nodes=[...svg.querySelectorAll('.node,.edgePath')];
+    const match=n=>nodes.filter(el=>new RegExp('(^|[^A-Za-z0-9])'+n+'([^A-Za-z0-9]|$)').test(el.id||''));
+    let i=0;
+    const paint=()=>{
+      const on=new Set();steps[i].n.forEach(id=>match(id).forEach(el=>on.add(el)));
+      const dim=steps[i].n.length&&on.size;
+      nodes.forEach(el=>el.style.opacity=!dim||on.has(el)?1:.15);
+      st.querySelector('.step-cap').textContent=steps[i].c;
+      st.querySelector('.step-dots').innerHTML=steps.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('');
+    };
+    st.querySelector('.next').onclick=()=>{i=Math.min(i+1,steps.length-1);paint()};
+    st.querySelector('.prev').onclick=()=>{i=Math.max(i-1,0);paint()};
+    st.addEventListener('click',()=>act=st);
+    paint();
+    st.__ctrl={go:d=>{i=Math.max(0,Math.min(i+d,steps.length-1));paint()}};
+  });
+  act=act||blocks[0];
+  document.addEventListener('keydown',e=>{
+    if(!act||/INPUT|TEXTAREA/.test(document.activeElement?.tagName||''))return;
+    if(e.key==='ArrowRight')act.__ctrl&&act.__ctrl.go(1);else if(e.key==='ArrowLeft')act.__ctrl&&act.__ctrl.go(-1);
+  });
+};
 """
 
 MERMAID_JS = r"""
@@ -1234,6 +1309,7 @@ const isDark=document.documentElement.classList.contains('dark');
 mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
 const els=document.querySelectorAll('.mermaid');
 for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+if(window.__stepsInit)window.__stepsInit();
 """
 
 FEATURES = [

@@ -25,6 +25,7 @@ RAG is the data-engineer's entry point into ML system design: it is an ingestion
 
 ### Data Preparation Pipeline
 
+:::steps ChatPDF pipeline, ingestion to answer
 ```mermaid
 flowchart LR
     PDF[5M PDF pages] --> P[Parsing - rule-based or AI]
@@ -34,6 +35,14 @@ flowchart LR
     I --> R[Retrieval at query time]
     R --> G[LLM generation]
 ```
+Ingest 5M PDF pages — parsing must be layout-aware (rule-based or AI): varied single/double-column layouts break fixed-template parsers, so layout detection and OCR read boxes in order. :: PDF,P
+Chunk ~500 chars with 200 overlap — whole documents lose detail and bust token limits; a 1,500-char page yields 5 text plus 3 image chunks. :: C
+Embed chunks and queries into one shared space — same text encoder for both; CLIP space (or caption-then-embed) aligns images. :: E
+Index for ANN — linear scan is 40M comparisons per query, so clustering/LSH/HNSW approximate search is mandatory at this scale. :: I
+Retrieve top-k at query time and assemble the prompt: query plus chunks, role, and a citation format. :: R
+Generate, then score the RAG triad — context relevance, faithfulness, answer relevance; one aggregate score hides which half broke. :: G
+Answers still bad with fine context? RAFT-finetune last: golden plus distractor docs teach the model to ignore retrieval noise — only after retrieval is fixed. :: G,R
+:::
 
 :::scenario ChatPDF over 5M internal pages
 @start Meet ChatPDF :: Knowledge changes often and answers must cite sources — decide retrieval vs stuffing first

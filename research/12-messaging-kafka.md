@@ -148,6 +148,7 @@ Run `FULL_TRANSITIVE` on any shared backbone topic; shipping raw JSON with no re
 | Acknowledged data lost | `acks=1` or unclean leader election | `acks=all` + `min.insync.replicas=2` + `unclean.leader.election.enable=false` |
 | DB and Kafka disagree | Dual write ("write DB, then produce") — crash between the two | Outbox pattern below |
 
+:::steps Outbox write path
 ```mermaid
 flowchart TD
     A[Business transaction] --> B[(Postgres - business row and outbox row in one commit)]
@@ -156,6 +157,12 @@ flowchart TD
     D --> E[Consumer group processes events]
     E --> F[Idempotent sink - dedupe by event id]
 ```
+One transaction writes the business row and the outbox row together — that single commit is the whole trick. :: A,B
+Debezium tails the WAL and CDC publishes afterwards — delivery is at-least-once. :: C
+Events publish to Kafka with at-least-once delivery — exactly-once is real only inside Kafka. :: D
+A consumer group processes events; retries can duplicate. :: E
+The sink dedupes by event id: at-least-once + idempotent effect is the honest cross-system contract. :: F
+:::
 
 The outbox makes DB↔Kafka atomic: the event row commits with the business change, CDC publishes afterwards, delivery is at-least-once, consumers dedupe by event ID. Exactly-once is real *within* Kafka (idempotent producer + transactions + `read_committed`); across system boundaries it is always at-least-once + idempotent effect ([Debezium outbox](https://debezium.io/documentation/reference/transformations/outbox-event-router.html), [Kafka design docs](https://kafka.apache.org/documentation/#design)).
 
