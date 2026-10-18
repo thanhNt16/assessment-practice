@@ -2,19 +2,34 @@
 
 Your A3 defense treats your pipeline as Scenario 0 and hypothetical extensions as the follow-up round - when the committee asks "where would GenAI plug into your system?", this note is the vocabulary and decision framework. One repeating skeleton across all 11 designs; density here favors the chapters that map to data-engineering work (RAG, LLM serving) over the image/video ones.
 
-:::glide Where GenAI Plugs In
-1) **Clarify requirements** :: Pin freshness, latency, and confidence thresholds *before* naming any model — the Scenario-0 discipline transferred to GenAI (Interview Lens).
-2) **Frame as ML task** :: Next-token prediction on a decoder-only Transformer; two-stage training — unsupervised pretraining, then finetuning on domain data (ch2, p54-55).
-3) **Prepare data the GenAI way** :: Feature engineering gives way to collecting vast data, quality/safety, and storage + retrieval — Llama 3: 15T tokens ≈ 50TB; collect, clean, then data-efficiency (ch1, p14-15).
-4) **Choose model by arithmetic** :: One-pass latency → GAN/VAE; ceiling quality → diffusion; resolution at scale → AR over discrete tokens; video economics → latent diffusion (Key Takeaways).
-5) **Default to RAG** :: parse → chunk → embed → ANN-index; 5M pages → 40M chunks (+20%/yr); exhaust retrieval + prompts before finetuning — finetune the LLM last (ch6, p168, p171).
-6) **Pick adaptation by cost** :: prompt engineering < LoRA (MBs, frozen base) < DreamBooth (GBs, best fidelity) — pick by storage and SLA, not leaderboard (ch10, p266-269).
-7) **Evaluate offline + online** :: Name the instrument (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) *and* the business metric (CTR, adoption, cost per user) — naming both unprompted is the scoring behavior (ch9, p250-251).
-8) **Deploy + monitor as a named stage** :: Serving services and retraining loops are their own step; watch cost per user — re-rolling seeds with new prompts quietly multiplies GPU spend (ch1, p13; ch9, p251).
-? Why is finetuning the wrong first move for knowledge injection? :: It can't cite sources, needs constant retraining, and is expensive and data-hungry; RAG balances cost, scalability, freshness — finetune the LLM only when retrieval is fixed and answers are still bad (ch6, p161-171).
-? When does exact nearest-neighbor search break? :: Past millions of items — linear scan is O(N x D), 40M comparisons per query at 40M chunks; ANN (tree / LSH / clustering / HNSW graph) is mandatory (ch6, p173-175).
-? What does each similarity metric actually measure? :: CLIP = semantics, DINO = visual detail, face-recognition models = identity — CLIP and DINO can score high on images of two different people, so identity claims need the third instrument (ch10, p274).
-? Why latent diffusion for video? :: Pixel-space 5s @ 24FPS 720p lands around 7 minutes; the 8x spatial / 8x temporal VAE compression is **512x smaller**, so diffusion runs entirely in latent space (ch11, p283-284).
+:::scenario Scenario — Where GenAI Plugs In
+@requirements Clarify before naming a model :: Pin freshness, latency, confidence thresholds first — the Scenario-0 discipline transferred to GenAI.
+? Fresh answers over private docs => @approach |success
+? Generate images or video => @model |success
+@model Choose model by arithmetic :: One-pass latency → GAN/VAE; ceiling quality → diffusion; resolution at scale → AR; video → latent diffusion.
+-> evaluate => @answers
+@approach Exhaust retrieval + prompts first :: Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness.
+? All docs fit the 128K context window => @prompt |success
+-> size the index => @pipeline
+@prompt Prompt-engineer only :: No index needed when context fits — rare at enterprise scale; monitor cost per user as prompts grow.
+@pipeline Run the RAG pipeline :: parse → chunk (500 chars, 200 overlap) → embed → ANN-index; 5M pages → 40M chunks, +20%/yr.
+-> query => @retrieve
+@retrieve Interrogate retrieval quality :: Response quality is highly dependent on retrieval relevance — a better LLM cannot fix bad chunks.
+? Chunks are relevant => @answers |success
+-> still irrelevant => @fixretrieval |fail
+@fixretrieval Fix retrieval before the model :: Rule-based parsers break on varied layouts — Layout-Parser + OCR; cross-modal via CLIP space or caption-then-embed.
+? Index still exact nearest-neighbor => @ann |fail
+? Retrieval fixed, answers still bad => @raft |success
+@ann Swap in ANN indexing :: Linear scan is O(N x D) — 40M comparisons per query; ANN (tree / LSH / clustering / HNSW) is mandatory past millions.
+-> then RAFT if needed => @raft
+@raft Finetune last, via RAFT :: Finetune with golden + distractor docs to ignore retrieval noise — only when retrieval is fixed and answers still bad.
+-> evaluate => @answers
+@answers Evaluate offline + online :: Name the instrument (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) and the business metric (CTR, adoption, cost per user).
+? Identity claim on CLIP alone => @metrics |fail
+-> deploy => @serve
+@metrics Match metric to claim :: CLIP = semantics, DINO = visual detail, face models = identity — CLIP and DINO can score high on two different people.
+-> deploy => @serve
+@serve Deploy + monitor as a named stage :: Serving + retraining loops are their own step — re-rolling seeds with new prompts quietly multiplies GPU spend.
 :::
 
 :::diagram rag-pipeline.png

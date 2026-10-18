@@ -2,19 +2,29 @@
 
 Five sources cover the whole A3 surface with different jobs: the [Data Engineering Wiki](https://dataengineering.wiki/Index) explains concepts, Zach Wilson's [Data Engineer Handbook](https://github.com/dataexpert-io/data-engineer-handbook) curates everything else, Joseph Machado's [Start Data Engineering](https://www.startdataengineering.com/) provides the builds, and two newsletters — [Data Engineer Things](https://dataengineerthings.substack.com/) and [Data Engineering Central](https://dataengineeringcentral.substack.com/) — keep you current. Use them as a pipeline: wiki to learn, handbook to find, SDE to build, newsletters to stay sharp.
 
-:::glide From Five Sources to One Repo
-1) Diagnose the weak area :: Start from the need, not the firehose — **wiki** explains, **handbook** curates, **SDE** builds, **newsletters** keep you sharp.
-2) Need a concept → Wiki :: Mid-build lookups: `Kappa Architecture`, `Idempotence` — one verified link per course section, never search blind.
-3) Need a book or course → Handbook :: Read it like a **menu, not a course**: commit to the Fundamentals → DDIA 2e pair, close the tab, build.
-4) Need hands-on reps → SDE :: 100+ posts with full code; each of drills 1–15 names its tutorial and the section it trains.
-5) Need current signal → DET + DEC :: Community/events plus practitioner benchmarks — finish the archives in Week 6 for current tool takes.
-6) Attach drills to one build spine :: `API → ingest → lake → transform+DQ → serve → ops` — one repo, layers added weekly, so reps compound.
-7) Pick ONE archetype, finish it :: Batch lakehouse, streaming, CDC, DQ-gated, or LLM — a small finished repo beats three half-cloned tutorials.
-8) Ship README + rehearse the walkthrough :: The drill-15 walkthrough **IS** the A3 architecture screen — rehearse until 5 minutes feels short.
-? Why the 1:2 read-to-build ratio? :: Tutorial hell: a 40th Spark video compounds to zero. Every reading hour earns two hours in drills; if you cannot whiteboard failure modes — rerun, schema drift, hot key — you watched, you did not learn.
-? Why start drill 9 in Week 2? :: It is the **spine** — the batch beginner project (API → S3 → warehouse → dbt) that every later drill attaches to as layers are added weekly.
-? Why one finished archetype, not three repos? :: A small finished repo with a README naming tradeoffs outcompetes any certificate — and its walkthrough doubles as the architecture screen.
-? Wiki or handbook — which, when? :: Wiki for **concept lookups mid-build**; handbook to **find** — the single index for books, courses, interview rounds; newsletters only to stay current.
+:::scenario Scenario — From Five Sources to One Repo
+@diagnose Diagnose the weak area :: Start from the need, not the firehose: wiki explains, handbook curates, SDE builds, newsletters keep you sharp.
+? Need a concept mid-build => @wiki |success
+? Need a book or course => @handbook |success
+? Need hands-on reps => @sde |success
+? Need current signal => @news |success
+@wiki Open the Wiki page :: Mid-build lookups — `Kappa Architecture`, `Idempotence`; one verified link per section, never search blind.
+-> looked it up => @spine
+@handbook Read the Handbook like a menu :: The single index for books and courses — commit to the Fundamentals → DDIA 2e pair, close the tab, build.
+-> picked the pair => @ratio
+@sde Build from Start Data Engineering :: 100+ posts with full code; each drill names its tutorial and the section it trains.
+-> drilling => @spine
+@news Finish the newsletter archives :: DET for community and events, DEC for practitioner benchmarks — Week 6, for current tool takes only.
+-> chose current signal => @ratio
+@ratio Hold the 1:2 read-to-build ratio :: Tutorial hell: a 40th Spark video compounds to zero — every reading hour earns two hours in drills.
+? Whiteboard rerun, schema drift, hot-key failures => @spine |success
+? Cannot explain what breaks on rerun => @wiki |fail
+@spine Attach drills to one build spine :: `API → ingest → lake → transform+DQ → serve → ops` — one repo, layers added weekly, reps compound.
+-> archetype chosen => @archetype
+@archetype Pick ONE archetype, finish it :: Batch lakehouse, streaming, CDC, DQ-gated, or LLM — a small finished repo beats three half-cloned tutorials.
+? Finished the archetype => @ship |success
+? Three half-cloned tutorials instead => @diagnose |fail
+@ship Ship README + rehearse the walkthrough :: The drill-15 walkthrough **IS** the A3 architecture screen — rehearse until 5 minutes feels short.
 :::
 
 :::diagram study-path.png

@@ -2,17 +2,31 @@
 
 Your A3 defense is a system-design interview in committee form: the panel probes how you framed the ML objective, built the feature/data pipeline, and justified metrics — exactly this book's skeleton. All 11 chapters share one 7-step framework; the chapters mapping to data-engineering work (retrieval/ranking, feature stores, continual learning) get the most space below.
 
-:::glide One Skeleton, Eleven Designs
-1) Clarify requirements :: the panel's menu — business objective, features, data sources/labels, constraints, scale, accuracy-vs-latency (ch1, p1-2)
-2) Frame as ML task :: the load-bearing move: translate business goal → trainable objective — "increase engagement" → "maximize watch time" (Table 1.1, p3)
-3) Prepare data :: ETL plus feature ops — imputation, scaling, encoding; seniority lives in data engineering, the models are the easy 20%
-4) Develop a model :: the ladder — popularity baseline → LR → DNN → ensemble only if needed (ch1, p14)
-5) Evaluate offline + online :: reproduce the elimination chain (MRR vs recall@k vs nDCG vs mAP vs NCE) — every chapter discards candidates for stated reasons
-6) Deploy and serve :: retrieve-then-rank — candidate generation → ranking → re-ranking; business rules stay in re-rank, never in the model (ch2, p47)
-7) Monitor and retrain :: continual learning where freshness matters (ch7/ch8), batch-vs-online as a stated trade (ch11, p247)
-? Why weight unobserved pairs with WALS in matrix factorization? :: Observed-pairs-only loss hits zero with degenerate all-ones embeddings; adding weighted unobserved pairs forces real separation (ch6, p131-132).
-? Why does recall@k fail for visual search at billions of images? :: Millions of relevant items drown recall@k, and precision@k is rank-blind — the elimination chain lands on nDCG for continuous relevance (ch2, p42-46).
-? Why do ad click models demand continual learning while GBDT fights it? :: A 5-minute model-update delay measurably damages performance, and GBDT cannot be fine-tuned — only retrained from scratch — so DCN/DeepFM win (ch7, p162; ch8, p171-172, p186).
+:::scenario Scenario — One Skeleton, Eleven Designs
+@panel Committee: design a recommender :: Eleven chapters, one seven-step skeleton — seniority lives in data engineering; the models are the easy 20%.
+-> open skeleton => @clarify
+@clarify Step 1 — Clarify :: Business objective, features, data sources/labels, constraints, scale, accuracy-vs-latency — work the panel's menu.
+-> frame objective => @frame
+@frame Step 2 — Frame as ML task :: The load-bearing move: "increase engagement" → "maximize watch time" — name objectives with failure modes first.
+? Maximize clicks raw => @clickbait |fail
+-> prepare data => @data
+@clickbait The clickbait trap :: Clicks reward clickbait, completions bias toward short videos — land on relevance-aware objectives.
+-> reframe => @frame
+@data Step 3 — Prepare data :: ETL + feature ops — imputation, scaling, encoding; labeling is a design decision: clicks free but noisy, humans scarce.
+-> pick model => @model
+@model Step 4 — Develop the model :: Ladder: popularity baseline → LR → DNN → ensemble only if needed; GBDT only where retraining from scratch is acceptable.
+? Implicit-feedback matrix factorization => @loss |success
+-> evaluate => @metrics
+@loss Weight the unobserved pairs :: Observed-only loss hits zero with degenerate all-ones embeddings — WALS forces real separation; walk the loss aloud.
+-> evaluate => @metrics
+@metrics Step 5 — Evaluate :: Reproduce the elimination chain: MRR ignores post-first hits, recall@k drowns, precision@k is rank-blind → nDCG or mAP.
+? Uncalibrated pCTR feeds bidding => @calibrate |fail
+-> serve => @serve
+@calibrate Calibrate before serving :: Ad pCTRs feed downstream auctions — NCE < 1 vs the background-CTR baseline; uncalibrated models break the auction.
+-> serve => @serve
+@serve Step 6 — Retrieve-then-rank :: Candidate generation → ranking → re-ranking; feature store = static batch + dynamic; business rules stay in re-rank.
+-> monitor => @monitor
+@monitor Step 7 — Monitor + retrain :: Position bias inflates winners, frequent users over-represent — continual learning where freshness matters.
 :::
 :::diagram ml-serving-pipeline.png
 :::

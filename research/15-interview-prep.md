@@ -3,22 +3,34 @@
 Inside an internal assessment the design round probes **your project plus hypothetical extensions** — not a green-field prompt. The committee scores narrative + evidence against the competency matrix ([EPAM careers blog](https://www.epam.com/careers/blog/assessment-at-epam-what-it-means-for-your-career-growth)); ⚠ EPAM publishes no internal rubric, so treat scoring claims as directional. Highest-value scenario: the system you already own — the framework below runs first on Scenario 0.
 
 
-:::glide The Six-Step Answer
-1) Clarify :: State back the **freshness SLA**, consumers, correctness, constraints — never skip the SLA question
-2) Estimate :: ev/s → ev/day → raw → replicated → compressed; capacity math **before** architecture
-3) High-level design :: Draw the happy path, **SLA named on every hop**
-4) Tradeoffs :: Per arrow: alternative, why rejected, **one number** — probes land hardest here
-5) Ops & failure :: Lag, DLQ, schema gates, replay, GDPR, cost — offered **unprompted**
-6) Evolution :: "At 10x, bottleneck X; I change Y" — pre-computed per scenario
-7) Evidence :: Close on the ledger: claim → story → artifact → metric → matrix line — "**I**", never "we"
-
-? Why defend Scenario 0 first, not a green-field prompt? :: The committee scores narrative + evidence from your **real delivered work**; one "why" probe exposes architecture you didn't build, and "we" with no "I" earns no matrix credit.
-
-? At 100k ev/s, why 48 Kafka partitions? :: Per-partition ≈ **1.04 MB/s** ≪ 10 MB/s ceiling, and 48 matches Flink parallelism — 24h Kafka footprint ≈ 13 TB → 6 brokers × 4 TB usable.
-
-? When does exactly-once fail to be correctness? :: Checkpoints/2PC guarantee **processing semantics only** — late joins, timezone bugs, fraud are yours; answer with watermarks, dedup windows, reconciliation.
-
-? What breaks first at 10x in the click pipeline? :: **Flink state, not Kafka throughput** — and in migration, waves order by *consumer*, not table, so no consumer ever sees wrong data.
+:::scenario Scenario — The Six-Step Answer Under Probe
+@round Read the round :: Your project is Scenario 0, hypotheticals are the extension round — the committee scores narrative + evidence.
+? "Why Kafka, not X, in your project?" => @tradeoff |success
+? "What broke in production — your fix?" => @ops |success
+? "Extend it: 10x volume, new consumer" => @evolve |success
+-> narrate steps => @clarify
+@clarify Step 1 — Clarify :: State back freshness SLA, consumers, correctness, constraints — never skip SLA; it decides the architecture.
+-> capacity first => @estimate
+@estimate Step 2 — Estimate :: ev/s → ev/day → raw → replicated → compressed — capacity math before architecture; your numbers beat textbook figures.
+? Probe: why 48 partitions at 100k ev/s => @partitions |success
+-> draw design => @design
+@partitions Defend the partition count :: Per-partition ≈ 1.04 MB/s ≪ 10 MB/s ceiling, 48 matches Flink parallelism — 13 TB/24 h → 6 brokers × 4 TB.
+-> resume walkthrough => @design
+@design Step 3 — High-level design :: Draw the happy path, SLA named on every hop.
+-> per-arrow costs => @tradeoff
+@tradeoff Step 4 — Tradeoffs :: Per arrow: alternative, why rejected, one number — probes land hardest here; answer in "I", never "we".
+? Hide behind exactly-once semantics => @correctness |fail
+-> offer ops unprompted => @ops
+@correctness Exactly-once is not correctness :: Checkpoints/2PC are processing semantics only — late joins, timezones, fraud are yours: dedup windows, reconciliation.
+-> corrected => @tradeoff
+@ops Step 5 — Ops & failure :: Lag, DLQ, schema gates, replay, GDPR, cost — offered unprompted, as incident + your fix + before/after metric.
+-> precompute 10x => @evolve
+@evolve Step 6 — Evolution :: "At 10x, bottleneck X; I change Y" — pre-computed per scenario, numbers kept visible.
+? Hand-wave the 10x bottleneck => @tenx |fail
+-> close => @ledger
+@tenx The precomputed 10x answer :: Flink state, not Kafka throughput — and in migration, waves order by consumer, not table; no consumer sees wrong data.
+-> close => @ledger
+@ledger Step 7 — Close on evidence :: Claim → story → artifact → metric → matrix line — "I", never "we"; 4–5 proof stories, 90 s each.
 :::
 :::diagram answer-framework.png
 :::
