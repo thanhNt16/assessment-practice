@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -717,8 +733,9 @@ flowchart LR
 </ul>
 <div class="chip-row"><a class="chip" href="s04.html#cap-the-consistency-spectrum" title="Raft is the replicable-log consensus protocol most systems cite.">Raft</a><a class="chip" href="s22.html#requirements-snapshot" title="LLMs generate token-by-token, each conditioned on the last.">Autoregressive model</a><a class="chip" href="s16.html#the-repeating-framework-ch2-ch11" title="self-attention replaces recurrence and enables parallel training.">Attention</a><a class="chip" href="s17.html#the-repeating-framework-ch1" title="BPE builds the subword vocabulary tokenizers use.">Tokenization</a><a class="chip" href="s16.html#the-repeating-framework-ch2-ch11" title="output quality is steered by instructions and few-shot examples.">Prompt</a><a class="chip" href="s16.html#the-repeating-framework-ch2-ch11" title="preference-trained alignment layered on pretrained LLMs.">RLHF</a></div>
 <div class="selfcheck"><h3 class="sc-title">Self-check — 7 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s20-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>Frame image captioning as an ML task.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Translation with pixels as the source language — image encoder, decoder-only Transformer emits the caption.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s20-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>Per-patch tokens or one global vector?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Per-patch sequence — attention needs sequences and a global vector discards local detail.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s20-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>Name three cleaning steps for the 400M pairs.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Dedup via perceptual hash/CLIP, CLIP relevance filter below ~0.25, LLM summarization of long captions.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s20-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>Why summarize long captions before training?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>The model imitates caption length — long training captions produce long, unusable suggestions.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s20-5"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>Why beam search over sampling?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Higher quality, deterministic same-image-same-caption, coherent — diversity is unwanted.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s20-6"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>How are ambiguous images handled?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Beam-search cumulative probability below a confidence threshold disables the suggestion.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s20-7"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s20.html">s20 · Captioning</a><p>What is CIDEr and its blind spots?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>TF-IDF vectors, cosine similarity vs references, averaged; blind to novel phrasing and word-order semantics.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#requirements-snapshot">Requirements Snapshot</option><option value="#data-preparation-400m-noisy-pairs">Data Preparation (400M Noisy Pairs)</option><option value="#architecture-encoderdecoder-two-modalities">Architecture: Encoder–Decoder, Two Modalities</option><option value="#training-sampling">Training &amp; Sampling</option><option value="#evaluation">Evaluation</option><option value="#overall-ml-system-design">Overall ML System Design</option><option value="#other-talking-points">Other Talking Points</option><option value="#failure-modes-anti-patterns">Failure modes &amp; anti-patterns</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s19.html"><div class="plabel">Previous</div><div class="ptitle">← Personal Assistant Chatbot</div></a><a class="next" href="s21.html"><div class="plabel">Next</div><div class="ptitle">Retrieval-Augmented Generation →</div></a></div>
+<div class="study-pager" data-sec="20"><a class="sp-prev" href="s19.html">‹ Personal Assistant Chatbot</a><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><a class="sp-next" href="s21.html">Retrieval-Augmented Generation ›</a></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -1109,6 +1126,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">

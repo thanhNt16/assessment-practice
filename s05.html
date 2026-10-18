@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -675,8 +691,9 @@ VALUES (next_surrogate(), s.customer_id, s.email, s.segment,
 </ul>
 <div class="chip-row"><a class="chip" href="s01.html#how-internal-assessment-works" title="Delta Lake is the platform&#x27;s native table format.">Delta Lake</a><a class="chip" href="s01.html#how-internal-assessment-works" title="lakehouse layers are stored in open columnar formats.">Parquet</a><a class="chip" href="s12.html#queues-pubsub-and-logs" title="consumer progress is tracked as per-partition offsets.">Offset</a><a class="chip" href="s12.html#queues-pubsub-and-logs" title="a group spreads a topic&#x27;s partitions across its consumers.">Consumer group</a><a class="chip" href="s12.html#queues-pubsub-and-logs" title="the outbox table is the CDC source that publishes reliable domain events.">Outbox pattern</a><a class="chip" href="s03.html#python-patterns-for-data-work" title="Iceberg tables store data as Parquet files behind the metadata tree.">Parquet</a></div>
 <div class="selfcheck"><h3 class="sc-title">Self-check — 7 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s05-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>What does the ingestion layer do?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Only transport — no business logic; the choices are pull vs push and full vs incremental.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s05-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>Why is log-based CDC the OLTP default?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Captures hard deletes at minimal source overhead with seconds latency; polling misses deletes, triggers slow every write.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s05-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>What belongs in bronze?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>An immutable, append-only raw copy plus ingest metadata — replay insurance, never edited downstream.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s05-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>What happens to rows failing the silver quality gate?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Quarantined with reason and lineage — gold stays clean; fix upstream and replay.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s05-5"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>Name the #1 data-modeling question.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Declare the grain — e.g. &quot;one row per order line.&quot;</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s05-6"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>Why does SCD2 preserve as-of analytics?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>The fact&#x27;s surrogate FK pins it to the dimension version true at event time — expire + insert in one transaction.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s05-7"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s05.html">s5 · Architecture</a><p>Name the data-observability pillars.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Freshness, volume, schema, distribution, lineage.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#layered-reference-architecture">Layered Reference Architecture</option><option value="#medallion-bronze-silver-gold">Medallion: Bronze / Silver / Gold</option><option value="#data-modeling">Data Modeling</option><option value="#slowly-changing-dimensions">Slowly Changing Dimensions</option><option value="#data-quality-contracts">Data Quality &amp; Contracts</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s04.html"><div class="plabel">Previous</div><div class="ptitle">← Distributed Systems Fundamentals</div></a><a class="next" href="s06.html"><div class="plabel">Next</div><div class="ptitle">Batch vs Streaming →</div></a></div>
+<div class="study-pager" data-sec="5"><a class="sp-prev" href="s04.html">‹ Distributed Systems Fundamentals</a><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><a class="sp-next" href="s06.html">Batch vs Streaming ›</a></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -1064,6 +1081,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">

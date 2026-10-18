@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -674,8 +690,9 @@ flowchart TD
 </ul>
 <div class="chip-row"><a class="chip" href="s08.html#architecture-two-different-answers" title="decoder-only transformers scaled up.">LLM</a><a class="chip" href="s16.html#the-repeating-framework-ch2-ch11" title="self-attention replaces recurrence and enables parallel training.">Attention</a><a class="chip" href="s14.html#the-five-sources-at-a-glance" title="output quality is steered by instructions and few-shot examples.">LLM</a><a class="chip" href="s17.html#the-repeating-framework-ch1" title="encoder-only transformer for contextual embeddings.">BERT</a><a class="chip" href="s17.html#the-repeating-framework-ch1" title="the classic click-through-rate model pair.">DeepFM</a><a class="chip" href="s24.html#clarify-requirements-first" title="the prompt enters the denoiser through cross-attention at every block.">Cross-attention</a></div>
 <div class="selfcheck"><h3 class="sc-title">Self-check — 7 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s26-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>Why latent diffusion for video?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>VAE compresses 8× spatial and 8× temporal — 512× smaller, making training and inference affordable.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s26-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>Pixel-space cost of a 5s 720p video?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>~7 minutes per video on an H100 — 120 frames at 3.6× image pixels.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s26-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>Why precompute and cache latents?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Per-step VAE encoding stalls training — ~200 TB cache for 100M videos buys it back.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s26-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>Why DiT over U-Net for video?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>3D patchify with Transformer scaling and modality flexibility — Sora and Movie Gen chose it.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s26-5"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>How do you handle scarce video–text pairs?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Fold images in as single-frame videos — one joint training stage.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s26-6"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>Which metric catches flicker?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>FVD — Fréchet distance over I3D features; FID/IS score frames and miss motion.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s26-7"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s26.html">s26 · Text→Video</a><p>Name the two super-resolution stages.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Spatial SR restores 720p; temporal SR interpolates 12 FPS to 24 FPS.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#clarifying-requirements-the-interview-script">Clarifying Requirements (the interview script)</option><option value="#why-latent-diffusion-ldm-not-pixel-diffusion">Why Latent Diffusion (LDM), Not Pixel Diffusion</option><option value="#data-preparation">Data Preparation</option><option value="#architecture-u-net-vs-dit">Architecture: U-Net vs DiT</option><option value="#training">Training</option><option value="#evaluation">Evaluation</option><option value="#inference-pipeline">Inference Pipeline</option><option value="#failure-modes-anti-patterns">Failure modes &amp; anti-patterns</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s25.html"><div class="plabel">Previous</div><div class="ptitle">← Personalized Headshot Generation</div></a><span></span></div>
+<div class="study-pager" data-sec="26"><a class="sp-prev" href="s25.html">‹ Personalized Headshot Generation</a><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><span class="sp-next"></span></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -1066,6 +1083,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">

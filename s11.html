@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -708,8 +724,9 @@ Broadcast escape hatch? Dim table is 8 GB ≫ 10 MB threshold — forcing <code>
 </ul>
 <div class="chip-row"><a class="chip" href="s01.html#how-internal-assessment-works" title="Delta Lake is the platform&#x27;s native table format.">Delta Lake</a><a class="chip" href="s03.html#python-patterns-for-data-work" title="the driver schedules tasks; executors run them on partitions.">Driver</a><a class="chip" href="s01.html#how-internal-assessment-works" title="stage boundaries in the DAG are exactly where shuffles happen.">DAG</a><a class="chip" href="s10.html#spark-dag-shuffle-catalyst" title="salted keys break up the hot partitions that skew stages.">Salting</a><a class="chip" href="s02.html#window-functions" title="Spark plans SQL window aggregates through the same Catalyst optimizer.">Window functions</a><a class="chip" href="s01.html#how-internal-assessment-works" title="Kafka partitions topics for parallel consumption the way compute partitions data.">Kafka</a></div>
 <div class="selfcheck"><h3 class="sc-title">Self-check — 7 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s11-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>What does AQE re-plan with, and since which release?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Actual shuffle stats at each Exchange boundary — default since Spark 3.2.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s11-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>State both AQE skew-join split triggers.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Partition above 5× the median AND above 256 MB — split toward ~64 MB subtasks.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s11-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>Why doesn&#x27;t AQE fix skewed groupBy?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Skew split covers joins only (SMJ/SHJ) — aggregate skew needs salting.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s11-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>Broadcast join condition and its failure mode?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>One side ≤ 10 MB per honest stats; stale/underestimated stats make the driver OOM collecting it.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s11-5"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>How do you size shuffle partitions?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>≈ shuffle bytes ÷ 128–256 MB — over-provision, AQE coalesces; the 200 default is wrong both ways.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s11-6"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>Storage vs execution memory under pressure?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Storage evicts blocks; execution never evicts — it spills to disk.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s11-7"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s11.html">s11 · Spark Tuning</a><p>What does max task time ≫ p50 in the UI mean?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Skew; uniformly slow tasks point to sizing, spill, or GC instead.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#catalyst-the-query-optimizer">Catalyst: The Query Optimizer</option><option value="#aqe-adaptive-query-execution">AQE: Adaptive Query Execution</option><option value="#join-strategies">Join Strategies</option><option value="#shuffle-partitioning">Shuffle &amp; Partitioning</option><option value="#memory-spill-gc">Memory, Spill &amp; GC</option><option value="#reading-the-spark-ui">Reading the Spark UI</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s10.html"><div class="plabel">Previous</div><div class="ptitle">← Compute Engines: Spark vs Flink</div></a><a class="next" href="s12.html"><div class="plabel">Next</div><div class="ptitle">Messaging &amp; Streaming Backbones: Kafka and Friends →</div></a></div>
+<div class="study-pager" data-sec="11"><a class="sp-prev" href="s10.html">‹ Compute Engines: Spark vs Flink</a><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><a class="sp-next" href="s12.html">Messaging &amp; Streaming Backbones: Kafka and Friends ›</a></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -1098,6 +1115,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">

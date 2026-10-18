@@ -391,12 +391,20 @@ def outline_items(sec):
         lis.append(f'<li><a class="outline-link lvl3" href="#{sid}">{strip(st)}</a></li>')
     return "\n".join(lis)
 
+def outline_select(sec):
+    if not sec["subs"]:
+        return ""
+    opts = "".join(f'<option value="#{sid}">{strip(st)}</option>' for st, sid in sec["subs"])
+    return (f'<select id="outlineJump" class="outline-jump" aria-label="Jump to section">'
+            f'<option value="">On this page…</option>{opts}</select>')
+
 def pager(i):
     prev_s = sections[i-1] if i > 0 else None
     next_s = sections[i+1] if i < len(sections)-1 else None
-    p = f'<a class="prev" href="{prev_s["url"]}"><div class="plabel">Previous</div><div class="ptitle">← {strip(prev_s["title"])}</div></a>' if prev_s else '<span></span>'
-    n = f'<a class="next" href="{next_s["url"]}"><div class="plabel">Next</div><div class="ptitle">{strip(next_s["title"])} →</div></a>' if next_s else '<span></span>'
-    return f'<div class="pager">{p}{n}</div>'
+    p = f'<a class="sp-prev" href="{prev_s["url"]}">‹ {strip(prev_s["title"])}</a>' if prev_s else '<span class="sp-prev"></span>'
+    n = f'<a class="sp-next" href="{next_s["url"]}">{strip(next_s["title"])} ›</a>' if next_s else '<span class="sp-next"></span>'
+    return (f'<div class="study-pager" data-sec="{i+1}">{p}'
+            f'<div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div>{n}</div>')
 
 # ---------------- Duolingo path ----------------
 NODE_X = [0, 70, 110, 70, 0, -70, -110, -70, 0, 70, 110, 70, 0]
@@ -409,8 +417,12 @@ def vmap_svg():
         x0, y0 = pts[i-1]; x1, y1 = pts[i]
         my = (y0 + y1) / 2
         d += f" C {x0} {my}, {x1} {my}, {x1} {y1}"
+    ring = "".join(
+        f'<circle class="mring" data-sec="{i}" cx="{px}" cy="{py}" r="37" fill="none" stroke-width="3.5"'
+        f' stroke-dasharray="0 232.5" transform="rotate(-90 {px} {py})"/>'
+        for i, (px, py) in enumerate(pts))
     return (f'<svg class="vm-svg" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Course path">'
-            f'<path class="vm-path" d="{d}" fill="none"/></svg>')
+            f'<path class="vm-path" d="{d}" fill="none"/>{ring}</svg>')
 
 def vmap_html():
     step = 96
@@ -426,6 +438,7 @@ def vmap_html():
   <div class="vm-card">
     <div class="vm-card-title">{i+1}. {html.escape(n["short"])}</div>
     <div class="vm-card-blurb">{html.escape(n["blurb"])}</div>
+    <div class="vm-study" data-sec="{i}"></div>
     <a class="vm-go" href="{s["url"]}">Go →</a>
   </div>
 </div>''')
@@ -801,6 +814,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 """
 
 JS = r"""
@@ -1173,6 +1202,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 """
 
@@ -1335,6 +1387,7 @@ for s in sections:
                      f'<div class="sc-deck">{deck}</div></div>')
     inner = f"""{s['html']}{chip_row}
 {selfcheck}
+{outline_select(s)}
       <button class="mark-done" id="markDone">Mark section as done</button>
 {pager(s['i'])}
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>"""

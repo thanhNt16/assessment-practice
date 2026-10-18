@@ -354,6 +354,22 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+
+/* ---------- mastery rings, study pager, mobile outline, touch copy ---------- */
+.mring{transition:stroke-dasharray .3s}
+.vm-study{font-size:12px;color:var(--vp-c-text-3);margin:6px 0 0}
+.study-pager{position:sticky;bottom:0;background:var(--vp-c-bg-elv);border-top:1px solid var(--vp-c-divider);display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;z-index:40;border-radius:12px 12px 0 0;margin-top:48px}
+.study-pager .sp-prev,.study-pager .sp-next{flex:1;min-width:0;font-weight:600;font-size:13.5px;color:var(--vp-c-brand-2);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.study-pager .sp-next{text-align:right}
+.study-pager span.sp-prev,.study-pager span.sp-next{visibility:hidden}
+.sp-mid{flex:0 1 220px;min-width:120px;text-align:center}
+.sp-pct{display:block;font-size:12px;color:var(--vp-c-text-3);margin-bottom:4px}
+.sp-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);overflow:hidden}
+.sp-bar i{display:block;height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.outline-jump{display:block;width:100%;max-width:420px;margin:24px 0 0;padding:9px 12px;border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-family:var(--font-body);font-size:14px}
+@media(min-width:1080px){.outline-jump{display:none}}
+@media(min-width:1280px){.main{max-width:880px}}
+@media(hover:none){.vp-doc pre .copy-btn{opacity:1;position:static;margin:10px 0 0}}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
@@ -482,13 +498,14 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vmap-head"><span>Course Path</span><span class="vm-progress" id="vmProgress">0 / 26</span></div>
   <div class="vmap-body">
     <div class="vm-mod" style="top:26px;height:362px"><span>🎯 Goal &amp; Foundations</span></div><div class="vm-mod" style="top:410px;height:362px"><span>🏗️ Platform Design</span></div><div class="vm-mod" style="top:794px;height:362px"><span>⚙️ Technology Deep-Dive</span></div><div class="vm-mod" style="top:1178px;height:266px"><span>🏁 Production &amp; Defense</span></div><div class="vm-mod" style="top:1466px;height:1034px"><span>🤖 GenAI &amp; ML Design</span></div>
-    <svg class="vm-svg" viewBox="0 0 340 2536" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Course path"><path class="vm-path" d="M 170 60 C 170 108.0, 240 108.0, 240 156 C 240 204.0, 280 204.0, 280 252 C 280 300.0, 240 300.0, 240 348 C 240 396.0, 170 396.0, 170 444 C 170 492.0, 100 492.0, 100 540 C 100 588.0, 60 588.0, 60 636 C 60 684.0, 100 684.0, 100 732 C 100 780.0, 170 780.0, 170 828 C 170 876.0, 240 876.0, 240 924 C 240 972.0, 280 972.0, 280 1020 C 280 1068.0, 240 1068.0, 240 1116 C 240 1164.0, 170 1164.0, 170 1212 C 170 1260.0, 170 1260.0, 170 1308 C 170 1356.0, 240 1356.0, 240 1404 C 240 1452.0, 280 1452.0, 280 1500 C 280 1548.0, 240 1548.0, 240 1596 C 240 1644.0, 170 1644.0, 170 1692 C 170 1740.0, 100 1740.0, 100 1788 C 100 1836.0, 60 1836.0, 60 1884 C 60 1932.0, 100 1932.0, 100 1980 C 100 2028.0, 170 2028.0, 170 2076 C 170 2124.0, 240 2124.0, 240 2172 C 240 2220.0, 280 2220.0, 280 2268 C 280 2316.0, 240 2316.0, 240 2364 C 240 2412.0, 170 2412.0, 170 2460" fill="none"/></svg>
+    <svg class="vm-svg" viewBox="0 0 340 2536" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Course path"><path class="vm-path" d="M 170 60 C 170 108.0, 240 108.0, 240 156 C 240 204.0, 280 204.0, 280 252 C 280 300.0, 240 300.0, 240 348 C 240 396.0, 170 396.0, 170 444 C 170 492.0, 100 492.0, 100 540 C 100 588.0, 60 588.0, 60 636 C 60 684.0, 100 684.0, 100 732 C 100 780.0, 170 780.0, 170 828 C 170 876.0, 240 876.0, 240 924 C 240 972.0, 280 972.0, 280 1020 C 280 1068.0, 240 1068.0, 240 1116 C 240 1164.0, 170 1164.0, 170 1212 C 170 1260.0, 170 1260.0, 170 1308 C 170 1356.0, 240 1356.0, 240 1404 C 240 1452.0, 280 1452.0, 280 1500 C 280 1548.0, 240 1548.0, 240 1596 C 240 1644.0, 170 1644.0, 170 1692 C 170 1740.0, 100 1740.0, 100 1788 C 100 1836.0, 60 1836.0, 60 1884 C 60 1932.0, 100 1932.0, 100 1980 C 100 2028.0, 170 2028.0, 170 2076 C 170 2124.0, 240 2124.0, 240 2172 C 240 2220.0, 280 2220.0, 280 2268 C 280 2316.0, 240 2316.0, 240 2364 C 240 2412.0, 170 2412.0, 170 2460" fill="none"/><circle class="mring" data-sec="0" cx="170" cy="60" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 60)"/><circle class="mring" data-sec="1" cx="240" cy="156" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 156)"/><circle class="mring" data-sec="2" cx="280" cy="252" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 280 252)"/><circle class="mring" data-sec="3" cx="240" cy="348" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 348)"/><circle class="mring" data-sec="4" cx="170" cy="444" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 444)"/><circle class="mring" data-sec="5" cx="100" cy="540" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 100 540)"/><circle class="mring" data-sec="6" cx="60" cy="636" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 60 636)"/><circle class="mring" data-sec="7" cx="100" cy="732" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 100 732)"/><circle class="mring" data-sec="8" cx="170" cy="828" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 828)"/><circle class="mring" data-sec="9" cx="240" cy="924" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 924)"/><circle class="mring" data-sec="10" cx="280" cy="1020" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 280 1020)"/><circle class="mring" data-sec="11" cx="240" cy="1116" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 1116)"/><circle class="mring" data-sec="12" cx="170" cy="1212" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 1212)"/><circle class="mring" data-sec="13" cx="170" cy="1308" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 1308)"/><circle class="mring" data-sec="14" cx="240" cy="1404" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 1404)"/><circle class="mring" data-sec="15" cx="280" cy="1500" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 280 1500)"/><circle class="mring" data-sec="16" cx="240" cy="1596" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 1596)"/><circle class="mring" data-sec="17" cx="170" cy="1692" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 1692)"/><circle class="mring" data-sec="18" cx="100" cy="1788" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 100 1788)"/><circle class="mring" data-sec="19" cx="60" cy="1884" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 60 1884)"/><circle class="mring" data-sec="20" cx="100" cy="1980" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 100 1980)"/><circle class="mring" data-sec="21" cx="170" cy="2076" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 2076)"/><circle class="mring" data-sec="22" cx="240" cy="2172" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 2172)"/><circle class="mring" data-sec="23" cx="280" cy="2268" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 280 2268)"/><circle class="mring" data-sec="24" cx="240" cy="2364" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 240 2364)"/><circle class="mring" data-sec="25" cx="170" cy="2460" r="37" fill="none" stroke-width="3.5" stroke-dasharray="0 232.5" transform="rotate(-90 170 2460)"/></svg>
     <div class="vm-node" data-n="0" data-side="r" style="left:calc(50% + -36px);top:30px">
   <a class="vm-btn" href="s01.html" aria-label="Assessment"><span class="vm-icon">🧭</span><span class="vm-check">✓</span></a>
   <div class="vm-num">1</div>
   <div class="vm-card">
     <div class="vm-card-title">1. Assessment</div>
     <div class="vm-card-blurb">EPAM A3 ladder, 6-round loop, grading signals, prep plan.</div>
+    <div class="vm-study" data-sec="0"></div>
     <a class="vm-go" href="s01.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="1" data-side="l" style="left:calc(50% + 34px);top:126px">
@@ -497,6 +514,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">2. SQL</div>
     <div class="vm-card-blurb">Window functions, classic problems, query optimization.</div>
+    <div class="vm-study" data-sec="1"></div>
     <a class="vm-go" href="s02.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="2" data-side="l" style="left:calc(50% + 74px);top:222px">
@@ -505,6 +523,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">3. PySpark</div>
     <div class="vm-card-blurb">Live-coding patterns, driver/executor model, skew fixes.</div>
+    <div class="vm-study" data-sec="2"></div>
     <a class="vm-go" href="s03.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="3" data-side="l" style="left:calc(50% + 34px);top:318px">
@@ -513,6 +532,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">4. Distributed</div>
     <div class="vm-card-blurb">CAP, consistency, replication, idempotency, time.</div>
+    <div class="vm-study" data-sec="3"></div>
     <a class="vm-go" href="s04.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="4" data-side="r" style="left:calc(50% + -36px);top:414px">
@@ -521,6 +541,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">5. Architecture</div>
     <div class="vm-card-blurb">Layers, medallion, modeling, CDC, SCD, contracts.</div>
+    <div class="vm-study" data-sec="4"></div>
     <a class="vm-go" href="s05.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="5" data-side="r" style="left:calc(50% + -106px);top:510px">
@@ -529,6 +550,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">6. Streaming</div>
     <div class="vm-card-blurb">Batch vs streaming, watermarks, Lambda vs Kappa.</div>
+    <div class="vm-study" data-sec="5"></div>
     <a class="vm-go" href="s06.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="6" data-side="r" style="left:calc(50% + -146px);top:606px">
@@ -537,6 +559,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">7. Lakehouse</div>
     <div class="vm-card-blurb">Warehouse vs lake vs lakehouse, disaggregation, ELT.</div>
+    <div class="vm-study" data-sec="6"></div>
     <a class="vm-go" href="s07.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="7" data-side="r" style="left:calc(50% + -106px);top:702px">
@@ -545,6 +568,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">8. Snow v DBX</div>
     <div class="vm-card-blurb">Architecture, credits vs DBUs, decision matrix, lock-in.</div>
+    <div class="vm-study" data-sec="7"></div>
     <a class="vm-go" href="s08.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="8" data-side="r" style="left:calc(50% + -36px);top:798px">
@@ -553,6 +577,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">9. Formats</div>
     <div class="vm-card-blurb">Delta / Iceberg / Hudi internals and when each wins.</div>
+    <div class="vm-study" data-sec="8"></div>
     <a class="vm-go" href="s09.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="9" data-side="l" style="left:calc(50% + 34px);top:894px">
@@ -561,6 +586,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">10. Engines</div>
     <div class="vm-card-blurb">Spark DAG/shuffle/Catalyst vs Flink state/checkpoints.</div>
+    <div class="vm-study" data-sec="9"></div>
     <a class="vm-go" href="s10.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="10" data-side="l" style="left:calc(50% + 74px);top:990px">
@@ -569,6 +595,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">11. Spark Tuning</div>
     <div class="vm-card-blurb">Catalyst optimizer, AQE, join strategies, shuffle &amp; memory tuning, Spark UI.</div>
+    <div class="vm-study" data-sec="10"></div>
     <a class="vm-go" href="s11.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="11" data-side="l" style="left:calc(50% + 34px);top:1086px">
@@ -577,6 +604,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">12. Kafka</div>
     <div class="vm-card-blurb">Partitions, ISR, producers/consumers, outbox, sizing.</div>
+    <div class="vm-study" data-sec="11"></div>
     <a class="vm-go" href="s12.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="12" data-side="r" style="left:calc(50% + -36px);top:1182px">
@@ -585,6 +613,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">13. Reliability</div>
     <div class="vm-card-blurb">Quality dimensions, tests, SLOs, incident playbook.</div>
+    <div class="vm-study" data-sec="12"></div>
     <a class="vm-go" href="s13.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="13" data-side="r" style="left:calc(50% + -36px);top:1278px">
@@ -593,6 +622,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">14. Practice</div>
     <div class="vm-card-blurb">Best sources, drills, and portfolio projects to build real skill.</div>
+    <div class="vm-study" data-sec="13"></div>
     <a class="vm-go" href="s14.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="14" data-side="l" style="left:calc(50% + 34px);top:1374px">
@@ -601,6 +631,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">15. Playbook</div>
     <div class="vm-card-blurb">Six-step framework, 3 worked scenarios, capacity math.</div>
+    <div class="vm-study" data-sec="14"></div>
     <a class="vm-go" href="s15.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="15" data-side="l" style="left:calc(50% + 74px);top:1470px">
@@ -609,6 +640,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">16. GenAI</div>
     <div class="vm-card-blurb">GenAI system design: one framework, 11 designs — RAG, LLM serving, diffusion.</div>
+    <div class="vm-study" data-sec="15"></div>
     <a class="vm-go" href="s16.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="16" data-side="l" style="left:calc(50% + 34px);top:1566px">
@@ -617,6 +649,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">17. ML Design</div>
     <div class="vm-card-blurb">ML system design: 7-step framework, retrieval→ranking, recsys/ads at scale.</div>
+    <div class="vm-study" data-sec="16"></div>
     <a class="vm-go" href="s17.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="17" data-side="r" style="left:calc(50% + -36px);top:1662px">
@@ -625,6 +658,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">18. Translation</div>
     <div class="vm-card-blurb">NMT pipeline: tokenization, attention, beam vs sampling, evaluation.</div>
+    <div class="vm-study" data-sec="17"></div>
     <a class="vm-go" href="s18.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="18" data-side="r" style="left:calc(50% + -106px);top:1758px">
@@ -633,6 +667,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">19. Chatbot</div>
     <div class="vm-card-blurb">Intent, dialogue state, retrieval+generation hybrid, guardrails.</div>
+    <div class="vm-study" data-sec="18"></div>
     <a class="vm-go" href="s19.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="19" data-side="r" style="left:calc(50% + -146px);top:1854px">
@@ -641,6 +676,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">20. Captioning</div>
     <div class="vm-card-blurb">CNN encoder + transformer decoder, beam search, BLEU/CIDEr.</div>
+    <div class="vm-study" data-sec="19"></div>
     <a class="vm-go" href="s20.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="20" data-side="r" style="left:calc(50% + -106px);top:1950px">
@@ -649,6 +685,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">21. RAG</div>
     <div class="vm-card-blurb">Chunking, embeddings, vector search, rerank, freshness + eval.</div>
+    <div class="vm-study" data-sec="20"></div>
     <a class="vm-go" href="s21.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="21" data-side="r" style="left:calc(50% + -36px);top:2046px">
@@ -657,6 +694,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">22. Face Gen</div>
     <div class="vm-card-blurb">GAN/StyleGAN latent space, ethics + provenance.</div>
+    <div class="vm-study" data-sec="21"></div>
     <a class="vm-go" href="s22.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="22" data-side="l" style="left:calc(50% + 34px);top:2142px">
@@ -665,6 +703,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">23. Hi-Res Synth</div>
     <div class="vm-card-blurb">Progressive growing, super-resolution cascade, compute budget.</div>
+    <div class="vm-study" data-sec="22"></div>
     <a class="vm-go" href="s23.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="23" data-side="l" style="left:calc(50% + 74px);top:2238px">
@@ -673,6 +712,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">24. Text→Image</div>
     <div class="vm-card-blurb">Diffusion, CLIP conditioning, guidance scale, serving latency.</div>
+    <div class="vm-study" data-sec="23"></div>
     <a class="vm-go" href="s24.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="24" data-side="l" style="left:calc(50% + 34px);top:2334px">
@@ -681,6 +721,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">25. Headshots</div>
     <div class="vm-card-blurb">Personalization tuning, privacy, dedup at scale.</div>
+    <div class="vm-study" data-sec="24"></div>
     <a class="vm-go" href="s25.html">Go →</a>
   </div>
 </div><div class="vm-node" data-n="25" data-side="r" style="left:calc(50% + -36px);top:2430px">
@@ -689,6 +730,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <div class="vm-card">
     <div class="vm-card-title">26. Text→Video</div>
     <div class="vm-card-blurb">Temporal consistency, frame sampling, cost + moderation.</div>
+    <div class="vm-study" data-sec="25"></div>
     <a class="vm-go" href="s26.html">Go →</a>
   </div>
 </div>
@@ -1089,6 +1131,29 @@ document.addEventListener('keydown',e=>{
   if(e.key===' ')fc.classList.remove('flipped');
   else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
 });
+// ---- mastery rings + study pager + outline jump ----
+function renderRings(){
+  const dark=document.documentElement.classList.contains('dark'),ARC=2*Math.PI*37;
+  document.querySelectorAll('.mring').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.setAttribute('stroke',m.studied===0?'none':(m.pct>=70?(dark?'#4ccb7f':'#22a55b'):'#5672cd'));
+    // ponytail: blue arc shows studied fraction (brief's "grade → blue ring" is invisible at pct 0); green shows mature pct
+    const frac=m.pct>=70?m.pct:(m.studied?100*m.studied/m.total:0);
+    el.setAttribute('stroke-dasharray',(frac/100*ARC).toFixed(1)+' '+ARC.toFixed(1));
+  });
+  document.querySelectorAll('.vm-study').forEach(el=>{
+    const m=mastery(+el.dataset.sec+1);
+    el.textContent=m.total?`${m.studied}/${m.total} studied · ${m.mature} mature`:'';
+  });
+  document.querySelectorAll('.study-pager').forEach(pg=>{
+    const m=mastery(+pg.dataset.sec),s=pg.querySelector('.sp-pct'),b=pg.querySelector('.sp-bar i');
+    if(s)s.textContent=m.pct+'% mature';
+    if(b)b.style.width=m.pct+'%';
+  });
+}
+window.__ringRefresh=renderRings;
+addEventListener('load',renderRings); // STUDY_ALL_CARDS script sits after this one
+document.getElementById('outlineJump')?.addEventListener('change',e=>{if(e.target.value)location.hash=e.target.value});
 initFlipcards(document);
 </script>
 <script type="module">
