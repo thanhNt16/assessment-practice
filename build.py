@@ -822,7 +822,18 @@ a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 /* ---------- self-check flipcards + review hub ---------- */
 .selfcheck{margin:28px 0 0;padding:20px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt)}
 .sc-title{font-family:var(--font-head);font-size:20px;font-weight:600;margin:0 0 14px}
-.sc-deck{display:grid;gap:14px}
+.sc-deck{display:grid;gap:10px}
+.sc-pair{position:relative;border:1px solid var(--vp-c-divider);border-left:3px solid var(--vp-c-brand-1);border-radius:12px;background:var(--vp-c-bg-elv);transition:opacity .2s}
+.sc-pair.gone{opacity:0}
+.sc-pair>summary{display:flex;flex-direction:column;gap:6px;list-style:none;cursor:pointer;padding:13px 18px;font-size:15px;line-height:1.6}
+.sc-pair>summary::-webkit-details-marker{display:none}
+.sc-pair>summary::after{content:'▸';position:absolute;right:14px;top:12px;color:var(--vp-c-text-3);transition:transform .2s}
+.sc-pair[open]>summary::after{transform:rotate(90deg)}
+.sc-pair>summary:hover{color:var(--vp-c-brand-1)}
+.sc-pair:not([open])>.sc-answer{display:none}
+.sc-answer{padding:0 18px 14px;border-top:1px dashed var(--vp-c-divider)}
+.sc-answer p{margin:12px 0 0;font-size:15px;line-height:1.6}
+.sc-answer .fc-grades{margin-top:14px;padding-top:0}
 .flipcard{perspective:1000px;cursor:pointer}
 .fc-inner{display:grid;transition:transform .35s,opacity .2s;transform-style:preserve-3d;position:relative}
 .flipcard.flipped .fc-inner{transform:rotateY(180deg)}
@@ -832,7 +843,8 @@ a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .fc-front p,.fc-back p{margin:10px 0 0;font-size:15px;line-height:1.6}
 .fc-sec{display:inline-block;font-size:12px;font-weight:600;color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft);border-radius:12px;padding:2px 10px;align-self:flex-start}
 .fc-sec:hover{color:var(--vp-c-brand-1)}
-.fc-hint{margin-top:auto;padding-top:10px;font-size:11px;color:var(--vp-c-text-3)}
+.fc-hint{font-size:11px;color:var(--vp-c-text-3)}
+.fc-front .fc-hint{margin-top:auto;padding-top:10px}
 .fc-grades{display:flex;gap:8px;margin-top:auto;padding-top:12px}
 .grade-btn{flex:1;border:1.5px solid;border-radius:8px;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 4px;cursor:pointer}
 .g-again{color:#e5484d;border-color:#e5484d}
@@ -1260,11 +1272,13 @@ function mastery(sec){const all=window.STUDY_ALL_CARDS||[],o=schedAll();
 function initFlipcards(root){
   root.querySelectorAll('.flipcard').forEach(fc=>{
     fc.addEventListener('click',e=>{if(e.target.closest('.grade-btn'))return;fc.classList.toggle('flipped');});
+  });
+  root.querySelectorAll('.flipcard,.sc-pair').forEach(fc=>{
     fc.addEventListener('graded',e=>schedGrade(fc.dataset.id,e.detail));
   });
   root.querySelectorAll('.grade-btn').forEach(b=>b.addEventListener('click',e=>{
     e.stopPropagation();
-    const fc=b.closest('.flipcard');if(!fc)return;
+    const fc=b.closest('.flipcard,.sc-pair');if(!fc)return;
     fc.dispatchEvent(new CustomEvent('graded',{detail:b.dataset.g,bubbles:true}));
     fc.classList.add('gone');setTimeout(()=>fc.remove(),200);
   }));
@@ -1556,17 +1570,15 @@ def study_extra(sec=None):
 def md_inline(t):
     return re.sub(r'`([^`]+)`', r'<code>\1</code>', html.escape(t))
 
-def flipcard_html(card, i):
-    sec = i + 1
-    return (f'<div class="flipcard" data-id="{card["id"]}"><div class="fc-inner">'
-            f'<div class="fc-front"><a class="fc-sec" href="s{sec:02d}.html">s{sec} · {NODES[i]["short"]}</a>'
-            f'<p>{md_inline(card["q"])}</p><span class="fc-hint">space to flip</span></div>'
-            f'<div class="fc-back"><p>{md_inline(card["a"])}</p><div class="fc-grades">'
+def sc_pair_html(card):
+    return (f'<details class="sc-pair" data-id="{card["id"]}">'
+            f'<summary><p>{md_inline(card["q"])}</p></summary>'
+            f'<div class="sc-answer"><p>{md_inline(card["a"])}</p><div class="fc-grades">'
             f'<button class="grade-btn g-again" data-g="again">Again</button>'
             f'<button class="grade-btn g-hard" data-g="hard">Hard</button>'
             f'<button class="grade-btn g-good" data-g="good">Good</button>'
             f'<button class="grade-btn g-easy" data-g="easy">Easy</button>'
-            f'</div></div></div></div>')
+            f'</div></div></details>')
 
 for s in sections:
     chips = chips_for(s["i"] + 1)
@@ -1574,8 +1586,8 @@ for s in sections:
     cards = [c for c in study["cards"] if c["sec"] == s["i"] + 1]
     selfcheck = ""
     if cards:
-        deck = "".join(flipcard_html(c, s["i"]) for c in cards)
-        selfcheck = (f'<div class="selfcheck"><h3 class="sc-title">Self-check — {len(cards)} cards</h3>'
+        deck = "".join(sc_pair_html(c) for c in cards)
+        selfcheck = (f'<div class="selfcheck"><h3 class="sc-title">Self-check — {len(cards)} questions</h3>'
                      f'<div class="sc-deck">{deck}</div></div>')
     inner = f"""{s['html']}{chip_row}
 {selfcheck}

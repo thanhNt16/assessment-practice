@@ -318,7 +318,18 @@ a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 /* ---------- self-check flipcards + review hub ---------- */
 .selfcheck{margin:28px 0 0;padding:20px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt)}
 .sc-title{font-family:var(--font-head);font-size:20px;font-weight:600;margin:0 0 14px}
-.sc-deck{display:grid;gap:14px}
+.sc-deck{display:grid;gap:10px}
+.sc-pair{position:relative;border:1px solid var(--vp-c-divider);border-left:3px solid var(--vp-c-brand-1);border-radius:12px;background:var(--vp-c-bg-elv);transition:opacity .2s}
+.sc-pair.gone{opacity:0}
+.sc-pair>summary{display:flex;flex-direction:column;gap:6px;list-style:none;cursor:pointer;padding:13px 18px;font-size:15px;line-height:1.6}
+.sc-pair>summary::-webkit-details-marker{display:none}
+.sc-pair>summary::after{content:'▸';position:absolute;right:14px;top:12px;color:var(--vp-c-text-3);transition:transform .2s}
+.sc-pair[open]>summary::after{transform:rotate(90deg)}
+.sc-pair>summary:hover{color:var(--vp-c-brand-1)}
+.sc-pair:not([open])>.sc-answer{display:none}
+.sc-answer{padding:0 18px 14px;border-top:1px dashed var(--vp-c-divider)}
+.sc-answer p{margin:12px 0 0;font-size:15px;line-height:1.6}
+.sc-answer .fc-grades{margin-top:14px;padding-top:0}
 .flipcard{perspective:1000px;cursor:pointer}
 .fc-inner{display:grid;transition:transform .35s,opacity .2s;transform-style:preserve-3d;position:relative}
 .flipcard.flipped .fc-inner{transform:rotateY(180deg)}
@@ -328,7 +339,8 @@ a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .fc-front p,.fc-back p{margin:10px 0 0;font-size:15px;line-height:1.6}
 .fc-sec{display:inline-block;font-size:12px;font-weight:600;color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft);border-radius:12px;padding:2px 10px;align-self:flex-start}
 .fc-sec:hover{color:var(--vp-c-brand-1)}
-.fc-hint{margin-top:auto;padding-top:10px;font-size:11px;color:var(--vp-c-text-3)}
+.fc-hint{font-size:11px;color:var(--vp-c-text-3)}
+.fc-front .fc-hint{margin-top:auto;padding-top:10px}
 .fc-grades{display:flex;gap:8px;margin-top:auto;padding-top:12px}
 .grade-btn{flex:1;border:1.5px solid;border-radius:8px;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 4px;cursor:pointer}
 .g-again{color:#e5484d;border-color:#e5484d}
@@ -761,7 +773,7 @@ Verdict: matrix coverage below A4 line on 2 dimensions -&gt; feedback loop
 <li>Practice the spoken walkthrough of one project until any matrix dimension can be answered with a specific artifact and a number — that single skill is the assessment.</li>
 </ul>
 <div class="chip-row"><a class="chip" href="s04.html#cap-the-consistency-spectrum" title="Snowflake reads and writes Iceberg tables for open interop.">Iceberg</a><a class="chip" href="s05.html#layered-reference-architecture" title="platform governance features publish contract-backed datasets.">Data contracts</a><a class="chip" href="s05.html#layered-reference-architecture" title="lakehouse layers are stored in open columnar formats.">Medallion</a><a class="chip" href="s03.html#python-patterns-for-data-work" title="stage boundaries in the DAG are exactly where shuffles happen.">Shuffle</a><a class="chip" href="s12.html#queues-pubsub-and-logs" title="consumer progress is tracked as per-partition offsets.">Offset</a><a class="chip" href="s12.html#queues-pubsub-and-logs" title="a group spreads a topic&#x27;s partitions across its consumers.">Consumer group</a></div>
-<div class="selfcheck"><h3 class="sc-title">Self-check — 4 cards</h3><div class="sc-deck"><div class="flipcard" data-id="s01-1"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s01.html">s1 · Assessment</a><p>What replaces coding puzzles in the internal A3 assessment?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>A committee defense of your real project work, scored against the competency matrix.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s01-2"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s01.html">s1 · Assessment</a><p>Name the 5-part structure for presenting your project.</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Problem, constraints, 2–3 design options with tradeoffs, chosen design rationale, measured outcome.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s01-3"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s01.html">s1 · Assessment</a><p>Who gates the assessment attempt?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Your manager (sponsorship) plus a readiness review.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div><div class="flipcard" data-id="s01-4"><div class="fc-inner"><div class="fc-front"><a class="fc-sec" href="s01.html">s1 · Assessment</a><p>What is the single biggest defense mistake?</p><span class="fc-hint">space to flip</span></div><div class="fc-back"><p>Describing team achievements with &quot;we&quot; and never owning a decision with &quot;I&quot;.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></div></div></div></div>
+<div class="selfcheck"><h3 class="sc-title">Self-check — 4 questions</h3><div class="sc-deck"><details class="sc-pair" data-id="s01-1"><summary><p>What replaces coding puzzles in the internal A3 assessment?</p></summary><div class="sc-answer"><p>A committee defense of your real project work, scored against the competency matrix.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></details><details class="sc-pair" data-id="s01-2"><summary><p>Name the 5-part structure for presenting your project.</p></summary><div class="sc-answer"><p>Problem, constraints, 2–3 design options with tradeoffs, chosen design rationale, measured outcome.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></details><details class="sc-pair" data-id="s01-3"><summary><p>Who gates the assessment attempt?</p></summary><div class="sc-answer"><p>Your manager (sponsorship) plus a readiness review.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></details><details class="sc-pair" data-id="s01-4"><summary><p>What is the single biggest defense mistake?</p></summary><div class="sc-answer"><p>Describing team achievements with &quot;we&quot; and never owning a decision with &quot;I&quot;.</p><div class="fc-grades"><button class="grade-btn g-again" data-g="again">Again</button><button class="grade-btn g-hard" data-g="hard">Hard</button><button class="grade-btn g-good" data-g="good">Good</button><button class="grade-btn g-easy" data-g="easy">Easy</button></div></div></details></div></div>
 <select id="outlineJump" class="outline-jump" aria-label="Jump to section"><option value="">On this page…</option><option value="#how-internal-assessment-works">How Internal Assessment Works</option><option value="#the-epam-job-ladder-where-a3-sits">The EPAM Job Ladder: Where A3 Sits</option><option value="#what-assessors-score-the-competency-matrix">What Assessors Score: The Competency Matrix</option><option value="#internal-vs-external-what-changes">Internal vs External: What Changes</option><option value="#building-your-defense">Building Your Defense</option><option value="#key-takeaways">Key Takeaways</option><option value="#interview-lens">Interview Lens</option></select>
       <button class="mark-done" id="markDone">Mark section as done</button>
 <div class="study-pager" data-sec="1"><span class="sp-prev"></span><div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div><a class="sp-next" href="s02.html">SQL Deep Dive: The Problems EPAM Actually Asks ›</a></div>
@@ -1136,11 +1148,13 @@ function mastery(sec){const all=window.STUDY_ALL_CARDS||[],o=schedAll();
 function initFlipcards(root){
   root.querySelectorAll('.flipcard').forEach(fc=>{
     fc.addEventListener('click',e=>{if(e.target.closest('.grade-btn'))return;fc.classList.toggle('flipped');});
+  });
+  root.querySelectorAll('.flipcard,.sc-pair').forEach(fc=>{
     fc.addEventListener('graded',e=>schedGrade(fc.dataset.id,e.detail));
   });
   root.querySelectorAll('.grade-btn').forEach(b=>b.addEventListener('click',e=>{
     e.stopPropagation();
-    const fc=b.closest('.flipcard');if(!fc)return;
+    const fc=b.closest('.flipcard,.sc-pair');if(!fc)return;
     fc.dispatchEvent(new CustomEvent('graded',{detail:b.dataset.g,bubbles:true}));
     fc.classList.add('gone');setTimeout(()=>fc.remove(),200);
   }));
