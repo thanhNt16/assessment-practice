@@ -183,9 +183,8 @@ def scenario_parse(title, lines):
 def scenario_html(g, idx):
     return (f'<div class="scenario" data-sc="{idx}">'
             f'<div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · {html.escape(g["title"])}</b></span></div>'
-            f'<div class="sc-body"></div>'
-            f'<div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div>'
-            f'<div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button><span class="sc-zoom"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button></span></div></div>'
+            f'<div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div>'
+            f'<div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div>'
             f'<script type="application/json" class="sc-json">{json.dumps(g, ensure_ascii=False).replace("<", "\\u003c")}</script></div>')
 
 def render_page(src, sec_no):
@@ -582,15 +581,15 @@ html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
 .sc-btn:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .sc-btn.ok{border-color:#047857;color:#047857}
 .sc-btn.bad{border-color:#dc2626;color:#dc2626}
-.sc-bar{display:flex;gap:8px;margin-top:10px}
+.sc-bar{position:sticky;top:8px;left:0;display:flex;gap:4px;justify-content:flex-end;width:100%;padding:0 8px;z-index:5;pointer-events:none}
+.sc-bar>*{pointer-events:auto}
 .sc-node.hl rect{fill:#fde047 !important}
 html.dark .sc-node.hl rect{fill:#92400e !important}
 html.dark .sc-node.hl text{fill:#ffffff !important}
 .sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
-.sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
+.sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);font-size:13px;padding:4px 10px;cursor:pointer;font-family:var(--font-body);box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
-.sc-zoom{margin-left:auto;display:flex;gap:4px}
-.sc-zoom .sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+.sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
 .sc-body{position:relative}
 html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
@@ -858,7 +857,7 @@ function mountScenario(div,d,idx){
     d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
   const hlBtn=div.querySelector('[data-a="hl"]');
   hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
-    hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
+    hlBtn.title=hlMode?'Highlight on — tap nodes':'Highlight'};
   // zoom controls
   const zPct=div.querySelector('[data-a="zpct"]');
   const zSteps=[0.5,0.67,0.8,1,1.25,1.5,2,2.5,3];
