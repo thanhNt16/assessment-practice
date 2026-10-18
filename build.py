@@ -762,6 +762,44 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 a.chip{padding:6px 12px;border-radius:16px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);font-size:13px;color:var(--vp-c-text-1);text-decoration:none}
 a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 
+/* ---------- self-check flipcards + review hub ---------- */
+.selfcheck{margin:28px 0 0;padding:20px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt)}
+.sc-title{font-family:var(--font-head);font-size:20px;font-weight:600;margin:0 0 14px}
+.sc-deck{display:grid;gap:14px}
+.flipcard{perspective:1000px;cursor:pointer}
+.fc-inner{display:grid;transition:transform .35s,opacity .2s;transform-style:preserve-3d;position:relative}
+.flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+.flipcard.gone .fc-inner{opacity:0}
+.fc-front,.fc-back{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--vp-c-divider);border-left:3px solid var(--vp-c-brand-1);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 18px;min-height:180px;display:flex;flex-direction:column}
+.fc-back{transform:rotateY(180deg);border-left-color:#047857}
+.fc-front p,.fc-back p{margin:10px 0 0;font-size:15px;line-height:1.6}
+.fc-sec{display:inline-block;font-size:12px;font-weight:600;color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft);border-radius:12px;padding:2px 10px;align-self:flex-start}
+.fc-sec:hover{color:var(--vp-c-brand-1)}
+.fc-hint{margin-top:auto;padding-top:10px;font-size:11px;color:var(--vp-c-text-3)}
+.fc-grades{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.grade-btn{flex:1;border:1.5px solid;border-radius:8px;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 4px;cursor:pointer}
+.g-again{color:#e5484d;border-color:#e5484d}
+.g-again:hover{background:#e5484d;color:#fff}
+.g-hard{color:#e38407;border-color:#e38407}
+.g-hard:hover{background:#e38407;color:#fff}
+.g-good{color:#047857;border-color:#047857}
+.g-good:hover{background:#047857;color:#fff}
+.g-easy{color:#5672cd;border-color:#5672cd}
+.g-easy:hover{background:#5672cd;color:#fff}
+html.dark .g-again{color:#ff6369;border-color:#ff6369}
+html.dark .g-again:hover{background:#ff6369;color:#1A1A1A}
+html.dark .g-hard{color:#f5a623;border-color:#f5a623}
+html.dark .g-good{color:#30a46c;border-color:#30a46c}
+html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
+/* review hub */
+.review-main{flex:1;min-width:0;width:100%;max-width:860px;margin:0 auto;padding:32px 24px 96px}
+.review-main h1{font-family:var(--font-head);font-size:36px;font-weight:600;margin:8px 0}
+.review-stats{color:var(--vp-c-text-2);font-size:15px}
+.review-stats b{color:var(--vp-c-text-1)}
+.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:16px 0 28px;overflow:hidden}
+.review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
+.review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
 """
 
 JS = r"""
@@ -1096,6 +1134,45 @@ if(matchMedia('(hover:hover)').matches){
   document.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(t)showTerm(t)});
 }
 
+// ---- study scheduler (SM-2 lite) ----
+const SCHED_KEY='study-sched';
+function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){localStorage.setItem(SCHED_KEY,'{}');return{}}}
+function schedSave(o){localStorage.setItem(SCHED_KEY,JSON.stringify(o))}
+function schedGrade(id,g){
+  const o=schedAll(),c=o[id]||{e:2.3,iv:0};
+  if(g==='again'){c.e=Math.max(1.3,c.e-0.15);c.iv=10/1440;}
+  else if(g==='hard'){c.e=Math.max(1.3,c.e-0.05);c.iv=1;}
+  else if(g==='easy'){c.e=Math.min(2.8,c.e+0.1);c.iv=Math.max(c.iv*c.e,1)*1.3;}
+  else{c.iv=c.iv<1?1:c.iv*c.e;}
+  c.due=Date.now()+c.iv*864e5;
+  o[id]=c;schedSave(o);return c;
+}
+function dueList(all){const o=schedAll(),now=Date.now();return all.filter(c=>!(c.id in o)||o[c.id].due<=now);}
+function mastery(sec){const all=window.STUDY_ALL_CARDS||[],o=schedAll();
+  const mine=all.filter(c=>c.sec===sec),st=mine.filter(c=>c.id in o);
+  const mat=st.filter(c=>o[c.id].iv>=4);
+  return {studied:st.length,total:mine.length,mature:mat.length,pct:mine.length?Math.round(100*mat.length/mine.length):0};}
+// ---- flipcards ----
+function initFlipcards(root){
+  root.querySelectorAll('.flipcard').forEach(fc=>{
+    fc.addEventListener('click',e=>{if(e.target.closest('.grade-btn'))return;fc.classList.toggle('flipped');});
+    fc.addEventListener('graded',e=>schedGrade(fc.dataset.id,e.detail));
+  });
+  root.querySelectorAll('.grade-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const fc=b.closest('.flipcard');if(!fc)return;
+    fc.dispatchEvent(new CustomEvent('graded',{detail:b.dataset.g,bubbles:true}));
+    fc.classList.add('gone');setTimeout(()=>fc.remove(),200);
+  }));
+}
+document.addEventListener('keydown',e=>{
+  if(!/^[1-4]$/.test(e.key)&&e.key!==' ')return;
+  const fc=document.querySelector('.flipcard.flipped');if(!fc)return;
+  e.preventDefault();
+  if(e.key===' ')fc.classList.remove('flipped');
+  else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
+});
+initFlipcards(document);
 """
 
 MERMAID_JS = r"""
@@ -1128,10 +1205,14 @@ NAV = f"""<nav class="nav">
   <div class="spacer"></div>
   <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
   <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <a class="home-link" href="review.html">🎴 Review</a>
   <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
 </nav>"""
 
 THEME_BOOT = "<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>"
+def script_json(obj):
+    return (json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+            .replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e"))
 
 def shell(title, body, section_attr="", active=-1, extra=""):
     return f"""<!DOCTYPE html>
@@ -1191,7 +1272,8 @@ index_body = main_with_sidebar(-1, f"""      <div class="hero">
       </div>
       <div class="footer-note">Compiled {__import__('datetime').date.today().isoformat()} · Synthesized from vendor docs, papers, and reported interview experience.</div>""")
 
-(ROOT / "index.html").write_text(shell("Learn Data Platform Engineering — A3 Senior DE Assessment Prep", index_body))
+(ROOT / "index.html").write_text(shell("Learn Data Platform Engineering — A3 Senior DE Assessment Prep", index_body,
+    extra=f'<script>window.STUDY_ALL_CARDS={script_json(study["cards"])}</script>'))
 
 # ---------------- section pages ----------------
 def chips_for(sec_no):
@@ -1216,18 +1298,42 @@ def chips_for(sec_no):
                 return chips
     return chips
 
-def study_extra():
-    def script_json(obj):
-        return (json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
-                .replace("&", "\\u0026").replace("<", "\\u003c").replace(">", "\\u003e"))
+def study_extra(sec=None):
     terms = {t["t"]: t["def"] for t in study["terms"]}
-    return (f'<script>window.STUDY_TERMS={script_json(terms)};'
-            f'window.STUDY_TERMREFS={script_json(study["termRefs"])}</script>')
+    out = (f'<script>window.STUDY_TERMS={script_json(terms)};'
+           f'window.STUDY_TERMREFS={script_json(study["termRefs"])}</script>')
+    if sec is not None:
+        sc = [c for c in study["cards"] if c["sec"] == sec + 1]
+        out += (f'<script>window.STUDY_ALL_CARDS={script_json(sc)};'
+                f'window.STUDY={script_json({"sec": sec + 1, "cards": sc})}</script>')
+    return out
+
+def md_inline(t):
+    return re.sub(r'`([^`]+)`', r'<code>\1</code>', html.escape(t))
+
+def flipcard_html(card, i):
+    sec = i + 1
+    return (f'<div class="flipcard" data-id="{card["id"]}"><div class="fc-inner">'
+            f'<div class="fc-front"><a class="fc-sec" href="s{sec:02d}.html">s{sec} · {NODES[i]["short"]}</a>'
+            f'<p>{md_inline(card["q"])}</p><span class="fc-hint">space to flip</span></div>'
+            f'<div class="fc-back"><p>{md_inline(card["a"])}</p><div class="fc-grades">'
+            f'<button class="grade-btn g-again" data-g="again">Again</button>'
+            f'<button class="grade-btn g-hard" data-g="hard">Hard</button>'
+            f'<button class="grade-btn g-good" data-g="good">Good</button>'
+            f'<button class="grade-btn g-easy" data-g="easy">Easy</button>'
+            f'</div></div></div></div>')
 
 for s in sections:
     chips = chips_for(s["i"] + 1)
     chip_row = f'<div class="chip-row">{"".join(chips)}</div>' if chips else ""
+    cards = [c for c in study["cards"] if c["sec"] == s["i"] + 1]
+    selfcheck = ""
+    if cards:
+        deck = "".join(flipcard_html(c, s["i"]) for c in cards)
+        selfcheck = (f'<div class="selfcheck"><h3 class="sc-title">Self-check — {len(cards)} cards</h3>'
+                     f'<div class="sc-deck">{deck}</div></div>')
     inner = f"""{s['html']}{chip_row}
+{selfcheck}
       <button class="mark-done" id="markDone">Mark section as done</button>
 {pager(s['i'])}
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>"""
@@ -1240,7 +1346,76 @@ for s in sections:
     body = main_with_sidebar(s["i"], inner, outline)
     (ROOT / s["url"]).write_text(
         shell(s["title"], body, section_attr=f' data-section="{s["i"]}"', active=s["i"],
-              extra=study_extra()))
+              extra=study_extra(s["i"])))
     print(f"  wrote {s['url']}: '{s['title']}' +{len(s['subs'])} subs")
 
-print(f"Done — index.html + {len(FILES)} section pages")
+# ---------------- review hub ----------------
+REVIEW_JS = r"""
+(function(){
+  const q=document.getElementById('queue');if(!q)return;
+  const all=window.STUDY_ALL_CARDS||[],NAMES=window.STUDY_NODE_NAMES||[];
+  const $=id=>document.getElementById(id);
+  let queue=[],pos=0;
+  const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  function flipcardHtml(c){
+    const name=NAMES[c.sec-1]||('Section '+c.sec);
+    return '<div class="flipcard" data-id="'+c.id+'"><div class="fc-inner">'
+      +'<div class="fc-front"><a class="fc-sec" href="s'+String(c.sec).padStart(2,'0')+'.html">s'+c.sec+' · '+esc(name)+'</a>'
+      +'<p>'+esc(c.q)+'</p><span class="fc-hint">space to flip</span></div>'
+      +'<div class="fc-back"><p>'+esc(c.a)+'</p><div class="fc-grades">'
+      +['again','hard','good','easy'].map(g=>'<button class="grade-btn g-'+g+'" data-g="'+g+'">'+g[0].toUpperCase()+g.slice(1)+'</button>').join('')
+      +'</div></div></div></div>';
+  }
+  function streak(){try{return JSON.parse(localStorage.getItem('review-streak'))||{last:'',n:0}}catch(e){return{last:'',n:0}}}
+  function bumpStreak(){
+    const s=streak(),today=new Date().toISOString().slice(0,10);
+    if(s.last!==today){s.n=(s.last===new Date(Date.now()-864e5).toISOString().slice(0,10))?s.n+1:1;
+      s.last=today;localStorage.setItem('review-streak',JSON.stringify(s));}
+  }
+  function paintStats(){
+    const o=schedAll(),now=Date.now(),len=queue.length;
+    $('rvDue').textContent=all.filter(c=>!(c.id in o)||o[c.id].due<=now).length;
+    $('rvStreak').textContent=streak().n;
+    $('rvBar').style.width=len?Math.round(100*Math.min(pos,len)/len)+'%':'0%';
+    $('rvDone').hidden=!(pos>=len);
+  }
+  function render(){paintStats();q.innerHTML=pos<queue.length?flipcardHtml(queue[pos]):'';if(q.firstElementChild)initFlipcards(q);}
+  function buildQueue(){
+    const o=schedAll(),now=Date.now();
+    queue=all.filter(c=>!(c.id in o)||o[c.id].due<=now)
+      .sort((a,b)=>((o[a.id]&&o[a.id].due)||0)-((o[b.id]&&o[b.id].due)||0)).slice(0,40);
+    pos=JSON.parse(sessionStorage.getItem('review-pos')||'0');
+    if(!Number.isInteger(pos)||pos<0)pos=0;
+    if(pos>queue.length)pos=queue.length;
+    render();
+  }
+  q.addEventListener('graded',e=>{
+    bumpStreak();
+    if(e.detail==='again')queue.push(queue[pos]);
+    pos+=1;sessionStorage.setItem('review-pos',JSON.stringify(pos));
+    render();
+  });
+  $('rvAhead').addEventListener('click',()=>{
+    const o=schedAll(),iv=c=>(o[c.id]&&o[c.id].iv)||0;
+    queue=all.slice().sort((a,b)=>iv(a)-iv(b)).slice(0,10);
+    pos=0;sessionStorage.setItem('review-pos','0');render();
+  });
+  buildQueue();
+})();
+"""
+review_body = f"""  <main class="review-main">
+    <h1>Review</h1>
+    <div class="review-stats">Due today: <b id="rvDue">–</b> · deck: <b>{len(study["cards"])}</b> · streak: <b id="rvStreak">0</b></div>
+    <div class="review-bar"><div class="review-bar-fill" id="rvBar"></div></div>
+    <div id="queue"></div>
+    <div class="review-done" id="rvDone" hidden>
+      <p>Queue clear — nothing due right now.</p>
+      <button class="grade-btn g-easy" id="rvAhead">Study ahead (10)</button>
+    </div>
+  </main>"""
+(ROOT / "review.html").write_text(shell("Review", review_body, extra=(
+    f'<script>window.STUDY_ALL_CARDS={script_json(study["cards"])};'
+    f'window.STUDY_NODE_NAMES={script_json([n["short"] for n in NODES])}</script>'
+    f'<script>{REVIEW_JS}</script>')))
+
+print(f"Done — index.html + {len(FILES)} section pages + review.html")
