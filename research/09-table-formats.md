@@ -43,7 +43,6 @@ A table format is a transactional metadata layer over Parquet/ORC files that tur
 
 ::::diagram table-format-commit.png
 ::::
-:::
 
 ### Why Parquet Alone Is Not Enough
 

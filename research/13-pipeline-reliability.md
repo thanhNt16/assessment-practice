@@ -40,7 +40,6 @@ Production pipelines fail more often through silent bad data than loud crashes â
 :::
 ::::diagram incident-loop.png
 ::::
-:::
 
 ### The Six Quality Dimensions
 

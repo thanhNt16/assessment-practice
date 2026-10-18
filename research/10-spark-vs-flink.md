@@ -43,7 +43,6 @@ Spark is a batch engine that grew streaming (micro-batches); Flink is a streamin
 
 ::::diagram engine-runtimes.png
 ::::
-:::
 
 ### Spark: DAG, Shuffle, Catalyst
 

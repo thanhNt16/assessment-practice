@@ -41,7 +41,6 @@ Catalyst compiles your query into fused machine code, AQE repairs bad plans mid-
 :::
 ::::diagram skew-diagnosis.png
 ::::
-:::
 
 ### Catalyst: The Query Optimizer
 
