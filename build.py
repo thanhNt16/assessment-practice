@@ -178,8 +178,8 @@ def preprocess(src):
             lines_acc.append(line)
             continue
         out.append(line)
-    if in_c == "scenario":
-        raise ValueError("Unclosed :::scenario block")
+    if in_c in ("scenario", "tldr", "cards"):
+        raise ValueError(f"Unclosed :::{in_c} block")
     return "\n".join(out), mer, scenarios, tldrs, cardss
 
 def scenario_parse(title, lines):
@@ -321,6 +321,10 @@ if "--selftest" in __import__("sys").argv:
         try: validate_study(study)
         except SystemExit as ex: assert why in str(ex), why; continue
         raise SystemExit(f"selftest failed: {why} not caught")
+    for probe in (":::cards\nQ: a :: b\n", ":::tldr\n- b\n"):
+        try: preprocess(probe)
+        except ValueError as ex: assert "Unclosed" in str(ex), probe; continue
+        raise SystemExit(f"selftest failed: unclosed block not caught: {probe!r}")
     print("selftest OK"); __import__("sys").exit(0)
 
 study = {"cards": [], "terms": [], "edges": [], "termRefs": {}, "tldr": {}}
