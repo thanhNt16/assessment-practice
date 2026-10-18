@@ -975,7 +975,7 @@ function mountScenario(div,d,idx){
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
     p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
     if(e.label){const t=document.createElementNS(NS,'text');
-      const mx=(a.x+a.w/2+b.x+b.w/2)/2,my=(a.y+a.h+b.y)/2-8;
+      const mx=a.x+a.w/2+(b.x+b.w/2-(a.x+a.w/2))*0.3,my=a.y+a.h+(b.y-a.y-a.h)*0.32-8;
       t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
       t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
