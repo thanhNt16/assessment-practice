@@ -158,7 +158,7 @@ flowchart TD
     E --> F[Idempotent sink - dedupe by event id]
 ```
 One transaction writes the business row and the outbox row together — that single commit is the whole trick. :: A,B
-Debezium tails the WAL: log-based CDC with minimal source overhead, hard deletes captured, seconds of latency. :: C
+Debezium tails the WAL and CDC publishes afterwards — delivery is at-least-once. :: C
 Events publish to Kafka with at-least-once delivery — exactly-once is real only inside Kafka. :: D
 A consumer group processes events; retries can duplicate. :: E
 The sink dedupes by event id: at-least-once + idempotent effect is the honest cross-system contract. :: F
