@@ -1,5 +1,16 @@
 ## Distributed Systems Fundamentals
 
+
+:::tldr
+- CAP forces the C-vs-A choice only under a network partition: CP refuses stale answers (ZooKeeper, etcd), AP serves possibly stale (Cassandra, DynamoDB).
+- Quorum rule: `R + W > N` forces read/write overlap; `W > N/2` prevents split-brain.
+- N=5 math: W=3/R=3 → 99.1% both paths; W=1/R=5 → ~99.999% writes but 59.0% reads.
+- Retries are mandatory → at-least-once delivery → duplicates guaranteed; idempotency keys, dedup tables, upserts make replays no-ops.
+- "Exactly-once" is effectively-once end-to-end: idempotent producer + transactional offsets + a sink that participates in commit.
+- Wall clocks lie across machines — order with event time + watermarks; LWW silently discards concurrent updates.
+- 2PC is atomic but blocking (crashed coordinator holds locks); sagas chain local transactions with compensations.
+:::
+
 Interviewers rarely say "CAP theorem" — they test it by asking why your Kafka topic has 3 replicas with `min.insync.replicas=2`, whether a retried Spark job double-counts, or why Snowflake loads can safely re-run.
 
 :::scenario Scenario — The Quorum Decision
@@ -120,6 +131,16 @@ Quorum sizing on N=5 replicas at 90% node uptime:
 
 :::tip Go Deeper — DDIA 2nd Edition (Mar 2026)
 This section maps almost 1:1 to [DDIA 2e](https://martin.kleppmann.com/2026/03/24/designing-data-intensive-applications-2e.html) (Kleppmann & Riccomini): ch6 Replication, ch7 Sharding, ch8 Transactions, ch9 The Trouble with Distributed Systems, ch10 Consistency & Consensus. 2e adds cloud/object-store-native framing and renames Partitioning→Sharding. Per-chapter further-reading lists: [ept/ddia2-references](https://github.com/ept/ddia2-references). Free ch1+2+9 excerpt via [ScyllaDB](https://lp.scylladb.com/designing-data-intensive-apps-book-offer).
+:::
+
+:::cards
+Q: When does CAP actually force a choice? :: Only during a network partition — before that you get both consistency and availability.
+Q: State the quorum rule and what it guarantees. :: R + W > N forces read/write overlap so reads see the newest write; W > N/2 prevents split-brain.
+Q: Availability of W=3/R=3 vs W=1/R=5 on N=5? :: 99.1% on both paths vs ~99.999% writes and 59.0% reads.
+Q: Why are duplicate deliveries guaranteed? :: Retries are mandatory, so delivery is at-least-once — duplicates are normal, not exceptional.
+Q: What does "exactly-once" actually mean? :: Effectively-once end-to-end: idempotent producer, transactional offsets, and a sink participating in commit.
+Q: Why do windows close on event time + watermarks? :: Wall clocks lie across machines; event time plus watermarks make closes deterministic despite disorder.
+Q: Why is 2PC a poor fit across services? :: It blocks — a crashed coordinator leaves locks held; use sagas with compensating transactions.
 :::
 
 ### Key Takeaways

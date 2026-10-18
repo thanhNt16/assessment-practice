@@ -1,5 +1,16 @@
 ## Realistic Face Generation
 
+
+:::tldr
+- Requirements select the model: faces only, 1024×1024, <1s latency, 70k licensed images, balanced demographics, attribute control as stretch goal.
+- GAN over diffusion/autoregressive: single forward pass meets <1s; the structured latent space enables later StyleGAN attribute control — quality traded for speed, instability accepted.
+- Data prep: quality filter, flip/rotate/color augmentation, resize to 1024 with pixels normalized −1..1 (drives the Tanh output), classifier-tagged demographic rebalancing.
+- Alternating freeze-train is the core discipline: train D a few iters, freeze, train G — imbalance is the root of all three classic failures.
+- Three failures, named fixes: vanishing gradients → WGAN critic; mode collapse → unrolled GAN; non-convergence (D accuracy → 50%) → different learning rates + noise into D.
+- Sampling: random over the full latent Gaussian — diversity matters for faces; truncation trades diversity for realism.
+- Evaluate IS (higher-better), FID (lower-better), and pairwise human votes — automated metrics misalign with judgment.
+:::
+
 The classic GAN interview: near-real-time (<1s) unconditioned synthesis at 1024×1024 over 70k licensed images — the one design where "pick GAN over diffusion" is defensible: facial attribute manipulation needs a structured latent space (ch7 §Clarifying Requirements, §Choosing a suitable ML approach).
 
 ### Requirements Snapshot
@@ -181,6 +192,16 @@ flowchart TD
 - **Skewed dataset**: demographic skew in outputs. Fix: classifier-tagged rebalancing before training (ch7 §Data Preparation).
 - **Pixel-range mismatch**: -1..1 normalization needs a Tanh final activation, not ReLU (ch7 §Non-linear activation).
 - **Trusting automated metrics alone**: good FID, unhappy users — ImageNet artifacts. Fix: pairwise human evaluation (ch7 §Evaluation).
+
+:::cards
+Q: Why GAN over diffusion here? :: One forward pass meets the <1s SLA, and the structured latent space enables facial attribute manipulation.
+Q: Why normalize pixels to −1..1? :: It matches the generator's final Tanh activation — a ReLU output would mismatch the range.
+Q: Name the three GAN training failures. :: Vanishing gradients, mode collapse, failure to converge.
+Q: Fix for mode collapse? :: Wasserstein loss or an unrolled GAN.
+Q: When does GAN training stop? :: When discriminator accuracy nears 50% — past it, feedback becomes coin flips and quality degrades.
+Q: Why random over truncated latent sampling? :: Diversity matters for faces; truncation buys realism at diversity's cost.
+Q: Which metric is lower-is-better? :: FID — Fréchet distance between real and generated feature distributions.
+:::
 
 ### Key Takeaways
 

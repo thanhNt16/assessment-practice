@@ -308,6 +308,11 @@ def validate_study(study):
     for e in study["edges"]:
         for side in (e["a"], e["b"]):
             if side.lower() not in names: errs.append(f"edge references unknown term {side}")
+    for sec in range(1, len(FILES) + 1):
+        cs = [c for c in study["cards"] if c["sec"] == sec]
+        tl = study.get("tldr", {}).get(sec)
+        if len(cs) < 4 or not tl or not (5 <= len(tl) <= 7):
+            errs.append(f"section {sec} needs 4+ cards and 5-7 tldr bullets")
     if errs: raise SystemExit("study validation failed:\n  " + "\n  ".join(errs))
 
 if "--selftest" in __import__("sys").argv:
@@ -316,6 +321,8 @@ if "--selftest" in __import__("sys").argv:
         ({"cards":[{"id":"x","sec":1,"q":"q","a":"a"},{"id":"x","sec":1,"q":"q","a":"a"}],"terms":[],"edges":[]}, "duplicate card id"),
         ({"cards":[],"terms":[{"t":"A","def":"d"},{"t":"a","def":"d"}],"edges":[]}, "duplicate term"),
         ({"cards":[],"terms":[{"t":"A","def":"d"}],"edges":[{"a":"A","b":"B","why":"w"}]}, "unknown term"),
+        ({"cards":[{"id":f"s1-{k}","sec":1,"q":"q","a":"a"} for k in range(4)],
+          "terms":[],"edges":[],"tldr":{1:["b"]*3}}, "section 1 needs 4+ cards and 5-7 tldr bullets"),
     ]
     for study, why in bad:
         try: validate_study(study)
@@ -325,6 +332,10 @@ if "--selftest" in __import__("sys").argv:
         try: preprocess(probe)
         except ValueError as ex: assert "Unclosed" in str(ex), probe; continue
         raise SystemExit(f"selftest failed: unclosed block not caught: {probe!r}")
+    ok = {"cards":[{"id":f"s{s}-{k}","sec":s,"q":"q","a":"a"}
+                   for s in range(1, len(FILES) + 1) for k in range(4)],
+          "terms":[],"edges":[],"tldr":{s:["b"]*5 for s in range(1, len(FILES) + 1)}}
+    validate_study(ok)
     print("selftest OK"); __import__("sys").exit(0)
 
 study = {"cards": [], "terms": [], "edges": [], "termRefs": {}, "tldr": {}}

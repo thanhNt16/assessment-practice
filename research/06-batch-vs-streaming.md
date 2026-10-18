@@ -1,5 +1,16 @@
 ## Batch vs Streaming
 
+
+:::tldr
+- Batch answers "what is true given all data up to now" (bounded); streaming "what is true right now" (unbounded) — the trade is latency vs reprocessing/state cost, not throughput.
+- Escalation path: batch → micro-batch (Spark SS ~500 ms floor) → true streaming (Flink/Kafka Streams 10–100 ms); each step up is a permanent tax: state ops, checkpoints, watermark tuning.
+- Only event time is reproducible; processing time is for lag monitoring.
+- Watermark `W = maxObservedEventTime − allowedLateness` (typ. 20 s–5 min); a window emits when W passes its end; W = min across partitions, so one idle source stalls everything.
+- Late events: within allowedLateness → re-accumulate and re-fire (retraction); beyond → side output or dead-letter queue.
+- State (windows, join buffers, dedup keys) needs a TTL or it grows forever.
+- Exactly-once exists only end-to-end: replayable source + exactly-once state + transactional/idempotent sink — else at-least-once plus dedupe.
+:::
+
 Batch answers "what is true given all data up to now" over bounded input; streaming answers "what is true right now" over unbounded input — the real trade is latency vs reprocessing cost, not throughput.
 
 :::scenario Scenario — Batch or Streaming?
@@ -155,6 +166,16 @@ Decision: fraud SLA < 5 s → streaming (20 MB/s at 10 tasks); hourly
 
 :::tip Default escalation path
 Start batch → micro-batch when freshness measurably hurts decisions → true streaming only when latency is a product requirement. Every step up is a permanent tax: state ops, checkpoints, watermark tuning.
+:::
+
+:::cards
+Q: What is the real batch-vs-streaming tradeoff? :: Latency vs reprocessing/state cost — never throughput.
+Q: Latency floors of micro-batch vs true streaming? :: Spark Structured Streaming ~500 ms; Flink/Kafka Streams 10–100 ms.
+Q: Define the watermark. :: W = maxObservedEventTime − allowedLateness — a monotonic promise; the window emits when W passes its end.
+Q: Why can one idle partition freeze all windows? :: W is the min across partitions, so a stalled source stalls watermark progress everywhere.
+Q: What happens to an event later than allowed lateness? :: Side output or dead-letter queue; within lateness, re-accumulate and re-fire as a retraction.
+Q: Fraud SLA under 5 s — batch or streaming? :: True streaming; an hourly dashboard gets cheap batch, in between micro-batch.
+Q: Name the three layers that must align for exactly-once. :: Replayable source, exactly-once checkpointed state, transactional or idempotent sink.
 :::
 
 ### Key Takeaways

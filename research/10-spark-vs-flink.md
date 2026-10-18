@@ -1,5 +1,16 @@
 ## Compute Engines: Spark vs Flink
 
+
+:::tldr
+- Spark is a batch engine that grew micro-batch streaming; Flink is a streaming engine where batch is just a bounded stream — scheduling, state, failure handling follow from that.
+- Latency floors: Spark ~batch interval (0.5–10 s, p99 pinned by batch commit); Flink ~10 ms record-at-a-time.
+- Spark pipeline: lazy plans → Catalyst (pushdown, join choice, whole-stage codegen) → stages cut at shuffle boundaries; AQE coalesces and skew-splits at runtime; RocksDB state store default since 4.0.
+- Flink exactly-once = rewindable source + async barrier snapshot (Chandy–Lamport) + TwoPhaseCommittingSink (pre-commit at checkpoint, commit on notifyCheckpointComplete).
+- Unaligned checkpoints under backpressure: barriers overtake in-flight buffers — larger snapshots, steady duration.
+- AQE skew rule: partition > 256 MB and > 5× median → split into ~64 MB subtasks (512 GB straggler: 60 min → 8 min, −87%); salting is the fallback costing two shuffles.
+- Set TTL on every keyed Flink op — unbounded state is the #1 production killer; checkpoint interval bounds 2PC deliverable latency.
+:::
+
 Spark is a batch engine that grew streaming (micro-batches); Flink is a streaming engine that grew batch — scheduling, state, and failure handling all follow from that one choice.
 
 :::scenario Scenario — Exactly-Once Assembly
@@ -154,6 +165,16 @@ AQE first, salting second: skew-split needs no code and no state blowup; salt on
 
 :::warning
 Flink "for speed" with an SLA ≥ 1 min buys state-sizing, watermark, and checkpoint tuning for no benefit. Micro-batch Spark for sub-second alerting makes p99 hostage to per-batch commit overhead.
+:::
+
+:::cards
+Q: Fundamental model difference between Spark and Flink? :: Spark runs incremental micro-batches; Flink processes record-at-a-time, with batch as a bounded stream.
+Q: Latency floor of each engine? :: Spark ~the batch interval (0.5–10 s); Flink ~10 ms.
+Q: What is a Flink checkpoint? :: An asynchronous Chandy–Lamport barrier snapshot — barriers ride the data, processing never pauses.
+Q: When do you enable unaligned checkpoints? :: Under backpressure — barriers overtake in-flight buffers and snapshot them too; bigger but steady duration.
+Q: Name Flink's exactly-once assembly. :: Rewindable source + barrier-aligned snapshot + TwoPhaseCommittingSink committing on notifyCheckpointComplete.
+Q: When does AQE split a skewed partition? :: Above 256 MB and 5× the median — into ~64 MB subtasks, no code needed.
+Q: Why TTL on every keyed Flink operator? :: Unbounded keyed state is the #1 production killer.
 :::
 
 ### Key Takeaways

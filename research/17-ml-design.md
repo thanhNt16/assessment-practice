@@ -1,5 +1,16 @@
 ## Machine Learning System Design Interview (Aminian & Xu)
 
+
+:::tldr
+- All 11 chapters share one 7-step skeleton: clarify → frame as ML task → data prep → model development → evaluate → deploy/serve → monitor.
+- The load-bearing move is business goal → ML objective with failure modes named: clicks reward clickbait, completions bias short videos → maximize relevant watch time.
+- Model ladder: popularity baseline → LR → DNN → ensemble only if needed; GBDT is rejected in continual-learning systems — no fine-tuning, retrain from scratch.
+- Metric elimination chain: MRR ignores post-first hits, recall@k drowns under millions of relevant items, precision@k is rank-blind → nDCG or mAP.
+- Serving skeleton: candidate generation (ANN above ~millions, inverted index, FoF) → ranking (feature store: static batch + dynamic) → re-ranking — business rules live in re-rank, never the model.
+- Observed-pairs-only MF loss hits zero with all-ones embeddings — weight unobserved pairs (WALS); calibrate ad pCTRs (NCE < 1 vs background CTR) or the auction breaks.
+- Freshness is a design constraint: ad click models need ~5-minute updates; Gmail Smart Compose: decoder-only, pretrain + finetune on 1B emails, deterministic beam search under ~100 ms.
+:::
+
 Your A3 defense is a system-design interview in committee form: the panel probes how you framed the ML objective, built the feature/data pipeline, and justified metrics — exactly this book's skeleton. All 11 chapters share one 7-step framework; the chapters mapping to data-engineering work (retrieval/ranking, feature stores, continual learning) get the most space below.
 
 :::scenario Scenario — One Skeleton, Eleven Designs
@@ -295,6 +306,16 @@ flowchart LR
 - **Character- or word-level tokenization:** performance loss or a 300 K+ vocabulary making training slow and costly (ch2 §Data Preparation).
 - **Skipping confidence/length filters:** users see long, specific, or half-confident guesses — trust collapses, acceptance rate drops (ch2 §Overall ML System Design).
 - **No post-processing:** biased or NSFW suggestions reach users — an explicitly stated hard requirement (ch2 §Clarifying Requirements, §Overall ML System Design).
+
+:::cards
+Q: Name the 7-step ML design framework. :: Clarify, frame as ML task, data prep, model development, evaluation, deployment/serving, monitoring.
+Q: Why not optimize raw clicks? :: Clicks reward clickbait and completions bias short videos — name failure modes, choose relevance-aware objectives.
+Q: Why reject GBDT in continual-learning systems? :: It cannot be fine-tuned — every refresh means retraining from scratch.
+Q: Walk the ranking-metric elimination chain. :: MRR ignores post-first hits, recall@k drowns in millions, precision@k is rank-blind — use nDCG or mAP.
+Q: Where do business rules belong in serving? :: In re-ranking — never baked into the model.
+Q: Why weight unobserved pairs in matrix factorization? :: Observed-only loss reaches zero with degenerate all-ones embeddings — WALS forces real separation.
+Q: What does NCE below 1 indicate? :: The model's cross-entropy beats the background-CTR baseline — calibration before serving to auctions.
+:::
 
 ### Key Takeaways
 

@@ -1,5 +1,16 @@
 ## High-Resolution Image Synthesis
 
+
+:::tldr
+- Requirements: 5M natural-scene images, unconditional generation, 1024²–2048² output, ~5 s per image — not real-time.
+- Latency math picks the model: pixel-level autoregression is O(N²) (~1M steps at 1024²) and diffusion is O(T·N²) (minutes); chunk tokens at 64×64 px/token cut it to 256 steps — seconds.
+- VQ-VAE tokenizer: CNN encoder → nearest-neighbor codebook quantizer → transposed-conv decoder; discrete latents kill posterior collapse and shrink the prediction space to k tokens.
+- Stage I losses weighted: reconstruction (MSE) + quantization (stop-gradient) + perceptual (VGG features) + adversarial (patch-based); MSE-only shows artifacts at high res.
+- Nearest-neighbor lookup has no gradient — straight-through gradient copies decoder gradients to the encoder.
+- Two independently trained models composed at inference: tokenizer (reconstruction) + generator (decoder-only Transformer, next-token cross-entropy over cached sequences).
+- Serving mirrors the split: generation service, decoding service (encoder never ships), 2× super-resolution (RCAN/ESRGAN) for 2048²; gate on quality plus time and cost per image.
+:::
+
 Design an image generator that produces 1024²–2048² natural-scene images in ~5 seconds from a 5M-image dataset. The interview-grade decision is two-layered: pick autoregressive token generation over diffusion for latency, then split the system into an independently trained tokenizer + generator pair served as separate, separately scalable services (ch8 §Choosing a suitable ML approach, §Overall ML System Design).
 
 ### Requirements & Model Selection
@@ -106,6 +117,16 @@ flowchart TD
 - **Deploying the tokenizer encoder**: it is training-only; shipping it wastes inference compute (ch8 §Decoding service).
 - **Monolithic generation+decoding service**: distinct latency/resource profiles make independent scaling impossible (ch8 §Decoding service).
 - **Ignoring cost per generation**: latency-only monitoring misses revenue impact; track cost alongside time-per-image (ch8 §Offline evaluation metrics).
+
+:::cards
+Q: Why autoregressive over diffusion here? :: Chunked AR is 256 token steps (seconds); diffusion is O(T·N²) with more steps at high res — minutes.
+Q: What is posterior collapse and the fix? :: A powerful decoder ignores its latents at high res; discrete codebook tokens force it to use them.
+Q: Name the four Stage I tokenizer losses. :: Reconstruction, quantization, perceptual, adversarial — pixel fidelity, codebook commitment, features, realism.
+Q: How do gradients flow through the quantizer? :: Straight-through — nearest-neighbor has no gradient, so decoder gradients copy to the encoder.
+Q: Token math for 1024×1024? :: 64×64 px per token → 256 sequential generation steps.
+Q: Why split generation and decoding services? :: Distinct computational profiles and latencies — each scales independently.
+Q: How is 2048² served? :: Generate at 1024², then a pretrained 2× super-resolution upscaler (RCAN/ESRGAN).
+:::
 
 ### Key Takeaways
 

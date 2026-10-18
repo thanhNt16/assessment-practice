@@ -1,5 +1,16 @@
 ## Personalized Headshot Generation
 
+
+:::tldr
+- Requirements: 10–20 uploads, 1024×1024, 50 headshots per user, async <1 hour, no user prompts, identity fidelity critical.
+- Tuning-based over tuning-free: identity preservation is the product; per-user models with richer detail from 10–20 images vs one reference image.
+- Method scorecard: textual inversion low effectiveness (one token embedding), LoRA low-rank delta at MB storage, DreamBooth full-parameter finetune — highest identity, GB storage, ~15 min.
+- DreamBooth fits here: 15-min finetune inside the SLA; models discarded after delivery, so the GB-per-subject cost never accrues.
+- Rare-token identifier `[V]`: common words carry meanings to overwrite, random strings fragment — rare tokens are distinct yet cohesive.
+- Loss = α × reconstruction + β × class-specific prior preservation, plus generic "a person" faces in training — learn the instance without destroying the class.
+- Quality gate is a face-recognition model: CLIP scores text alignment, DINO fine visual detail, but neither measures identity; failed generations retry with a new seed.
+:::
+
 The ML-system-design round sometimes leaves data territory: this is the "adapt, don't retrain" template — pick the smallest finetuning surface that preserves identity, then design evaluation and pipelines around it. The reasoning pattern (method comparison table, offline + online metrics, regenerate-on-quality-failure loop) transfers to any "personalize a foundation model" prompt.
 
 ### Requirements Snapshot
@@ -144,6 +155,16 @@ flowchart TD
 - **Trusting CLIP/DINO for identity**: two different faces can score high — identity checks need a face recognition model (ch10 §Facial similarity score).
 - **Ignoring bad uploads**: dark or face-less images poison finetuning; gate at ingestion and ask the user, don't train anyway (ch10 §Clarifying Requirements, §Data pipeline).
 - **Skipping the regeneration loop**: a failed identity check shipped anyway is a deepfake-quality bug the user sees; re-sample with different initial noise instead (ch10 §Quality assessment service).
+
+:::cards
+Q: Why tuning-based over tuning-free? :: Identity preservation is the product — 10–20 images give richer identity than one reference image.
+Q: Rank the three methods by identity fidelity. :: DreamBooth (full finetune) > LoRA (low-rank delta) > textual inversion (one token embedding).
+Q: Why DreamBooth despite GB-per-subject storage? :: 15-min finetune fits the <1h async SLA and models are discarded after the 50 headshots.
+Q: Why a rare token instead of a common word? :: Common words carry meanings the model must overwrite; rare tokens are distinct yet tokenizer-cohesive.
+Q: Name the two DreamBooth losses. :: Reconstruction on "[V] person" plus class-specific prior preservation on "a person".
+Q: Why add generic face images to training? :: Prevents overfitting to one identity and forgetting the generic face class.
+Q: Why isn't CLIP enough for identity? :: CLIP/DINO score semantics and detail, not identity — a face recognition model closes the gap.
+:::
 
 ### Key Takeaways
 

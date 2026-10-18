@@ -1,5 +1,16 @@
 ## Retrieval-Augmented Generation
 
+
+:::tldr
+- RAG = offline pipeline (parse → chunk → embed → index) + online loop (query → embed → ANN → prompt → LLM); tune retrieval before blaming the model.
+- Pick RAG over finetuning when knowledge changes (~20%/yr) and answers must cite sources; finetuning can't stay current and produces no references.
+- Varied layouts need AI-based parsing — layout detection + OCR per box in reading order; fixed-template rule-based parsers break.
+- Chunk math drives capacity: 5M pages × 1,500 chars, chunk 500 with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks.
+- Shared embedding space is the invariant: same encoder for chunks and queries; CLIP or caption-then-embed aligns images.
+- Exact search is O(N×D) — 40M comparisons per query; ANN (clustering, LSH, HNSW) is mandatory at this scale.
+- Evaluate the RAG triad — context relevance, faithfulness, answer relevance; one aggregate score hides which half broke. RAFT-finetune (golden + distractor docs) only after retrieval is fixed.
+:::
+
 RAG is the data-engineer's entry point into ML system design: it is an ingestion pipeline (parse → chunk → embed → index) glued to an LLM, and interviews probe both halves. The canonical build: a ChatPDF-style bot over ~5M internal PDF pages — same shape as any "search over our docs" system you'd defend ([Perplexity](https://www.perplexity.ai/), [ChatPDF](https://www.chatpdf.com/) are the canonical examples) (ch6 §Introduction).
 
 ### Customizing an LLM: Three Options
@@ -106,6 +117,16 @@ user query --> safety filter --> query expansion --> text encoder --> ANN search
 - **Trusting retrieval blindly**: irrelevant/distractor docs mislead the LLM into suboptimal answers; mitigate with RAFT-style training or better ranking (ch6 §Training).
 - **Prompt engineering as the whole solution**: works until external knowledge exceeds the context window — then retrieval is non-negotiable (ch6 §Which approach).
 - **Low faithfulness**: plausible answers not grounded in the retrieved context; detect via the triad, not end-to-end vibes (ch6 §Faithfulness).
+
+:::cards
+Q: Why RAG over finetuning for document QA? :: Knowledge changes often and citations are required — finetuning can't stay current or provide references.
+Q: Why AI-based over rule-based parsing? :: Varied single/double-column layouts break fixed templates — layout detection plus OCR reads boxes in order.
+Q: Compute chunks for 5M pages. :: 1,500-char pages, 500-char chunks with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks.
+Q: What is the shared embedding space contract? :: The same encoder embeds chunks and queries; CLIP or captioning aligns images.
+Q: Why is exact nearest-neighbor search infeasible? :: O(N×D) — 40M comparisons per query; ANN is ~O(log N×D).
+Q: Name the RAG triad. :: Context relevance, faithfulness, answer relevance.
+Q: When do you RAFT-finetune? :: Only after retrieval is fixed — golden plus distractor docs teach the LLM to ignore noise.
+:::
 
 ### Key Takeaways
 

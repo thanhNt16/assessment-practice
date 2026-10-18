@@ -1,5 +1,16 @@
 ## Pipeline Reliability: Testing, Quality, Observability
 
+
+:::tldr
+- Six quality dimensions are the shared vocabulary: accuracy, completeness, freshness, validity, uniqueness, consistency — every tool (GE, dbt, Soda) maps to them.
+- Test pyramid: unit tests every PR, data tests every pipeline run, expensive reconciliations daily/before publish, production monitoring continuous.
+- Observability = metrics (what broke) + logs (where) + lineage (what else); OpenLineage/Marquez bounds the blast radius.
+- Gate failure → circuit breaker: publish to staging, promote atomically — consumers keep last-known-good; alert when quarantine rate exceeds ~1%.
+- SLO math: 99% on-time over 30 daily runs → error budget 0.3 runs → page on the first miss; thresholds come from budget math, not complaints.
+- Idempotent backfill: DELETE + INSERT per partition or MERGE — never blind append; same input must give same output.
+- Incident loop: alert → classify → contain → fix → backfill → verify → blameless postmortem; every incident ends as a new automated check.
+:::
+
 Production pipelines fail more often through silent bad data than loud crashes — the senior differentiator is treating quality gates, tests, and observability as first-class pipeline code, not an afterthought.
 
 :::scenario Scenario — Bad-Data Incident
@@ -141,6 +152,16 @@ flowchart TD
 - **Reconciliation**: row counts per partition, checksums on business keys (`SUM(hash(...))`), sampled source-vs-target diff.
 - **Idempotent reruns**: same input → same output, which is what makes retries and surgical backfills safe.
 - **Postmortem**: blameless, and every incident ends as a new automated check — that is how reliability compounds ([SRE postmortem culture](https://sre.google/sre-book/postmortem-culture/)).
+
+:::cards
+Q: Name the six data-quality dimensions. :: Accuracy, completeness, freshness, validity, uniqueness, consistency.
+Q: What runs at each data-test-pyramid layer? :: Unit tests every PR, data tests every run, reconciliation daily, production monitoring continuous.
+Q: What happens when a quality gate fails? :: Circuit breaker — publish to staging, promote atomically so consumers keep last-known-good.
+Q: When should quarantine alerts fire? :: When the quarantine rate exceeds ~1% — never drop records silently.
+Q: Error budget for 99% freshness over 30 daily runs? :: 0.3 runs — so page on the very first miss.
+Q: What makes a backfill idempotent? :: DELETE + INSERT per partition or MERGE — same input, same output, never blind append.
+Q: Name the incident loop stages. :: Alert, classify, contain, fix, backfill, verify, blameless postmortem — each incident adds a check.
+:::
 
 ### Key Takeaways
 

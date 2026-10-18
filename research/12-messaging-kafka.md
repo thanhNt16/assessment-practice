@@ -1,5 +1,16 @@
 ## Messaging & Streaming Backbones: Kafka and Friends
 
+
+:::tldr
+- Three messaging models: queue (one consumer, ack-then-delete), pub/sub (fan-out, no replay), log (Kafka: partitioned, replayable, consumer-owned offsets — replay is an offset reset).
+- Ordering is per-partition only: `hash(key) % partitions` gives per-entity order; changing partition count silently breaks the key map.
+- ISR = replicas current within `replica.lag.time.max.ms` (30 s); high watermark = highest offset replicated to all ISR — consumers read only up to HW.
+- Durability recipe: `acks=all` + RF=3 + `min.insync.replicas=2` + `unclean.leader.election.enable=false`; ISR shrunk to 1 → explicit `NOT_ENOUGH_REPLICAS`, not silent loss.
+- Exactly-once stops at Kafka's edge: idempotent producer (PID + sequence, default since 3.0) + transactions + `read_committed`; across boundaries use the outbox — never dual-write.
+- Rebalance-proofing: cooperative-sticky assignor (KIP-429) + static membership + `max.poll.records` finishing inside `max.poll.interval.ms` (5 min default).
+- KRaft replaced ZooKeeper (removed in 4.0, 2025); schema evolution `FULL_TRANSITIVE` on shared topics; tiered storage decouples retention from broker disk.
+:::
+
 Queues distribute work, pub/sub fans out events, and Kafka is a third model — the partitioned, replayable log — from which most modern backbones derive.
 
 :::scenario Scenario — Call the Kafka Durability Shots
@@ -150,6 +161,16 @@ The outbox makes DB↔Kafka atomic: the event row commits with the business chan
 
 :::warning Dual Writes
 `db.save(x); kafka.send(event(x))` fails on the crash-in-between window — one side misses the write with no record of it. No amount of retries fixes a missing fact; only the outbox (or transactions spanning both systems) does.
+:::
+
+:::cards
+Q: What third model does Kafka add beyond queue and pub/sub? :: A partitioned, replayable append-only log with consumer-owned offsets.
+Q: What ordering does Kafka guarantee? :: Strict order only within a partition — key hashing fixes per-entity order.
+Q: State the canonical Kafka durability recipe. :: acks=all + RF=3 + min.insync.replicas=2 + unclean.leader.election disabled.
+Q: Define the high watermark. :: The highest offset replicated to all ISR — consumers read only up to it.
+Q: Why is dual-writing DB + Kafka wrong? :: A crash in between loses the event with no record — use the outbox pattern with CDC.
+Q: Where is exactly-once real in Kafka? :: Inside Kafka — idempotent producer + transactions + read_committed; across boundaries, at-least-once + idempotent sinks.
+Q: Name two rebalance-storm fixes. :: Cooperative-sticky assignor and static membership (group.instance.id).
 :::
 
 ### Key Takeaways

@@ -1,5 +1,16 @@
 ## Data Warehouse vs Data Lake vs Lakehouse
 
+
+:::tldr
+- Four generations, each failure mode the next's feature list: EDW → lake → cloud DW → lakehouse; answer "why the transition" with failure mechanisms, not product names.
+- Lakes failed structurally (60–85% of big-data projects abandoned): no atomic commits, no schema enforcement, no compaction, no governance.
+- Lakehouse = Parquet + transactional table format + object storage + catalog + any engine — the format + catalog is the platform.
+- Cloud DW disaggregation (micro-partitions ~16 MB with min/max pruning, isolated virtual warehouses, per-second auto-suspend) vs shared-nothing rebalancing cost.
+- Lakehouse contribution: schema-on-write with late binding — enforce at commit, evolve without rewriting files.
+- ELT displaced ETL where storage/compute decoupled; ETL survives at trust boundaries (PII masking before load, cross-region).
+- Cost rule: utilization <30% → per-second auto-suspend; >60% sustained → always-on/reserved; watch egress and per-TB-scanned ($6.25/TB BigQuery).
+:::
+
 Analytics storage evolved through four generations because each one's failure mode became the next one's feature list — know the mechanisms, not just the product names.
 
 :::scenario Scenario — Storage Generation Choice
@@ -148,6 +159,16 @@ Four principles: domain ownership, data as a product, self-serve platform, feder
 - **Regulated BI reporting** → warehouse: schema-on-write, RBAC, audit lineage, certified metrics.
 - **ML feature store** → lakehouse bronze/silver: cheap raw retention, time travel for reproducible training sets, Spark/DuckDB access.
 - **Log analytics** → lake landing zone + OLAP serving tier: schema-on-read ingestion fidelity, then prune/aggregate into a hot engine.
+
+:::cards
+Q: Why did data lakes fail? :: Structurally — no atomic commits, schema enforcement, compaction, or governance; the swamp, not bad engineers.
+Q: Name the layers that compose a lakehouse. :: Open Parquet files + transactional table format + object storage + catalog — any engine on top.
+Q: How does Snowflake prune without user partition keys? :: ~16 MB micro-partitions carry automatic min/max metadata for pruning.
+Q: What did cloud DWs trade away? :: Openness — proprietary formats, and lake + warehouse means two copies of data plus lock-in.
+Q: When does ETL still beat ELT? :: At trust boundaries: PII masking before load and cross-region compliance.
+Q: Auto-suspend or always-on — the utilization rule? :: Under 30% → per-second auto-suspend; over 60% sustained → always-on or reserved.
+Q: What is data mesh, honestly? :: An org model for ownership — centralize the substrate, decentralize product ownership.
+:::
 
 ### Key Takeaways
 

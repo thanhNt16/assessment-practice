@@ -1,5 +1,16 @@
 ## System Design Interview Playbook
 
+
+:::tldr
+- The internal design round probes YOUR project plus hypothetical extensions; the committee scores narrative + evidence against the competency matrix.
+- Six steps: Clarify (SLA first, 3–5 min) → Estimate → High-level design (SLA on every hop) → Tradeoffs (per arrow: alternative, why rejected, one number) → Ops & failure (unprompted) → Evolution (precomputed 10x).
+- Evidence ledger replaces STAR: claim → story → artifact → metric → matrix line; 4–5 proof stories, 90 s each, "I" never "we".
+- Capacity math before architecture; your pipeline's real numbers beat textbook figures — 100k ev/s × 500 B = 4.32 TB/day, RF=3 ≈ 13 TB → 6 brokers × 4 TB, 48 partitions ≈ 1.04 MB/s each.
+- Exactly-once is not correctness: checkpoints/2PC are processing semantics — late joins, timezones, fraud need dedup windows and reconciliation.
+- Migration invariant: no consumer ever sees wrong data — waves ordered by consumer, parity gate 7 consecutive days < 0.01% delta.
+- English delivery is scored (B2 gates staffing); honest "I don't know — here's how I'd reason" reads senior.
+:::
+
 Inside an internal assessment the design round probes **your project plus hypothetical extensions** — not a green-field prompt. The committee scores narrative + evidence against the competency matrix ([EPAM careers blog](https://www.epam.com/careers/blog/assessment-at-epam-what-it-means-for-your-career-growth)); ⚠ EPAM publishes no internal rubric, so treat scoring claims as directional. Highest-value scenario: the system you already own — the framework below runs first on Scenario 0.
 
 
@@ -162,6 +173,16 @@ For the defense, run this arithmetic on YOUR pipeline's real volumes — your nu
 | 2 | **Defense narrative**: 10-question drill, walkthrough rehearsed aloud (English B2 is scored and gates staffing); name mentorship/code-review leadership for A3→A4 ([EPAM senior DE posting](https://careers.epam.com/en/vacancy/senior-data-engineer-with-python-blt205341dab4156e91_en)) | 15-min presentation recorded, self-scored vs matrix |
 | 3 | Fundamentals refresh: Spark architecture/optimization, SQL window functions, cloud services, table formats | Scenarios 1–3 whiteboarded from memory; capacity drill in 10 min, no notes |
 | 4 | Hypothetical extensions + full mocks | 2 timed 35-min mocks recorded; committee Q&A dry-run with a peer |
+
+:::cards
+Q: What does the internal design round probe? :: Your own project (Scenario 0) plus hypothetical extensions — scored on narrative + evidence.
+Q: Name the six answer-framework steps. :: Clarify, estimate, high-level design, tradeoffs, ops and failure, evolution.
+Q: Why state the freshness SLA first? :: It decides the architecture — sub-second means Kafka+Flink; sub-minute allows a committing lakehouse sink.
+Q: What replaces STAR in defense prep? :: The evidence ledger: claim → story → artifact → metric → matrix line — 4–5 stories, 90 seconds each.
+Q: Storage math for 100k ev/s at 500 B with RF=3? :: 4.32 TB/day raw → ~13 TB replicated → 6 brokers × 4 TB, 48 partitions at ~1 MB/s.
+Q: Why is exactly-once not correctness? :: Checkpoints/2PC are processing semantics only — dedup windows and reconciliation handle late, wrong, or fraudulent data.
+Q: Golden invariant of a warehouse-to-lakehouse migration? :: No consumer ever sees wrong data — waves ordered by consumer, gated on 7 days under 0.01% delta.
+:::
 
 ### Key Takeaways
 

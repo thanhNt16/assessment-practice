@@ -1,5 +1,16 @@
 ## Python & PySpark: Coding Patterns
 
+
+:::tldr
+- "File won't fit in memory" → generator: yield, don't return — dicts/sets are O(n) RAM, generators O(1).
+- Reach for Spark at >10 GB, multi-file/Parquet input, cross-dataset joins, or "distributed"; plain Python under ~1 GB.
+- Driver OOM: `collect()`/`toPandas()`. Executor OOM: skew, `repartition(1)` before a heavy stage, cache without MEMORY_AND_DISK.
+- UDF ladder: native 1× → pandas UDF ~2–5× (Arrow batches) → Python UDF ~10×+; use `F.when`, never a UDF, for conditionals.
+- Skew: diagnose via `groupBy(col).count().orderBy(desc("count"))` or a Spark UI straggler; fix by salting the hot key (16 buckets) + two-stage agg.
+- `repartition(n, col)` shuffles and balances; `coalesce(n)` skips the shuffle but can leave skew.
+- Cache only when reused ≥2× (`MEMORY_AND_DISK`, then `unpersist()`) — blind `.cache()` is a memory leak.
+:::
+
 The live-coding round tests whether you can write **correct data transformations fast** — first in plain Python (logic), then in PySpark (scale). Interviewers care about memory discipline, join/groupBy fluency, and knowing *where your data lives*.
 :::scenario Scenario — Where the Spark Job Dies
 @start Driver plans, executors run :: pandas is one eager process; Spark builds a **lazy DAG** and runs tasks on partitions across executor JVMs.
@@ -146,6 +157,16 @@ Why it works: adding `salt` splits the hot key into 16 sub-groups, so the 400 M-
 
 **Use cases:**
 - AQE on (default 3.2+) handles most skew/join surprises; hand-salt when AQE is off or skew is known at design time.
+
+:::cards
+Q: File won't fit in memory — expected plain-Python answer? :: Stream it with a generator: yield, don't return.
+Q: When do you choose PySpark over pandas? :: Over ~10 GB, multi-file/Parquet input, cross-dataset joins, or explicit distribution requirements.
+Q: Name two causes of driver OOM. :: `collect()` and `toPandas()` pulling full results into driver RAM (also oversized `take()`).
+Q: Name three causes of executor OOM. :: One giant partition (skew), `repartition(1)` before a heavy stage, cache without MEMORY_AND_DISK.
+Q: Relative cost of native vs pandas vs Python UDFs? :: Native 1×; pandas UDFs ~2–5× via Arrow batches; Python UDFs ~10×+.
+Q: How do you fix a skewed groupBy? :: Salt the hot key into N buckets and aggregate in two stages; or let AQE split skewed partitions.
+Q: When is cache() justified? :: Only when a DataFrame is reused ≥2× — persist MEMORY_AND_DISK, then unpersist.
+:::
 
 ### Key Takeaways
 

@@ -1,5 +1,16 @@
 ## Snowflake vs Databricks
 
+
+:::tldr
+- Converging from opposite origins; the deepest difference is storage ownership: Snowflake abstracts it (bundled bill), Databricks makes your lake the source of truth in your bucket.
+- Snowflake: warehouses XS→6XL auto-suspend to zero, ~16 MB micro-partitions with min/max pruning, Time Travel + zero-copy cloning.
+- Databricks: Spark + Photon (C++ vectorized) over your S3 with the Delta ACID log — Photon is why its SQL got competitive.
+- Billing: credits bundle IaaS (60 s minimum); DBUs stack on the VM bill — never compare list rates, model 3-year all-in TCO (worked example: ~15% DBX edge, entirely assumption-driven).
+- All-purpose ($0.55) vs jobs ($0.15) DBU misclassification is ~3×.
+- Fit: SQL/BI + turnkey ops → Snowflake; ML/GPU/code-first/continuous streaming → Databricks; governance parity, openness favors Unity Catalog.
+- Lock-in: Snowflake locks data gravity, Databricks locks workflows; Iceberg + one REST catalog (Open Catalog/Polaris/UC) is the neutral layer — vendor benchmarks contradict by workload shape, so run a 2-week PoC.
+:::
+
 Two platforms converging from opposite origins — Snowflake grew a SQL warehouse outward into the lakehouse, Databricks grew a Spark lakehouse inward into SQL/BI — so the honest comparison is mechanisms and tradeoffs, not feature checklists.
 
 :::scenario Scenario — Snowflake or Databricks
@@ -142,6 +153,16 @@ flowchart TD
 | Exit cost driver | Re-platforming storage: unload native → Iceberg | Re-platforming pipelines: notebooks/jobs, not data |
 
 Net: **Snowflake locks in data gravity; Databricks locks in workflows**. The Iceberg REST ecosystem erodes both — which is exactly why both vendors embraced it.
+
+:::cards
+Q: Deepest architectural difference between the platforms? :: Storage ownership: Snowflake bundles it; Databricks keeps your lake as source of truth in your bucket.
+Q: Why did Databricks SQL become competitive? :: Photon — C++ vectorized execution over Delta.
+Q: How do the billing models differ? :: Credits bundle IaaS with 60 s minimum; DBUs stack on top of the underlying VM bill.
+Q: Cost of all-purpose vs jobs DBU misclassification? :: About 3× — $0.55 vs $0.15 per DBU.
+Q: Contrast the lock-in shapes. :: Snowflake locks data gravity; Databricks locks workflows — the data stays in your bucket.
+Q: How should you treat vendor benchmarks? :: They contradict by workload shape — run a 2-week PoC on your schemas and query mix.
+Q: Neutral layer for sharing data between both engines? :: Iceberg tables plus one REST catalog — Open Catalog/Polaris or Unity.
+:::
 
 ### Key Takeaways
 

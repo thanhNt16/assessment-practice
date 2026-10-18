@@ -1,5 +1,16 @@
 ## Text-to-Image Generation
 
+
+:::tldr
+- Requirements drive decisions: 1024×1024, ~500M pairs, ≤128-word prompts, ~10 s SLA, broad scope, fairness and safety.
+- Diffusion over autoregressive: AR simpler to train, diffusion wins fine detail plus a sampling-steps dial — pay implementation complexity for quality.
+- Training is four steps: sample t from 1..1000, closed-form noise to x_t, condition on text + timestep, predict the noise ε (not x₀) with MSE loss.
+- U-Net vs DiT: cross-attention is the steering layer — queries from image features, keys/values from text-encoder (CLIP/T5) embeddings.
+- Sampling's two fixes: classifier-free guidance buys prompt adherence; DDIM cuts 1,000 steps to ~20 for the latency budget.
+- Data curation is where quality comes from: dedup, NSFW/aesthetic filters, CLIP-gated captions with BLIP-3 recaptioning.
+- Serve gated twice — prompt safety before compute, harm detection after generation — with a 64→256→1024 super-resolution cascade; watch average cost per user per month (re-rolling seeds burns GPU money).
+:::
+
 The multimodal sibling of the LLM designs — and a favorite interviewer pivot because every design decision (diffusion vs autoregressive, U-Net vs DiT, pixel vs latent space) is a defensible trade-off, and the serving path is a safety-gated pipeline any senior engineer can reason about (ch9 §Introduction).
 
 ### Clarify Requirements First
@@ -146,6 +157,16 @@ Diffusion models are huge — DALL-E 2 is 3.5B parameters (ch9 §Challenges in t
 - **One safety gate only:** prompt filtering alone misses model-generated harm (the model can produce unsafe images from a benign-ish prompt); output-side harm detection is the second gate.
 - **Ignoring cost-per-user:** re-rolling seeds on bad images silently multiplies inference spend — watch it as a satisfaction proxy.
 - **Predicting x₀ instead of ε:** harder task, worse convergence — the one non-negotiable training detail.
+
+:::cards
+Q: Why diffusion over autoregressive for text-to-image? :: Superior fine detail plus a tunable sampling-steps dial — complexity traded for quality.
+Q: What does the model predict during training? :: The noise ε, not the clean image x₀ — predicting x₀ underperforms.
+Q: How does the prompt steer denoising? :: Cross-attention — queries from image features, keys/values from text-encoder embeddings.
+Q: Name the two sampling fixes. :: Classifier-free guidance for prompt adherence; DDIM cuts steps from 1,000 to ~20.
+Q: Why cascade super-resolution? :: Diffusion can't generate high resolution directly — train low, upscale 64→256→1024.
+Q: Why two safety gates? :: Prompt filtering before compute misses model-generated harm — output harm detection catches it after generation.
+Q: Which online metric reveals hidden dissatisfaction? :: Average cost per user per month — unhappy users re-roll seeds, compounding compute spend.
+:::
 
 ### Key Takeaways
 

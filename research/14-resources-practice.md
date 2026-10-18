@@ -1,5 +1,15 @@
 ## Resources & Practice Lab
 
+
+:::tldr
+- Five sources, five jobs: the wiki explains concepts, the handbook curates, Start Data Engineering builds (100+ posts), DET gives community signal, DEC practitioner benchmarks.
+- Canonical reading list = 4 books + 2 papers — Fundamentals of DE, DDIA 2e, Kimball, Learning Spark 2e; GFS, Lakehouse CIDR — not the handbook's 25-book firehose.
+- Hold a 1:2 read-to-build ratio: tutorial hell (the 40th Spark video) compounds to zero; if you can't whiteboard your build's failure modes, you watched, not learned.
+- Attach every drill to one build spine — API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly, reps compound.
+- Pick ONE portfolio archetype (batch lakehouse, streaming, CDC, DQ-gated, LLM) and finish it; a small finished repo with a tradeoffs README beats three half-cloned tutorials.
+- Drill 15 — a 5-minute walkthrough of your own design doc — IS the A3 architecture screen; rehearse until 5 minutes feels short.
+:::
+
 Five sources cover the whole A3 surface with different jobs: the [Data Engineering Wiki](https://dataengineering.wiki/Index) explains concepts, Zach Wilson's [Data Engineer Handbook](https://github.com/dataexpert-io/data-engineer-handbook) curates everything else, Joseph Machado's [Start Data Engineering](https://www.startdataengineering.com/) provides the builds, and two newsletters — [Data Engineer Things](https://dataengineerthings.substack.com/) and [Data Engineering Central](https://dataengineeringcentral.substack.com/) — keep you current. Use them as a pipeline: wiki to learn, handbook to find, SDE to build, newsletters to stay sharp.
 
 :::scenario Scenario — From Five Sources to One Repo
@@ -176,6 +186,15 @@ Open [books.md](https://github.com/dataexpert-io/data-engineer-handbook/blob/mai
 
 :::warning Tutorial hell is the failure mode
 Watching a 40th Spark video feels like progress and compounds to zero. Hold a 1:2 read-to-build ratio: every hour of reading, two hours in drills 1–15. If you cannot whiteboard the failure modes of your last build — what breaks on rerun, on schema drift, on a hot key — you watched, you did not learn.
+:::
+
+:::cards
+Q: What job does each of the five sources do? :: Wiki explains, handbook curates, SDE builds, DET community, DEC practitioner benchmarks.
+Q: How big is the canonical reading list? :: Four books plus two papers, each tied to a course section — not the 25-book firehose.
+Q: Required read-to-build ratio, and the failure it prevents? :: 1:2 — prevents tutorial hell, where the 40th Spark video compounds to zero.
+Q: What is the build spine? :: API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly.
+Q: How many portfolio projects should you finish? :: One archetype — a small finished repo with a README of tradeoffs.
+Q: What is drill 15 and why does it matter? :: A 5-minute walkthrough of your design doc — it IS the A3 architecture screen.
 :::
 
 ### Key Takeaways

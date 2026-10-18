@@ -25,6 +25,588 @@
    "a": "Describing team achievements with \"we\" and never owning a decision with \"I\"."
   },
   {
+   "id": "s02-1",
+   "sec": 2,
+   "q": "What do window functions do that GROUP BY cannot?",
+   "a": "Keep every row while computing a value over a related frame — no collapse."
+  },
+  {
+   "id": "s02-2",
+   "sec": 2,
+   "q": "Name the canonical dedup pattern for latest record per key.",
+   "a": "`ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)`, keep rn=1."
+  },
+  {
+   "id": "s02-3",
+   "sec": 2,
+   "q": "RANK vs DENSE_RANK on scores 100, 100, 90?",
+   "a": "RANK: 1,1,3 with gaps; DENSE_RANK: 1,1,2 without."
+  },
+  {
+   "id": "s02-4",
+   "sec": 2,
+   "q": "Why are aggregates illegal in WHERE?",
+   "a": "WHERE filters rows before grouping; group-level filters belong in HAVING."
+  },
+  {
+   "id": "s02-5",
+   "sec": 2,
+   "q": "What silently turns a LEFT JOIN into an INNER JOIN?",
+   "a": "A WHERE predicate on the right table's column — move it into ON."
+  },
+  {
+   "id": "s02-6",
+   "sec": 2,
+   "q": "What does a 1.1x duplicate join key do to a revenue SUM?",
+   "a": "Fans out rows and silently doubles the total."
+  },
+  {
+   "id": "s02-7",
+   "sec": 2,
+   "q": "How do you stop CTE recomputation?",
+   "a": "Snowflake: `WITH t AS MATERIALIZED`; Spark: `CACHE TABLE` to pin intermediates."
+  },
+  {
+   "id": "s03-1",
+   "sec": 3,
+   "q": "File won't fit in memory — expected plain-Python answer?",
+   "a": "Stream it with a generator: yield, don't return."
+  },
+  {
+   "id": "s03-2",
+   "sec": 3,
+   "q": "When do you choose PySpark over pandas?",
+   "a": "Over ~10 GB, multi-file/Parquet input, cross-dataset joins, or explicit distribution requirements."
+  },
+  {
+   "id": "s03-3",
+   "sec": 3,
+   "q": "Name two causes of driver OOM.",
+   "a": "`collect()` and `toPandas()` pulling full results into driver RAM (also oversized `take()`)."
+  },
+  {
+   "id": "s03-4",
+   "sec": 3,
+   "q": "Name three causes of executor OOM.",
+   "a": "One giant partition (skew), `repartition(1)` before a heavy stage, cache without MEMORY_AND_DISK."
+  },
+  {
+   "id": "s03-5",
+   "sec": 3,
+   "q": "Relative cost of native vs pandas vs Python UDFs?",
+   "a": "Native 1×; pandas UDFs ~2–5× via Arrow batches; Python UDFs ~10×+."
+  },
+  {
+   "id": "s03-6",
+   "sec": 3,
+   "q": "How do you fix a skewed groupBy?",
+   "a": "Salt the hot key into N buckets and aggregate in two stages; or let AQE split skewed partitions."
+  },
+  {
+   "id": "s03-7",
+   "sec": 3,
+   "q": "When is cache() justified?",
+   "a": "Only when a DataFrame is reused ≥2× — persist MEMORY_AND_DISK, then unpersist."
+  },
+  {
+   "id": "s04-1",
+   "sec": 4,
+   "q": "When does CAP actually force a choice?",
+   "a": "Only during a network partition — before that you get both consistency and availability."
+  },
+  {
+   "id": "s04-2",
+   "sec": 4,
+   "q": "State the quorum rule and what it guarantees.",
+   "a": "R + W > N forces read/write overlap so reads see the newest write; W > N/2 prevents split-brain."
+  },
+  {
+   "id": "s04-3",
+   "sec": 4,
+   "q": "Availability of W=3/R=3 vs W=1/R=5 on N=5?",
+   "a": "99.1% on both paths vs ~99.999% writes and 59.0% reads."
+  },
+  {
+   "id": "s04-4",
+   "sec": 4,
+   "q": "Why are duplicate deliveries guaranteed?",
+   "a": "Retries are mandatory, so delivery is at-least-once — duplicates are normal, not exceptional."
+  },
+  {
+   "id": "s04-5",
+   "sec": 4,
+   "q": "What does \"exactly-once\" actually mean?",
+   "a": "Effectively-once end-to-end: idempotent producer, transactional offsets, and a sink participating in commit."
+  },
+  {
+   "id": "s04-6",
+   "sec": 4,
+   "q": "Why do windows close on event time + watermarks?",
+   "a": "Wall clocks lie across machines; event time plus watermarks make closes deterministic despite disorder."
+  },
+  {
+   "id": "s04-7",
+   "sec": 4,
+   "q": "Why is 2PC a poor fit across services?",
+   "a": "It blocks — a crashed coordinator leaves locks held; use sagas with compensating transactions."
+  },
+  {
+   "id": "s05-1",
+   "sec": 5,
+   "q": "What does the ingestion layer do?",
+   "a": "Only transport — no business logic; the choices are pull vs push and full vs incremental."
+  },
+  {
+   "id": "s05-2",
+   "sec": 5,
+   "q": "Why is log-based CDC the OLTP default?",
+   "a": "Captures hard deletes at minimal source overhead with seconds latency; polling misses deletes, triggers slow every write."
+  },
+  {
+   "id": "s05-3",
+   "sec": 5,
+   "q": "What belongs in bronze?",
+   "a": "An immutable, append-only raw copy plus ingest metadata — replay insurance, never edited downstream."
+  },
+  {
+   "id": "s05-4",
+   "sec": 5,
+   "q": "What happens to rows failing the silver quality gate?",
+   "a": "Quarantined with reason and lineage — gold stays clean; fix upstream and replay."
+  },
+  {
+   "id": "s05-5",
+   "sec": 5,
+   "q": "Name the #1 data-modeling question.",
+   "a": "Declare the grain — e.g. \"one row per order line.\""
+  },
+  {
+   "id": "s05-6",
+   "sec": 5,
+   "q": "Why does SCD2 preserve as-of analytics?",
+   "a": "The fact's surrogate FK pins it to the dimension version true at event time — expire + insert in one transaction."
+  },
+  {
+   "id": "s05-7",
+   "sec": 5,
+   "q": "Name the data-observability pillars.",
+   "a": "Freshness, volume, schema, distribution, lineage."
+  },
+  {
+   "id": "s06-1",
+   "sec": 6,
+   "q": "What is the real batch-vs-streaming tradeoff?",
+   "a": "Latency vs reprocessing/state cost — never throughput."
+  },
+  {
+   "id": "s06-2",
+   "sec": 6,
+   "q": "Latency floors of micro-batch vs true streaming?",
+   "a": "Spark Structured Streaming ~500 ms; Flink/Kafka Streams 10–100 ms."
+  },
+  {
+   "id": "s06-3",
+   "sec": 6,
+   "q": "Define the watermark.",
+   "a": "W = maxObservedEventTime − allowedLateness — a monotonic promise; the window emits when W passes its end."
+  },
+  {
+   "id": "s06-4",
+   "sec": 6,
+   "q": "Why can one idle partition freeze all windows?",
+   "a": "W is the min across partitions, so a stalled source stalls watermark progress everywhere."
+  },
+  {
+   "id": "s06-5",
+   "sec": 6,
+   "q": "What happens to an event later than allowed lateness?",
+   "a": "Side output or dead-letter queue; within lateness, re-accumulate and re-fire as a retraction."
+  },
+  {
+   "id": "s06-6",
+   "sec": 6,
+   "q": "Fraud SLA under 5 s — batch or streaming?",
+   "a": "True streaming; an hourly dashboard gets cheap batch, in between micro-batch."
+  },
+  {
+   "id": "s06-7",
+   "sec": 6,
+   "q": "Name the three layers that must align for exactly-once.",
+   "a": "Replayable source, exactly-once checkpointed state, transactional or idempotent sink."
+  },
+  {
+   "id": "s07-1",
+   "sec": 7,
+   "q": "Why did data lakes fail?",
+   "a": "Structurally — no atomic commits, schema enforcement, compaction, or governance; the swamp, not bad engineers."
+  },
+  {
+   "id": "s07-2",
+   "sec": 7,
+   "q": "Name the layers that compose a lakehouse.",
+   "a": "Open Parquet files + transactional table format + object storage + catalog — any engine on top."
+  },
+  {
+   "id": "s07-3",
+   "sec": 7,
+   "q": "How does Snowflake prune without user partition keys?",
+   "a": "~16 MB micro-partitions carry automatic min/max metadata for pruning."
+  },
+  {
+   "id": "s07-4",
+   "sec": 7,
+   "q": "What did cloud DWs trade away?",
+   "a": "Openness — proprietary formats, and lake + warehouse means two copies of data plus lock-in."
+  },
+  {
+   "id": "s07-5",
+   "sec": 7,
+   "q": "When does ETL still beat ELT?",
+   "a": "At trust boundaries: PII masking before load and cross-region compliance."
+  },
+  {
+   "id": "s07-6",
+   "sec": 7,
+   "q": "Auto-suspend or always-on — the utilization rule?",
+   "a": "Under 30% → per-second auto-suspend; over 60% sustained → always-on or reserved."
+  },
+  {
+   "id": "s07-7",
+   "sec": 7,
+   "q": "What is data mesh, honestly?",
+   "a": "An org model for ownership — centralize the substrate, decentralize product ownership."
+  },
+  {
+   "id": "s08-1",
+   "sec": 8,
+   "q": "Deepest architectural difference between the platforms?",
+   "a": "Storage ownership: Snowflake bundles it; Databricks keeps your lake as source of truth in your bucket."
+  },
+  {
+   "id": "s08-2",
+   "sec": 8,
+   "q": "Why did Databricks SQL become competitive?",
+   "a": "Photon — C++ vectorized execution over Delta."
+  },
+  {
+   "id": "s08-3",
+   "sec": 8,
+   "q": "How do the billing models differ?",
+   "a": "Credits bundle IaaS with 60 s minimum; DBUs stack on top of the underlying VM bill."
+  },
+  {
+   "id": "s08-4",
+   "sec": 8,
+   "q": "Cost of all-purpose vs jobs DBU misclassification?",
+   "a": "About 3× — $0.55 vs $0.15 per DBU."
+  },
+  {
+   "id": "s08-5",
+   "sec": 8,
+   "q": "Contrast the lock-in shapes.",
+   "a": "Snowflake locks data gravity; Databricks locks workflows — the data stays in your bucket."
+  },
+  {
+   "id": "s08-6",
+   "sec": 8,
+   "q": "How should you treat vendor benchmarks?",
+   "a": "They contradict by workload shape — run a 2-week PoC on your schemas and query mix."
+  },
+  {
+   "id": "s08-7",
+   "sec": 8,
+   "q": "Neutral layer for sharing data between both engines?",
+   "a": "Iceberg tables plus one REST catalog — Open Catalog/Polaris or Unity."
+  },
+  {
+   "id": "s09-1",
+   "sec": 9,
+   "q": "What does a table format add over bare Parquet?",
+   "a": "Atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files."
+  },
+  {
+   "id": "s09-2",
+   "sec": 9,
+   "q": "Describe Delta's metadata structure.",
+   "a": "One `_delta_log` of JSON commits with a Parquet checkpoint every 10th commit."
+  },
+  {
+   "id": "s09-3",
+   "sec": 9,
+   "q": "Walk the Iceberg metadata tree.",
+   "a": "Catalog CAS pointer → metadata.json → manifest list → manifests → data files, pruned at each level."
+  },
+  {
+   "id": "s09-4",
+   "sec": 9,
+   "q": "What is Iceberg hidden partitioning?",
+   "a": "Transforms like `days(ts)` live in the spec — engines never hand-write partition filters; evolution is metadata-only."
+  },
+  {
+   "id": "s09-5",
+   "sec": 9,
+   "q": "Name the four delete strategies by cost ladder.",
+   "a": "CoW rewrites, position deletes, deletion-vector bitmaps, MoR log records — write cost falls, read cost rises."
+  },
+  {
+   "id": "s09-6",
+   "sec": 9,
+   "q": "When is data actually deleted?",
+   "a": "Only by VACUUM/expire_snapshots/clean — time travel is replay, not deletion."
+  },
+  {
+   "id": "s09-7",
+   "sec": 9,
+   "q": "Commit size of one 400-row UPDATE across formats?",
+   "a": "Delta/Iceberg ~KBs via DVs; Hudi CoW ~100 MB rewritten; Hudi MoR ~50 KB log append."
+  },
+  {
+   "id": "s10-1",
+   "sec": 10,
+   "q": "Fundamental model difference between Spark and Flink?",
+   "a": "Spark runs incremental micro-batches; Flink processes record-at-a-time, with batch as a bounded stream."
+  },
+  {
+   "id": "s10-2",
+   "sec": 10,
+   "q": "Latency floor of each engine?",
+   "a": "Spark ~the batch interval (0.5–10 s); Flink ~10 ms."
+  },
+  {
+   "id": "s10-3",
+   "sec": 10,
+   "q": "What is a Flink checkpoint?",
+   "a": "An asynchronous Chandy–Lamport barrier snapshot — barriers ride the data, processing never pauses."
+  },
+  {
+   "id": "s10-4",
+   "sec": 10,
+   "q": "When do you enable unaligned checkpoints?",
+   "a": "Under backpressure — barriers overtake in-flight buffers and snapshot them too; bigger but steady duration."
+  },
+  {
+   "id": "s10-5",
+   "sec": 10,
+   "q": "Name Flink's exactly-once assembly.",
+   "a": "Rewindable source + barrier-aligned snapshot + TwoPhaseCommittingSink committing on notifyCheckpointComplete."
+  },
+  {
+   "id": "s10-6",
+   "sec": 10,
+   "q": "When does AQE split a skewed partition?",
+   "a": "Above 256 MB and 5× the median — into ~64 MB subtasks, no code needed."
+  },
+  {
+   "id": "s10-7",
+   "sec": 10,
+   "q": "Why TTL on every keyed Flink operator?",
+   "a": "Unbounded keyed state is the #1 production killer."
+  },
+  {
+   "id": "s11-1",
+   "sec": 11,
+   "q": "What does AQE re-plan with, and since which release?",
+   "a": "Actual shuffle stats at each Exchange boundary — default since Spark 3.2."
+  },
+  {
+   "id": "s11-2",
+   "sec": 11,
+   "q": "State both AQE skew-join split triggers.",
+   "a": "Partition above 5× the median AND above 256 MB — split toward ~64 MB subtasks."
+  },
+  {
+   "id": "s11-3",
+   "sec": 11,
+   "q": "Why doesn't AQE fix skewed groupBy?",
+   "a": "Skew split covers joins only (SMJ/SHJ) — aggregate skew needs salting."
+  },
+  {
+   "id": "s11-4",
+   "sec": 11,
+   "q": "Broadcast join condition and its failure mode?",
+   "a": "One side ≤ 10 MB per honest stats; stale/underestimated stats make the driver OOM collecting it."
+  },
+  {
+   "id": "s11-5",
+   "sec": 11,
+   "q": "How do you size shuffle partitions?",
+   "a": "≈ shuffle bytes ÷ 128–256 MB — over-provision, AQE coalesces; the 200 default is wrong both ways."
+  },
+  {
+   "id": "s11-6",
+   "sec": 11,
+   "q": "Storage vs execution memory under pressure?",
+   "a": "Storage evicts blocks; execution never evicts — it spills to disk."
+  },
+  {
+   "id": "s11-7",
+   "sec": 11,
+   "q": "What does max task time ≫ p50 in the UI mean?",
+   "a": "Skew; uniformly slow tasks point to sizing, spill, or GC instead."
+  },
+  {
+   "id": "s12-1",
+   "sec": 12,
+   "q": "What third model does Kafka add beyond queue and pub/sub?",
+   "a": "A partitioned, replayable append-only log with consumer-owned offsets."
+  },
+  {
+   "id": "s12-2",
+   "sec": 12,
+   "q": "What ordering does Kafka guarantee?",
+   "a": "Strict order only within a partition — key hashing fixes per-entity order."
+  },
+  {
+   "id": "s12-3",
+   "sec": 12,
+   "q": "State the canonical Kafka durability recipe.",
+   "a": "acks=all + RF=3 + min.insync.replicas=2 + unclean.leader.election disabled."
+  },
+  {
+   "id": "s12-4",
+   "sec": 12,
+   "q": "Define the high watermark.",
+   "a": "The highest offset replicated to all ISR — consumers read only up to it."
+  },
+  {
+   "id": "s12-5",
+   "sec": 12,
+   "q": "Why is dual-writing DB + Kafka wrong?",
+   "a": "A crash in between loses the event with no record — use the outbox pattern with CDC."
+  },
+  {
+   "id": "s12-6",
+   "sec": 12,
+   "q": "Where is exactly-once real in Kafka?",
+   "a": "Inside Kafka — idempotent producer + transactions + read_committed; across boundaries, at-least-once + idempotent sinks."
+  },
+  {
+   "id": "s12-7",
+   "sec": 12,
+   "q": "Name two rebalance-storm fixes.",
+   "a": "Cooperative-sticky assignor and static membership (group.instance.id)."
+  },
+  {
+   "id": "s13-1",
+   "sec": 13,
+   "q": "Name the six data-quality dimensions.",
+   "a": "Accuracy, completeness, freshness, validity, uniqueness, consistency."
+  },
+  {
+   "id": "s13-2",
+   "sec": 13,
+   "q": "What runs at each data-test-pyramid layer?",
+   "a": "Unit tests every PR, data tests every run, reconciliation daily, production monitoring continuous."
+  },
+  {
+   "id": "s13-3",
+   "sec": 13,
+   "q": "What happens when a quality gate fails?",
+   "a": "Circuit breaker — publish to staging, promote atomically so consumers keep last-known-good."
+  },
+  {
+   "id": "s13-4",
+   "sec": 13,
+   "q": "When should quarantine alerts fire?",
+   "a": "When the quarantine rate exceeds ~1% — never drop records silently."
+  },
+  {
+   "id": "s13-5",
+   "sec": 13,
+   "q": "Error budget for 99% freshness over 30 daily runs?",
+   "a": "0.3 runs — so page on the very first miss."
+  },
+  {
+   "id": "s13-6",
+   "sec": 13,
+   "q": "What makes a backfill idempotent?",
+   "a": "DELETE + INSERT per partition or MERGE — same input, same output, never blind append."
+  },
+  {
+   "id": "s13-7",
+   "sec": 13,
+   "q": "Name the incident loop stages.",
+   "a": "Alert, classify, contain, fix, backfill, verify, blameless postmortem — each incident adds a check."
+  },
+  {
+   "id": "s14-1",
+   "sec": 14,
+   "q": "What job does each of the five sources do?",
+   "a": "Wiki explains, handbook curates, SDE builds, DET community, DEC practitioner benchmarks."
+  },
+  {
+   "id": "s14-2",
+   "sec": 14,
+   "q": "How big is the canonical reading list?",
+   "a": "Four books plus two papers, each tied to a course section — not the 25-book firehose."
+  },
+  {
+   "id": "s14-3",
+   "sec": 14,
+   "q": "Required read-to-build ratio, and the failure it prevents?",
+   "a": "1:2 — prevents tutorial hell, where the 40th Spark video compounds to zero."
+  },
+  {
+   "id": "s14-4",
+   "sec": 14,
+   "q": "What is the build spine?",
+   "a": "API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly."
+  },
+  {
+   "id": "s14-5",
+   "sec": 14,
+   "q": "How many portfolio projects should you finish?",
+   "a": "One archetype — a small finished repo with a README of tradeoffs."
+  },
+  {
+   "id": "s14-6",
+   "sec": 14,
+   "q": "What is drill 15 and why does it matter?",
+   "a": "A 5-minute walkthrough of your design doc — it IS the A3 architecture screen."
+  },
+  {
+   "id": "s15-1",
+   "sec": 15,
+   "q": "What does the internal design round probe?",
+   "a": "Your own project (Scenario 0) plus hypothetical extensions — scored on narrative + evidence."
+  },
+  {
+   "id": "s15-2",
+   "sec": 15,
+   "q": "Name the six answer-framework steps.",
+   "a": "Clarify, estimate, high-level design, tradeoffs, ops and failure, evolution."
+  },
+  {
+   "id": "s15-3",
+   "sec": 15,
+   "q": "Why state the freshness SLA first?",
+   "a": "It decides the architecture — sub-second means Kafka+Flink; sub-minute allows a committing lakehouse sink."
+  },
+  {
+   "id": "s15-4",
+   "sec": 15,
+   "q": "What replaces STAR in defense prep?",
+   "a": "The evidence ledger: claim → story → artifact → metric → matrix line — 4–5 stories, 90 seconds each."
+  },
+  {
+   "id": "s15-5",
+   "sec": 15,
+   "q": "Storage math for 100k ev/s at 500 B with RF=3?",
+   "a": "4.32 TB/day raw → ~13 TB replicated → 6 brokers × 4 TB, 48 partitions at ~1 MB/s."
+  },
+  {
+   "id": "s15-6",
+   "sec": 15,
+   "q": "Why is exactly-once not correctness?",
+   "a": "Checkpoints/2PC are processing semantics only — dedup windows and reconciliation handle late, wrong, or fraudulent data."
+  },
+  {
+   "id": "s15-7",
+   "sec": 15,
+   "q": "Golden invariant of a warehouse-to-lakehouse migration?",
+   "a": "No consumer ever sees wrong data — waves ordered by consumer, gated on 7 days under 0.01% delta."
+  },
+  {
    "id": "s16-1",
    "sec": 16,
    "q": "What is the repeating framework across all 11 GenAI design chapters?",
@@ -47,6 +629,426 @@
    "sec": 16,
    "q": "What must accompany offline metrics in a GenAI evaluation answer?",
    "a": "Online business metrics — CTR, adoption, cost per user per month — because users re-roll failed generations and burn GPU money; name both unprompted."
+  },
+  {
+   "id": "s17-1",
+   "sec": 17,
+   "q": "Name the 7-step ML design framework.",
+   "a": "Clarify, frame as ML task, data prep, model development, evaluation, deployment/serving, monitoring."
+  },
+  {
+   "id": "s17-2",
+   "sec": 17,
+   "q": "Why not optimize raw clicks?",
+   "a": "Clicks reward clickbait and completions bias short videos — name failure modes, choose relevance-aware objectives."
+  },
+  {
+   "id": "s17-3",
+   "sec": 17,
+   "q": "Why reject GBDT in continual-learning systems?",
+   "a": "It cannot be fine-tuned — every refresh means retraining from scratch."
+  },
+  {
+   "id": "s17-4",
+   "sec": 17,
+   "q": "Walk the ranking-metric elimination chain.",
+   "a": "MRR ignores post-first hits, recall@k drowns in millions, precision@k is rank-blind — use nDCG or mAP."
+  },
+  {
+   "id": "s17-5",
+   "sec": 17,
+   "q": "Where do business rules belong in serving?",
+   "a": "In re-ranking — never baked into the model."
+  },
+  {
+   "id": "s17-6",
+   "sec": 17,
+   "q": "Why weight unobserved pairs in matrix factorization?",
+   "a": "Observed-only loss reaches zero with degenerate all-ones embeddings — WALS forces real separation."
+  },
+  {
+   "id": "s17-7",
+   "sec": 17,
+   "q": "What does NCE below 1 indicate?",
+   "a": "The model's cross-entropy beats the background-CTR baseline — calibration before serving to auctions."
+  },
+  {
+   "id": "s18-1",
+   "sec": 18,
+   "q": "Why encoder-decoder for translation?",
+   "a": "Bidirectional source understanding, natural variable-length I/O, cross-attention into encoder output."
+  },
+  {
+   "id": "s18-2",
+   "sec": 18,
+   "q": "Why masked LM, not next-token, in pretraining?",
+   "a": "Full-sentence input with next-token prediction lets the encoder leak the answer."
+  },
+  {
+   "id": "s18-3",
+   "sec": 18,
+   "q": "How does BPE handle unseen words?",
+   "a": "Rare words decompose into known subword pieces; `</w>` marks word boundaries."
+  },
+  {
+   "id": "s18-4",
+   "sec": 18,
+   "q": "How are named entities handled?",
+   "a": "Replaced with ENTITY_1-style placeholders before training, restored after decoding."
+  },
+  {
+   "id": "s18-5",
+   "sec": 18,
+   "q": "Why beam search over top-k/top-p?",
+   "a": "Deterministic same-input-same-output and higher accuracy — diversity is a defect in translation."
+  },
+  {
+   "id": "s18-6",
+   "sec": 18,
+   "q": "Which metric matches synonyms via WordNet?",
+   "a": "METEOR — harmonic mean of precision and recall, best human-judgment correlation."
+  },
+  {
+   "id": "s18-7",
+   "sec": 18,
+   "q": "What routes input when language is unknown?",
+   "a": "An encoder-only language-detection classifier routes to the per-pair model."
+  },
+  {
+   "id": "s19-1",
+   "sec": 19,
+   "q": "Name the three training stages.",
+   "a": "Pretraining, supervised finetuning, RLHF — knowledge, response behavior, human alignment respectively."
+  },
+  {
+   "id": "s19-2",
+   "sec": 19,
+   "q": "Why rank instead of score responses?",
+   "a": "Absolute numeric scores drift between annotators; rankings become (prompt, winning, losing) preference pairs."
+  },
+  {
+   "id": "s19-3",
+   "sec": 19,
+   "q": "Why RoPE over absolute positional encoding?",
+   "a": "Absolute encodings trained at 512 break at 4096; RoPE captures relative position geometrically."
+  },
+  {
+   "id": "s19-4",
+   "sec": 19,
+   "q": "Default decoding for open-ended chat?",
+   "a": "Top-p (nucleus) sampling with tuned temperature — deterministic search loops in dialogue."
+  },
+  {
+   "id": "s19-5",
+   "sec": 19,
+   "q": "Why does top-k fail?",
+   "a": "Fixed k misfits the distribution — sharp loses the obvious token, flat caps diversity."
+  },
+  {
+   "id": "s19-6",
+   "sec": 19,
+   "q": "Name the evaluation layers.",
+   "a": "Perplexity, task benchmarks, safety benchmarks, human plus online signals (LMSYS Arena)."
+  },
+  {
+   "id": "s19-7",
+   "sec": 19,
+   "q": "How do follow-ups work?",
+   "a": "Session management feeds chat history into the prompt enhancer's context."
+  },
+  {
+   "id": "s20-1",
+   "sec": 20,
+   "q": "Frame image captioning as an ML task.",
+   "a": "Translation with pixels as the source language — image encoder, decoder-only Transformer emits the caption."
+  },
+  {
+   "id": "s20-2",
+   "sec": 20,
+   "q": "Per-patch tokens or one global vector?",
+   "a": "Per-patch sequence — attention needs sequences and a global vector discards local detail."
+  },
+  {
+   "id": "s20-3",
+   "sec": 20,
+   "q": "Name three cleaning steps for the 400M pairs.",
+   "a": "Dedup via perceptual hash/CLIP, CLIP relevance filter below ~0.25, LLM summarization of long captions."
+  },
+  {
+   "id": "s20-4",
+   "sec": 20,
+   "q": "Why summarize long captions before training?",
+   "a": "The model imitates caption length — long training captions produce long, unusable suggestions."
+  },
+  {
+   "id": "s20-5",
+   "sec": 20,
+   "q": "Why beam search over sampling?",
+   "a": "Higher quality, deterministic same-image-same-caption, coherent — diversity is unwanted."
+  },
+  {
+   "id": "s20-6",
+   "sec": 20,
+   "q": "How are ambiguous images handled?",
+   "a": "Beam-search cumulative probability below a confidence threshold disables the suggestion."
+  },
+  {
+   "id": "s20-7",
+   "sec": 20,
+   "q": "What is CIDEr and its blind spots?",
+   "a": "TF-IDF vectors, cosine similarity vs references, averaged; blind to novel phrasing and word-order semantics."
+  },
+  {
+   "id": "s21-1",
+   "sec": 21,
+   "q": "Why RAG over finetuning for document QA?",
+   "a": "Knowledge changes often and citations are required — finetuning can't stay current or provide references."
+  },
+  {
+   "id": "s21-2",
+   "sec": 21,
+   "q": "Why AI-based over rule-based parsing?",
+   "a": "Varied single/double-column layouts break fixed templates — layout detection plus OCR reads boxes in order."
+  },
+  {
+   "id": "s21-3",
+   "sec": 21,
+   "q": "Compute chunks for 5M pages.",
+   "a": "1,500-char pages, 500-char chunks with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks."
+  },
+  {
+   "id": "s21-4",
+   "sec": 21,
+   "q": "What is the shared embedding space contract?",
+   "a": "The same encoder embeds chunks and queries; CLIP or captioning aligns images."
+  },
+  {
+   "id": "s21-5",
+   "sec": 21,
+   "q": "Why is exact nearest-neighbor search infeasible?",
+   "a": "O(N×D) — 40M comparisons per query; ANN is ~O(log N×D)."
+  },
+  {
+   "id": "s21-6",
+   "sec": 21,
+   "q": "Name the RAG triad.",
+   "a": "Context relevance, faithfulness, answer relevance."
+  },
+  {
+   "id": "s21-7",
+   "sec": 21,
+   "q": "When do you RAFT-finetune?",
+   "a": "Only after retrieval is fixed — golden plus distractor docs teach the LLM to ignore noise."
+  },
+  {
+   "id": "s22-1",
+   "sec": 22,
+   "q": "Why GAN over diffusion here?",
+   "a": "One forward pass meets the <1s SLA, and the structured latent space enables facial attribute manipulation."
+  },
+  {
+   "id": "s22-2",
+   "sec": 22,
+   "q": "Why normalize pixels to −1..1?",
+   "a": "It matches the generator's final Tanh activation — a ReLU output would mismatch the range."
+  },
+  {
+   "id": "s22-3",
+   "sec": 22,
+   "q": "Name the three GAN training failures.",
+   "a": "Vanishing gradients, mode collapse, failure to converge."
+  },
+  {
+   "id": "s22-4",
+   "sec": 22,
+   "q": "Fix for mode collapse?",
+   "a": "Wasserstein loss or an unrolled GAN."
+  },
+  {
+   "id": "s22-5",
+   "sec": 22,
+   "q": "When does GAN training stop?",
+   "a": "When discriminator accuracy nears 50% — past it, feedback becomes coin flips and quality degrades."
+  },
+  {
+   "id": "s22-6",
+   "sec": 22,
+   "q": "Why random over truncated latent sampling?",
+   "a": "Diversity matters for faces; truncation buys realism at diversity's cost."
+  },
+  {
+   "id": "s22-7",
+   "sec": 22,
+   "q": "Which metric is lower-is-better?",
+   "a": "FID — Fréchet distance between real and generated feature distributions."
+  },
+  {
+   "id": "s23-1",
+   "sec": 23,
+   "q": "Why autoregressive over diffusion here?",
+   "a": "Chunked AR is 256 token steps (seconds); diffusion is O(T·N²) with more steps at high res — minutes."
+  },
+  {
+   "id": "s23-2",
+   "sec": 23,
+   "q": "What is posterior collapse and the fix?",
+   "a": "A powerful decoder ignores its latents at high res; discrete codebook tokens force it to use them."
+  },
+  {
+   "id": "s23-3",
+   "sec": 23,
+   "q": "Name the four Stage I tokenizer losses.",
+   "a": "Reconstruction, quantization, perceptual, adversarial — pixel fidelity, codebook commitment, features, realism."
+  },
+  {
+   "id": "s23-4",
+   "sec": 23,
+   "q": "How do gradients flow through the quantizer?",
+   "a": "Straight-through — nearest-neighbor has no gradient, so decoder gradients copy to the encoder."
+  },
+  {
+   "id": "s23-5",
+   "sec": 23,
+   "q": "Token math for 1024×1024?",
+   "a": "64×64 px per token → 256 sequential generation steps."
+  },
+  {
+   "id": "s23-6",
+   "sec": 23,
+   "q": "Why split generation and decoding services?",
+   "a": "Distinct computational profiles and latencies — each scales independently."
+  },
+  {
+   "id": "s23-7",
+   "sec": 23,
+   "q": "How is 2048² served?",
+   "a": "Generate at 1024², then a pretrained 2× super-resolution upscaler (RCAN/ESRGAN)."
+  },
+  {
+   "id": "s24-1",
+   "sec": 24,
+   "q": "Why diffusion over autoregressive for text-to-image?",
+   "a": "Superior fine detail plus a tunable sampling-steps dial — complexity traded for quality."
+  },
+  {
+   "id": "s24-2",
+   "sec": 24,
+   "q": "What does the model predict during training?",
+   "a": "The noise ε, not the clean image x₀ — predicting x₀ underperforms."
+  },
+  {
+   "id": "s24-3",
+   "sec": 24,
+   "q": "How does the prompt steer denoising?",
+   "a": "Cross-attention — queries from image features, keys/values from text-encoder embeddings."
+  },
+  {
+   "id": "s24-4",
+   "sec": 24,
+   "q": "Name the two sampling fixes.",
+   "a": "Classifier-free guidance for prompt adherence; DDIM cuts steps from 1,000 to ~20."
+  },
+  {
+   "id": "s24-5",
+   "sec": 24,
+   "q": "Why cascade super-resolution?",
+   "a": "Diffusion can't generate high resolution directly — train low, upscale 64→256→1024."
+  },
+  {
+   "id": "s24-6",
+   "sec": 24,
+   "q": "Why two safety gates?",
+   "a": "Prompt filtering before compute misses model-generated harm — output harm detection catches it after generation."
+  },
+  {
+   "id": "s24-7",
+   "sec": 24,
+   "q": "Which online metric reveals hidden dissatisfaction?",
+   "a": "Average cost per user per month — unhappy users re-roll seeds, compounding compute spend."
+  },
+  {
+   "id": "s25-1",
+   "sec": 25,
+   "q": "Why tuning-based over tuning-free?",
+   "a": "Identity preservation is the product — 10–20 images give richer identity than one reference image."
+  },
+  {
+   "id": "s25-2",
+   "sec": 25,
+   "q": "Rank the three methods by identity fidelity.",
+   "a": "DreamBooth (full finetune) > LoRA (low-rank delta) > textual inversion (one token embedding)."
+  },
+  {
+   "id": "s25-3",
+   "sec": 25,
+   "q": "Why DreamBooth despite GB-per-subject storage?",
+   "a": "15-min finetune fits the <1h async SLA and models are discarded after the 50 headshots."
+  },
+  {
+   "id": "s25-4",
+   "sec": 25,
+   "q": "Why a rare token instead of a common word?",
+   "a": "Common words carry meanings the model must overwrite; rare tokens are distinct yet tokenizer-cohesive."
+  },
+  {
+   "id": "s25-5",
+   "sec": 25,
+   "q": "Name the two DreamBooth losses.",
+   "a": "Reconstruction on \"[V] person\" plus class-specific prior preservation on \"a person\"."
+  },
+  {
+   "id": "s25-6",
+   "sec": 25,
+   "q": "Why add generic face images to training?",
+   "a": "Prevents overfitting to one identity and forgetting the generic face class."
+  },
+  {
+   "id": "s25-7",
+   "sec": 25,
+   "q": "Why isn't CLIP enough for identity?",
+   "a": "CLIP/DINO score semantics and detail, not identity — a face recognition model closes the gap."
+  },
+  {
+   "id": "s26-1",
+   "sec": 26,
+   "q": "Why latent diffusion for video?",
+   "a": "VAE compresses 8× spatial and 8× temporal — 512× smaller, making training and inference affordable."
+  },
+  {
+   "id": "s26-2",
+   "sec": 26,
+   "q": "Pixel-space cost of a 5s 720p video?",
+   "a": "~7 minutes per video on an H100 — 120 frames at 3.6× image pixels."
+  },
+  {
+   "id": "s26-3",
+   "sec": 26,
+   "q": "Why precompute and cache latents?",
+   "a": "Per-step VAE encoding stalls training — ~200 TB cache for 100M videos buys it back."
+  },
+  {
+   "id": "s26-4",
+   "sec": 26,
+   "q": "Why DiT over U-Net for video?",
+   "a": "3D patchify with Transformer scaling and modality flexibility — Sora and Movie Gen chose it."
+  },
+  {
+   "id": "s26-5",
+   "sec": 26,
+   "q": "How do you handle scarce video–text pairs?",
+   "a": "Fold images in as single-frame videos — one joint training stage."
+  },
+  {
+   "id": "s26-6",
+   "sec": 26,
+   "q": "Which metric catches flicker?",
+   "a": "FVD — Fréchet distance over I3D features; FID/IS score frames and miss motion."
+  },
+  {
+   "id": "s26-7",
+   "sec": 26,
+   "q": "Name the two super-resolution stages.",
+   "a": "Spatial SR restores 720p; temporal SR interpolates 12 FPS to 24 FPS."
   }
  ],
  "terms": [
@@ -290,6 +1292,131 @@
    "Manager sponsorship + readiness review gate the attempt.",
    "[WARN] Process details are reported, not officially documented."
   ],
+  "2": [
+   "Window functions compute per-row values over a frame without collapsing rows — the core difference from GROUP BY.",
+   "Canonical dedup: `ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)`, keep rn=1 — one scan, deterministic ties.",
+   "Logical order: FROM/JOIN → WHERE → GROUP BY/HAVING → windows → ORDER BY; WHERE filters rows, HAVING filters groups.",
+   "SARGable predicates only: `CAST(dt AS STRING)` full-scans; `dt = DATE '2024-01-01'` prunes partitions.",
+   "LEFT JOIN plus WHERE on the right table's column silently becomes an INNER JOIN — move it into ON.",
+   "Duplicate join keys fan out rows: a 1.1x key duplication silently doubles summed revenue.",
+   "CTEs get inlined and recomputed — Snowflake: `AS MATERIALIZED`; Spark: `CACHE TABLE`."
+  ],
+  "3": [
+   "\"File won't fit in memory\" → generator: yield, don't return — dicts/sets are O(n) RAM, generators O(1).",
+   "Reach for Spark at >10 GB, multi-file/Parquet input, cross-dataset joins, or \"distributed\"; plain Python under ~1 GB.",
+   "Driver OOM: `collect()`/`toPandas()`. Executor OOM: skew, `repartition(1)` before a heavy stage, cache without MEMORY_AND_DISK.",
+   "UDF ladder: native 1× → pandas UDF ~2–5× (Arrow batches) → Python UDF ~10×+; use `F.when`, never a UDF, for conditionals.",
+   "Skew: diagnose via `groupBy(col).count().orderBy(desc(\"count\"))` or a Spark UI straggler; fix by salting the hot key (16 buckets) + two-stage agg.",
+   "`repartition(n, col)` shuffles and balances; `coalesce(n)` skips the shuffle but can leave skew.",
+   "Cache only when reused ≥2× (`MEMORY_AND_DISK`, then `unpersist()`) — blind `.cache()` is a memory leak."
+  ],
+  "4": [
+   "CAP forces the C-vs-A choice only under a network partition: CP refuses stale answers (ZooKeeper, etcd), AP serves possibly stale (Cassandra, DynamoDB).",
+   "Quorum rule: `R + W > N` forces read/write overlap; `W > N/2` prevents split-brain.",
+   "N=5 math: W=3/R=3 → 99.1% both paths; W=1/R=5 → ~99.999% writes but 59.0% reads.",
+   "Retries are mandatory → at-least-once delivery → duplicates guaranteed; idempotency keys, dedup tables, upserts make replays no-ops.",
+   "\"Exactly-once\" is effectively-once end-to-end: idempotent producer + transactional offsets + a sink that participates in commit.",
+   "Wall clocks lie across machines — order with event time + watermarks; LWW silently discards concurrent updates.",
+   "2PC is atomic but blocking (crashed coordinator holds locks); sagas chain local transactions with compensations."
+  ],
+  "5": [
+   "Draw the spine: sources → ingestion → storage → transform → serve, plus cross-cutting orchestration, catalog, observability, security — mention unprompted.",
+   "Ingestion carries no business logic; log-based CDC (binlog/WAL → Debezium → Kafka) is the OLTP default — captures hard deletes; polling misses them, triggers slow every write.",
+   "Medallion invariants: bronze immutable raw (replay insurance), silver deduped/typed/validated with a quality gate → quarantine, gold curated for BI/ML; skip layers without trust boundaries.",
+   "Declare grain first — \"one row per order line\"; model the business process, not the source system.",
+   "Star schema for BI, Data Vault for auditable multi-source integration, OBT for zero-join ML/single-consumer scans.",
+   "SCD2: the fact's surrogate FK pins it to the dimension version true at event time; expire + insert in one transaction.",
+   "Data contracts: versioned, machine-enforced in producer CI — a renamed column is caught at build time, not as NULLs in gold."
+  ],
+  "6": [
+   "Batch answers \"what is true given all data up to now\" (bounded); streaming \"what is true right now\" (unbounded) — the trade is latency vs reprocessing/state cost, not throughput.",
+   "Escalation path: batch → micro-batch (Spark SS ~500 ms floor) → true streaming (Flink/Kafka Streams 10–100 ms); each step up is a permanent tax: state ops, checkpoints, watermark tuning.",
+   "Only event time is reproducible; processing time is for lag monitoring.",
+   "Watermark `W = maxObservedEventTime − allowedLateness` (typ. 20 s–5 min); a window emits when W passes its end; W = min across partitions, so one idle source stalls everything.",
+   "Late events: within allowedLateness → re-accumulate and re-fire (retraction); beyond → side output or dead-letter queue.",
+   "State (windows, join buffers, dedup keys) needs a TTL or it grows forever.",
+   "Exactly-once exists only end-to-end: replayable source + exactly-once state + transactional/idempotent sink — else at-least-once plus dedupe."
+  ],
+  "7": [
+   "Four generations, each failure mode the next's feature list: EDW → lake → cloud DW → lakehouse; answer \"why the transition\" with failure mechanisms, not product names.",
+   "Lakes failed structurally (60–85% of big-data projects abandoned): no atomic commits, no schema enforcement, no compaction, no governance.",
+   "Lakehouse = Parquet + transactional table format + object storage + catalog + any engine — the format + catalog is the platform.",
+   "Cloud DW disaggregation (micro-partitions ~16 MB with min/max pruning, isolated virtual warehouses, per-second auto-suspend) vs shared-nothing rebalancing cost.",
+   "Lakehouse contribution: schema-on-write with late binding — enforce at commit, evolve without rewriting files.",
+   "ELT displaced ETL where storage/compute decoupled; ETL survives at trust boundaries (PII masking before load, cross-region).",
+   "Cost rule: utilization <30% → per-second auto-suspend; >60% sustained → always-on/reserved; watch egress and per-TB-scanned ($6.25/TB BigQuery)."
+  ],
+  "8": [
+   "Converging from opposite origins; the deepest difference is storage ownership: Snowflake abstracts it (bundled bill), Databricks makes your lake the source of truth in your bucket.",
+   "Snowflake: warehouses XS→6XL auto-suspend to zero, ~16 MB micro-partitions with min/max pruning, Time Travel + zero-copy cloning.",
+   "Databricks: Spark + Photon (C++ vectorized) over your S3 with the Delta ACID log — Photon is why its SQL got competitive.",
+   "Billing: credits bundle IaaS (60 s minimum); DBUs stack on the VM bill — never compare list rates, model 3-year all-in TCO (worked example: ~15% DBX edge, entirely assumption-driven).",
+   "All-purpose ($0.55) vs jobs ($0.15) DBU misclassification is ~3×.",
+   "Fit: SQL/BI + turnkey ops → Snowflake; ML/GPU/code-first/continuous streaming → Databricks; governance parity, openness favors Unity Catalog.",
+   "Lock-in: Snowflake locks data gravity, Databricks locks workflows; Iceberg + one REST catalog (Open Catalog/Polaris/UC) is the neutral layer — vendor benchmarks contradict by workload shape, so run a 2-week PoC."
+  ],
+  "9": [
+   "A table format adds what Parquet lacks: atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files.",
+   "Delta is a log: `_delta_log` JSON commits + Parquet checkpoint every 10th commit, optimistic concurrency, Deletion Vectors since 2.x.",
+   "Iceberg is a tree: catalog CAS pointer → metadata.json → manifest list → manifests → data files, with pruning summaries at every level.",
+   "Hidden partitioning: transforms (`days(ts)`, `bucket(16, user_id)`) live in the spec — partition evolution is metadata-only, no rewrite.",
+   "Hudi is a timeline of instants (the WAL) over file groups; CoW rewrites bases, MoR appends logs until compaction folds them.",
+   "Delete cost ladder: CoW rewrite → position deletes → DV bitmaps → MoR log records — write cost falls, read cost rises. GDPR deletes: DVs make them KB-scale.",
+   "Time travel = replay; only VACUUM/expire_snapshots/clean truly deletes. Benchmarks are vendor-shaped — decide from estate: Iceberg multi-engine, Delta Databricks, Hudi keyed CDC."
+  ],
+  "10": [
+   "Spark is a batch engine that grew micro-batch streaming; Flink is a streaming engine where batch is just a bounded stream — scheduling, state, failure handling follow from that.",
+   "Latency floors: Spark ~batch interval (0.5–10 s, p99 pinned by batch commit); Flink ~10 ms record-at-a-time.",
+   "Spark pipeline: lazy plans → Catalyst (pushdown, join choice, whole-stage codegen) → stages cut at shuffle boundaries; AQE coalesces and skew-splits at runtime; RocksDB state store default since 4.0.",
+   "Flink exactly-once = rewindable source + async barrier snapshot (Chandy–Lamport) + TwoPhaseCommittingSink (pre-commit at checkpoint, commit on notifyCheckpointComplete).",
+   "Unaligned checkpoints under backpressure: barriers overtake in-flight buffers — larger snapshots, steady duration.",
+   "AQE skew rule: partition > 256 MB and > 5× median → split into ~64 MB subtasks (512 GB straggler: 60 min → 8 min, −87%); salting is the fallback costing two shuffles.",
+   "Set TTL on every keyed Flink op — unbounded state is the #1 production killer; checkpoint interval bounds 2PC deliverable latency."
+  ],
+  "11": [
+   "Catalyst: rule-based logical optimization (pushdown, pruning, folding) + cost-based physical planning; without `ANALYZE TABLE`, `sizeInBytes` defaults huge so auto-broadcast never fires at compile time.",
+   "AQE re-plans at each shuffle boundary from actual map-output stats — default since 3.2: coalesce toward ~64 MB, skew-join split, SMJ→BHJ/SHJ switch; useless without an Exchange.",
+   "AQE skew-join split fires only above BOTH thresholds: > 5× median partition AND > 256 MB — joins only; groupBy skew needs salting.",
+   "Join choice = one threshold + honest stats: broadcast ≤ 10 MB (misestimate → driver OOM), SHJ on hint, SMJ the robust default.",
+   "Size partitions ≈ shuffle bytes ÷ 128–256 MB — the 200 default is wrong in both directions; over-provision and let AQE coalesce (it cannot split ordinary oversized partitions).",
+   "Unified memory (fraction 0.6): storage evicts, execution spills; G1GC for ≥4–8 GB heaps; GC > 10–15% of task time = allocation churn.",
+   "Diagnose from the UI: max ≫ p50 → skew; spill counters → memory; fix data shape before knobs."
+  ],
+  "12": [
+   "Three messaging models: queue (one consumer, ack-then-delete), pub/sub (fan-out, no replay), log (Kafka: partitioned, replayable, consumer-owned offsets — replay is an offset reset).",
+   "Ordering is per-partition only: `hash(key) % partitions` gives per-entity order; changing partition count silently breaks the key map.",
+   "ISR = replicas current within `replica.lag.time.max.ms` (30 s); high watermark = highest offset replicated to all ISR — consumers read only up to HW.",
+   "Durability recipe: `acks=all` + RF=3 + `min.insync.replicas=2` + `unclean.leader.election.enable=false`; ISR shrunk to 1 → explicit `NOT_ENOUGH_REPLICAS`, not silent loss.",
+   "Exactly-once stops at Kafka's edge: idempotent producer (PID + sequence, default since 3.0) + transactions + `read_committed`; across boundaries use the outbox — never dual-write.",
+   "Rebalance-proofing: cooperative-sticky assignor (KIP-429) + static membership + `max.poll.records` finishing inside `max.poll.interval.ms` (5 min default).",
+   "KRaft replaced ZooKeeper (removed in 4.0, 2025); schema evolution `FULL_TRANSITIVE` on shared topics; tiered storage decouples retention from broker disk."
+  ],
+  "13": [
+   "Six quality dimensions are the shared vocabulary: accuracy, completeness, freshness, validity, uniqueness, consistency — every tool (GE, dbt, Soda) maps to them.",
+   "Test pyramid: unit tests every PR, data tests every pipeline run, expensive reconciliations daily/before publish, production monitoring continuous.",
+   "Observability = metrics (what broke) + logs (where) + lineage (what else); OpenLineage/Marquez bounds the blast radius.",
+   "Gate failure → circuit breaker: publish to staging, promote atomically — consumers keep last-known-good; alert when quarantine rate exceeds ~1%.",
+   "SLO math: 99% on-time over 30 daily runs → error budget 0.3 runs → page on the first miss; thresholds come from budget math, not complaints.",
+   "Idempotent backfill: DELETE + INSERT per partition or MERGE — never blind append; same input must give same output.",
+   "Incident loop: alert → classify → contain → fix → backfill → verify → blameless postmortem; every incident ends as a new automated check."
+  ],
+  "14": [
+   "Five sources, five jobs: the wiki explains concepts, the handbook curates, Start Data Engineering builds (100+ posts), DET gives community signal, DEC practitioner benchmarks.",
+   "Canonical reading list = 4 books + 2 papers — Fundamentals of DE, DDIA 2e, Kimball, Learning Spark 2e; GFS, Lakehouse CIDR — not the handbook's 25-book firehose.",
+   "Hold a 1:2 read-to-build ratio: tutorial hell (the 40th Spark video) compounds to zero; if you can't whiteboard your build's failure modes, you watched, not learned.",
+   "Attach every drill to one build spine — API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly, reps compound.",
+   "Pick ONE portfolio archetype (batch lakehouse, streaming, CDC, DQ-gated, LLM) and finish it; a small finished repo with a tradeoffs README beats three half-cloned tutorials.",
+   "Drill 15 — a 5-minute walkthrough of your own design doc — IS the A3 architecture screen; rehearse until 5 minutes feels short."
+  ],
+  "15": [
+   "The internal design round probes YOUR project plus hypothetical extensions; the committee scores narrative + evidence against the competency matrix.",
+   "Six steps: Clarify (SLA first, 3–5 min) → Estimate → High-level design (SLA on every hop) → Tradeoffs (per arrow: alternative, why rejected, one number) → Ops & failure (unprompted) → Evolution (precomputed 10x).",
+   "Evidence ledger replaces STAR: claim → story → artifact → metric → matrix line; 4–5 proof stories, 90 s each, \"I\" never \"we\".",
+   "Capacity math before architecture; your pipeline's real numbers beat textbook figures — 100k ev/s × 500 B = 4.32 TB/day, RF=3 ≈ 13 TB → 6 brokers × 4 TB, 48 partitions ≈ 1.04 MB/s each.",
+   "Exactly-once is not correctness: checkpoints/2PC are processing semantics — late joins, timezones, fraud need dedup windows and reconciliation.",
+   "Migration invariant: no consumer ever sees wrong data — waves ordered by consumer, parity gate 7 consecutive days < 0.01% delta.",
+   "English delivery is scored (B2 gates staffing); honest \"I don't know — here's how I'd reason\" reads senior."
+  ],
   "16": [
    "The skeleton is the transferable asset: clarify requirements → frame as ML task → data → model → eval → system design + deployment/monitoring — one rehearsal covers any prompt.",
    "Model choice is requirements arithmetic, not fashion: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → AR, video economics → latent diffusion.",
@@ -298,6 +1425,96 @@
    "Retrieval quality is the ceiling: a better LLM cannot fix bad chunks.",
    "Pair offline metrics (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) with online business metrics (CTR, adoption, cost per user) — naming both unprompted is the scoring behavior.",
    "Deployment is a named stage: safety chain, serving, monitoring, retraining loops — users re-rolling seeds quietly multiplies GPU spend."
+  ],
+  "17": [
+   "All 11 chapters share one 7-step skeleton: clarify → frame as ML task → data prep → model development → evaluate → deploy/serve → monitor.",
+   "The load-bearing move is business goal → ML objective with failure modes named: clicks reward clickbait, completions bias short videos → maximize relevant watch time.",
+   "Model ladder: popularity baseline → LR → DNN → ensemble only if needed; GBDT is rejected in continual-learning systems — no fine-tuning, retrain from scratch.",
+   "Metric elimination chain: MRR ignores post-first hits, recall@k drowns under millions of relevant items, precision@k is rank-blind → nDCG or mAP.",
+   "Serving skeleton: candidate generation (ANN above ~millions, inverted index, FoF) → ranking (feature store: static batch + dynamic) → re-ranking — business rules live in re-rank, never the model.",
+   "Observed-pairs-only MF loss hits zero with all-ones embeddings — weight unobserved pairs (WALS); calibrate ad pCTRs (NCE < 1 vs background CTR) or the auction breaks.",
+   "Freshness is a design constraint: ad click models need ~5-minute updates; Gmail Smart Compose: decoder-only, pretrain + finetune on 1B emails, deterministic beam search under ~100 ms."
+  ],
+  "18": [
+   "Translation = seq2seq → encoder-decoder Transformer: bidirectional encoder, causally-masked decoder with cross-attention; chosen for variable-length I/O and source understanding.",
+   "Scope first: 4 languages (EN/ES/KO/FR), auto language detection (encoder-only classifier routes the fleet), inputs ≤ 1,000 words, 300M sentence pairs.",
+   "Two-stage training: masked-LM pretraining (next-token would let the encoder leak the answer) then supervised next-token finetuning; start from T5/BART checkpoints to skip stage 1.",
+   "Keep preprocessing that preserves grammar; drop legacy lowercasing/stemming/stop-words; subword BPE with `</w>` boundary tokens solves vocabulary size and OOV.",
+   "Placeholder named entities (ENTITY_1) in, restored after decoding — models choke on uncommon proper nouns.",
+   "Beam search, not stochastic sampling — determinism is a feature in translation.",
+   "Evaluate three ways: BLEU (precision, punishes rewording), ROUGE (recall), METEOR (synonyms, best human correlation) + online feedback; never trust BLEU alone."
+  ],
+  "19": [
+   "Requirements before architecture: text-in/text-out, English-only, strict safety, ≥ 4096-token context, follow-ups in session, 80K (instruction, answer) pairs → decoder-only LLM.",
+   "Three stages, three jobs: pretraining (trillions of tokens, 1000s GPUs, months) buys knowledge; SFT (10K–100K demos) turns continuer into responder; RLHF (100K–1M comparisons → reward model → PPO/DPO) aligns.",
+   "Data quality inverts across stages: trillions of low-quality web tokens → small expert demonstrations → ranked comparisons; rank, never score — annotator numbers drift.",
+   "The 4096-token requirement forces RoPE-style positional encoding — absolute encodings trained at 512 break at long context.",
+   "Decoding default for open-ended chat: top-p/nucleus + tuned temperature (modern practice 0.1–1.5); greedy/beam loop in dialogue.",
+   "Evaluation is four layers: perplexity baseline, task benchmarks (MMLU, GSM8K, HumanEval), safety benchmarks (RealToxicityPrompts, CrowS-Pairs, TruthfulQA), human + Arena-style online.",
+   "Safety enforced at inference on both directions: input safety filter, prompt enhancer, output evaluator routing failures to the rejection generator; session management supplies follow-up context."
+  ],
+  "20": [
+   "Captioning = translation where the image is the source language: image encoder → embedding sequence → decoder-only Transformer → caption token by token.",
+   "ViT-style encoder emitting per-patch tokens beats a single global vector — attention wants sequences, and a global summary loses local detail.",
+   "Data quality dominates at 400M noisy pairs: dedup via perceptual hash/CLIP, CLIP relevance filter (~0.25 threshold), LLM-summarize long captions, drop <256×256, resize+center-crop preserving aspect ratio.",
+   "Reuse pretrained weights both sides: GPT-2/Llama decoder, CLIP/ViT encoder; joint finetuning with next-token cross-entropy.",
+   "Beam search at serving — quality, determinism (\"same image, same caption\"), coherence; 1–2 s latency makes it affordable.",
+   "Ambiguous images are a designed skip path: cumulative probability below the confidence threshold disables the suggestion; post-processing neutralizes biased terms.",
+   "Evaluate with CIDEr over multiple reference captions — TF-IDF vectorize, cosine-similarity, average; blind spots: novel-but-correct phrasing, word-order semantics."
+  ],
+  "21": [
+   "RAG = offline pipeline (parse → chunk → embed → index) + online loop (query → embed → ANN → prompt → LLM); tune retrieval before blaming the model.",
+   "Pick RAG over finetuning when knowledge changes (~20%/yr) and answers must cite sources; finetuning can't stay current and produces no references.",
+   "Varied layouts need AI-based parsing — layout detection + OCR per box in reading order; fixed-template rule-based parsers break.",
+   "Chunk math drives capacity: 5M pages × 1,500 chars, chunk 500 with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks.",
+   "Shared embedding space is the invariant: same encoder for chunks and queries; CLIP or caption-then-embed aligns images.",
+   "Exact search is O(N×D) — 40M comparisons per query; ANN (clustering, LSH, HNSW) is mandatory at this scale.",
+   "Evaluate the RAG triad — context relevance, faithfulness, answer relevance; one aggregate score hides which half broke. RAFT-finetune (golden + distractor docs) only after retrieval is fixed."
+  ],
+  "22": [
+   "Requirements select the model: faces only, 1024×1024, <1s latency, 70k licensed images, balanced demographics, attribute control as stretch goal.",
+   "GAN over diffusion/autoregressive: single forward pass meets <1s; the structured latent space enables later StyleGAN attribute control — quality traded for speed, instability accepted.",
+   "Data prep: quality filter, flip/rotate/color augmentation, resize to 1024 with pixels normalized −1..1 (drives the Tanh output), classifier-tagged demographic rebalancing.",
+   "Alternating freeze-train is the core discipline: train D a few iters, freeze, train G — imbalance is the root of all three classic failures.",
+   "Three failures, named fixes: vanishing gradients → WGAN critic; mode collapse → unrolled GAN; non-convergence (D accuracy → 50%) → different learning rates + noise into D.",
+   "Sampling: random over the full latent Gaussian — diversity matters for faces; truncation trades diversity for realism.",
+   "Evaluate IS (higher-better), FID (lower-better), and pairwise human votes — automated metrics misalign with judgment."
+  ],
+  "23": [
+   "Requirements: 5M natural-scene images, unconditional generation, 1024²–2048² output, ~5 s per image — not real-time.",
+   "Latency math picks the model: pixel-level autoregression is O(N²) (~1M steps at 1024²) and diffusion is O(T·N²) (minutes); chunk tokens at 64×64 px/token cut it to 256 steps — seconds.",
+   "VQ-VAE tokenizer: CNN encoder → nearest-neighbor codebook quantizer → transposed-conv decoder; discrete latents kill posterior collapse and shrink the prediction space to k tokens.",
+   "Stage I losses weighted: reconstruction (MSE) + quantization (stop-gradient) + perceptual (VGG features) + adversarial (patch-based); MSE-only shows artifacts at high res.",
+   "Nearest-neighbor lookup has no gradient — straight-through gradient copies decoder gradients to the encoder.",
+   "Two independently trained models composed at inference: tokenizer (reconstruction) + generator (decoder-only Transformer, next-token cross-entropy over cached sequences).",
+   "Serving mirrors the split: generation service, decoding service (encoder never ships), 2× super-resolution (RCAN/ESRGAN) for 2048²; gate on quality plus time and cost per image."
+  ],
+  "24": [
+   "Requirements drive decisions: 1024×1024, ~500M pairs, ≤128-word prompts, ~10 s SLA, broad scope, fairness and safety.",
+   "Diffusion over autoregressive: AR simpler to train, diffusion wins fine detail plus a sampling-steps dial — pay implementation complexity for quality.",
+   "Training is four steps: sample t from 1..1000, closed-form noise to x_t, condition on text + timestep, predict the noise ε (not x₀) with MSE loss.",
+   "U-Net vs DiT: cross-attention is the steering layer — queries from image features, keys/values from text-encoder (CLIP/T5) embeddings.",
+   "Sampling's two fixes: classifier-free guidance buys prompt adherence; DDIM cuts 1,000 steps to ~20 for the latency budget.",
+   "Data curation is where quality comes from: dedup, NSFW/aesthetic filters, CLIP-gated captions with BLIP-3 recaptioning.",
+   "Serve gated twice — prompt safety before compute, harm detection after generation — with a 64→256→1024 super-resolution cascade; watch average cost per user per month (re-rolling seeds burns GPU money)."
+  ],
+  "25": [
+   "Requirements: 10–20 uploads, 1024×1024, 50 headshots per user, async <1 hour, no user prompts, identity fidelity critical.",
+   "Tuning-based over tuning-free: identity preservation is the product; per-user models with richer detail from 10–20 images vs one reference image.",
+   "Method scorecard: textual inversion low effectiveness (one token embedding), LoRA low-rank delta at MB storage, DreamBooth full-parameter finetune — highest identity, GB storage, ~15 min.",
+   "DreamBooth fits here: 15-min finetune inside the SLA; models discarded after delivery, so the GB-per-subject cost never accrues.",
+   "Rare-token identifier `[V]`: common words carry meanings to overwrite, random strings fragment — rare tokens are distinct yet cohesive.",
+   "Loss = α × reconstruction + β × class-specific prior preservation, plus generic \"a person\" faces in training — learn the instance without destroying the class.",
+   "Quality gate is a face-recognition model: CLIP scores text alignment, DINO fine visual detail, but neither measures identity; failed generations retry with a new seed."
+  ],
+  "26": [
+   "Requirements: 5-second 720p (1280×720) at 24 FPS silent videos, minutes of latency acceptable, ~100M video–caption pairs, >6000 H100s.",
+   "The multiplier drives everything: 5 s × 24 FPS = 120 frames; pixel-space diffusion ≈ 7 minutes per video on an H100.",
+   "LDM is the enabling trick: VAE compresses 8× spatial and 8× temporal — 512× fewer values to denoise.",
+   "Precompute and cache latents (~200 TB for 100M videos): per-step VAE encoding would stall every training iteration; re-caption with LLaMa3-Video/LLaVA for alignment.",
+   "DiT over U-Net for new builds: 3D patchify, Transformer scaling with data + compute — Sora and Movie Gen both chose it.",
+   "Evaluate three axes: frame quality (FID/IS — blind to motion), temporal consistency (FVD, lower-better, over I3D features), alignment (CLIP similarity) + pairwise human votes.",
+   "Serve with double safety gates (prompt filter before, harm detector after) and restore quality with spatial SR (to 720p) + temporal SR (12→24 FPS)."
   ]
  }
 }

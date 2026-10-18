@@ -1,5 +1,16 @@
 ## Table Formats: Delta Lake vs Iceberg vs Hudi
 
+
+:::tldr
+- A table format adds what Parquet lacks: atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files.
+- Delta is a log: `_delta_log` JSON commits + Parquet checkpoint every 10th commit, optimistic concurrency, Deletion Vectors since 2.x.
+- Iceberg is a tree: catalog CAS pointer → metadata.json → manifest list → manifests → data files, with pruning summaries at every level.
+- Hidden partitioning: transforms (`days(ts)`, `bucket(16, user_id)`) live in the spec — partition evolution is metadata-only, no rewrite.
+- Hudi is a timeline of instants (the WAL) over file groups; CoW rewrites bases, MoR appends logs until compaction folds them.
+- Delete cost ladder: CoW rewrite → position deletes → DV bitmaps → MoR log records — write cost falls, read cost rises. GDPR deletes: DVs make them KB-scale.
+- Time travel = replay; only VACUUM/expire_snapshots/clean truly deletes. Benchmarks are vendor-shaped — decide from estate: Iceberg multi-engine, Delta Databricks, Hudi keyed CDC.
+:::
+
 A table format is a transactional metadata layer over Parquet/ORC files that turns an object-storage prefix into a versioned ACID table — same goal, three different metadata structures.
 
 :::scenario Scenario — Table Format Triage
@@ -154,6 +165,16 @@ UniForm and XTable translate *metadata only* — the translated copy is read-mos
 
 :::warning Benchmarks Are Vendor-Shaped
 Every vendor publishes one where they win. Hudi's own 2026 post: no single benchmark settles Hudi-vs-Iceberg ([blog](https://hudi.apache.org/blog/2026/08/13/hudi-vs-iceberg-performance-benchmarks)). Workload shape, compaction discipline, DV settings, and catalog latency flip results — operational differences usually outweigh format differences. Benchmark on your own data.
+:::
+
+:::cards
+Q: What does a table format add over bare Parquet? :: Atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files.
+Q: Describe Delta's metadata structure. :: One `_delta_log` of JSON commits with a Parquet checkpoint every 10th commit.
+Q: Walk the Iceberg metadata tree. :: Catalog CAS pointer → metadata.json → manifest list → manifests → data files, pruned at each level.
+Q: What is Iceberg hidden partitioning? :: Transforms like `days(ts)` live in the spec — engines never hand-write partition filters; evolution is metadata-only.
+Q: Name the four delete strategies by cost ladder. :: CoW rewrites, position deletes, deletion-vector bitmaps, MoR log records — write cost falls, read cost rises.
+Q: When is data actually deleted? :: Only by VACUUM/expire_snapshots/clean — time travel is replay, not deletion.
+Q: Commit size of one 400-row UPDATE across formats? :: Delta/Iceberg ~KBs via DVs; Hudi CoW ~100 MB rewritten; Hudi MoR ~50 KB log append.
 :::
 
 ### Key Takeaways

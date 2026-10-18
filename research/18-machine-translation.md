@@ -1,5 +1,16 @@
 ## Machine Translation (Google Translate)
 
+
+:::tldr
+- Translation = seq2seq → encoder-decoder Transformer: bidirectional encoder, causally-masked decoder with cross-attention; chosen for variable-length I/O and source understanding.
+- Scope first: 4 languages (EN/ES/KO/FR), auto language detection (encoder-only classifier routes the fleet), inputs ≤ 1,000 words, 300M sentence pairs.
+- Two-stage training: masked-LM pretraining (next-token would let the encoder leak the answer) then supervised next-token finetuning; start from T5/BART checkpoints to skip stage 1.
+- Keep preprocessing that preserves grammar; drop legacy lowercasing/stemming/stop-words; subword BPE with `</w>` boundary tokens solves vocabulary size and OOV.
+- Placeholder named entities (ENTITY_1) in, restored after decoding — models choke on uncommon proper nouns.
+- Beam search, not stochastic sampling — determinism is a feature in translation.
+- Evaluate three ways: BLEU (precision, punishes rewording), ROUGE (recall), METEOR (synonyms, best human correlation) + online feedback; never trust BLEU alone.
+:::
+
 A seq2seq translation service is the canonical encoder-decoder design — interviewers use it to test architecture selection, two-stage training, and evaluation metrics; the same skeleton covers summarization and speech recognition.
 
 ### Requirements & Problem Framing
@@ -118,6 +129,16 @@ flowchart LR
 - **Stochastic sampling in translation:** creative diversity produces inconsistent translations for identical input — beam search instead (ch3 §Sampling).
 - **Wrong language detected → wrong model routed:** the detector is a load-bearing classifier, not an afterthought (ch3 §Overall ML System Design).
 - **Bilingual fleet sprawl:** one model per pair multiplies training/deployment/maintenance cost — choose deliberately, per accuracy-vs-ops trade-off (ch3 §Training).
+
+:::cards
+Q: Why encoder-decoder for translation? :: Bidirectional source understanding, natural variable-length I/O, cross-attention into encoder output.
+Q: Why masked LM, not next-token, in pretraining? :: Full-sentence input with next-token prediction lets the encoder leak the answer.
+Q: How does BPE handle unseen words? :: Rare words decompose into known subword pieces; `</w>` marks word boundaries.
+Q: How are named entities handled? :: Replaced with ENTITY_1-style placeholders before training, restored after decoding.
+Q: Why beam search over top-k/top-p? :: Deterministic same-input-same-output and higher accuracy — diversity is a defect in translation.
+Q: Which metric matches synonyms via WordNet? :: METEOR — harmonic mean of precision and recall, best human-judgment correlation.
+Q: What routes input when language is unknown? :: An encoder-only language-detection classifier routes to the per-pair model.
+:::
 
 ### Key Takeaways
 

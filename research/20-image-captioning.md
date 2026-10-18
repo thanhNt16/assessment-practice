@@ -1,5 +1,16 @@
 ## Image Captioning
 
+
+:::tldr
+- Captioning = translation where the image is the source language: image encoder → embedding sequence → decoder-only Transformer → caption token by token.
+- ViT-style encoder emitting per-patch tokens beats a single global vector — attention wants sequences, and a global summary loses local detail.
+- Data quality dominates at 400M noisy pairs: dedup via perceptual hash/CLIP, CLIP relevance filter (~0.25 threshold), LLM-summarize long captions, drop <256×256, resize+center-crop preserving aspect ratio.
+- Reuse pretrained weights both sides: GPT-2/Llama decoder, CLIP/ViT encoder; joint finetuning with next-token cross-entropy.
+- Beam search at serving — quality, determinism ("same image, same caption"), coherence; 1–2 s latency makes it affordable.
+- Ambiguous images are a designed skip path: cumulative probability below the confidence threshold disables the suggestion; post-processing neutralizes biased terms.
+- Evaluate with CIDEr over multiple reference captions — TF-IDF vectorize, cosine-similarity, average; blind spots: novel-but-correct phrasing, word-order semantics.
+:::
+
 A multi-modal encoder–decoder design: the image is treated as a foreign "language" that one encoder speaks and one decoder translates. The reusable muscles — cleaning 400M noisy pairs, picking encoder output granularity, consensus-based evaluation, and confidence-gated serving — mirror the data-quality and evaluation discipline a DE design round probes.
 
 ### Requirements Snapshot
@@ -157,6 +168,16 @@ If time remains (ch5 §Other Talking Points): extend to **VQA**; adapt to other 
 - **Trusting CIDEr alone**: it penalizes novel-but-correct captions and can't tell "coffee on table" from "table on coffee" — pair with human review (ch5 §CIDEr).
 - **Serving without confidence gating**: ambiguous images get confidently wrong suggestions — symptom: user-visible garbage names (ch5 §Caption generator).
 - **Serving without bias/offense post-processing**: biased terms or offensive words reach users; contract requires neutralization + full disable on offense (ch5 §Post-processing).
+
+:::cards
+Q: Frame image captioning as an ML task. :: Translation with pixels as the source language — image encoder, decoder-only Transformer emits the caption.
+Q: Per-patch tokens or one global vector? :: Per-patch sequence — attention needs sequences and a global vector discards local detail.
+Q: Name three cleaning steps for the 400M pairs. :: Dedup via perceptual hash/CLIP, CLIP relevance filter below ~0.25, LLM summarization of long captions.
+Q: Why summarize long captions before training? :: The model imitates caption length — long training captions produce long, unusable suggestions.
+Q: Why beam search over sampling? :: Higher quality, deterministic same-image-same-caption, coherent — diversity is unwanted.
+Q: How are ambiguous images handled? :: Beam-search cumulative probability below a confidence threshold disables the suggestion.
+Q: What is CIDEr and its blind spots? :: TF-IDF vectors, cosine similarity vs references, averaged; blind to novel phrasing and word-order semantics.
+:::
 
 ### Key Takeaways
 

@@ -1,5 +1,16 @@
 ## Text-to-Video Generation
 
+
+:::tldr
+- Requirements: 5-second 720p (1280×720) at 24 FPS silent videos, minutes of latency acceptable, ~100M video–caption pairs, >6000 H100s.
+- The multiplier drives everything: 5 s × 24 FPS = 120 frames; pixel-space diffusion ≈ 7 minutes per video on an H100.
+- LDM is the enabling trick: VAE compresses 8× spatial and 8× temporal — 512× fewer values to denoise.
+- Precompute and cache latents (~200 TB for 100M videos): per-step VAE encoding would stall every training iteration; re-caption with LLaMa3-Video/LLaVA for alignment.
+- DiT over U-Net for new builds: 3D patchify, Transformer scaling with data + compute — Sora and Movie Gen both chose it.
+- Evaluate three axes: frame quality (FID/IS — blind to motion), temporal consistency (FVD, lower-better, over I3D features), alignment (CLIP similarity) + pairwise human votes.
+- Serve with double safety gates (prompt filter before, harm detector after) and restore quality with spatial SR (to 720p) + temporal SR (12→24 FPS).
+:::
+
 Text-to-video is text-to-image with a time axis: 5 s at 24 FPS = 120 frames, and every design choice (latent compression, temporal layers, super-resolution) exists to keep that multiplier affordable. One system, built end-to-end: requirements → LDM → DiT → evaluation → inference pipeline (ch11 §Introduction, §Model Development).
 
 ### Clarifying Requirements (the interview script)
@@ -127,6 +138,16 @@ flowchart TD
 - **Training DiT at target resolution:** 1080p/4K multiplies cost; fix: generate low-res/low-FPS, restore with spatial + temporal SR (ch11 §Computational cost).
 - **Trusting noisy/short source captions:** misaligned conditioning degrades text alignment; fix: re-caption with LLaVA/LLaMa3-Video (ch11 §Caption preparation).
 - **Single safety gate:** harmful generations slip past prompt filtering; fix: prompt safety service + output harm detector (ch11 §Inference pipeline).
+
+:::cards
+Q: Why latent diffusion for video? :: VAE compresses 8× spatial and 8× temporal — 512× smaller, making training and inference affordable.
+Q: Pixel-space cost of a 5s 720p video? :: ~7 minutes per video on an H100 — 120 frames at 3.6× image pixels.
+Q: Why precompute and cache latents? :: Per-step VAE encoding stalls training — ~200 TB cache for 100M videos buys it back.
+Q: Why DiT over U-Net for video? :: 3D patchify with Transformer scaling and modality flexibility — Sora and Movie Gen chose it.
+Q: How do you handle scarce video–text pairs? :: Fold images in as single-frame videos — one joint training stage.
+Q: Which metric catches flicker? :: FVD — Fréchet distance over I3D features; FID/IS score frames and miss motion.
+Q: Name the two super-resolution stages. :: Spatial SR restores 720p; temporal SR interpolates 12 FPS to 24 FPS.
+:::
 
 ### Key Takeaways
 

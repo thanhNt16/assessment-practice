@@ -1,5 +1,16 @@
 ## Data Platform Architecture
 
+
+:::tldr
+- Draw the spine: sources → ingestion → storage → transform → serve, plus cross-cutting orchestration, catalog, observability, security — mention unprompted.
+- Ingestion carries no business logic; log-based CDC (binlog/WAL → Debezium → Kafka) is the OLTP default — captures hard deletes; polling misses them, triggers slow every write.
+- Medallion invariants: bronze immutable raw (replay insurance), silver deduped/typed/validated with a quality gate → quarantine, gold curated for BI/ML; skip layers without trust boundaries.
+- Declare grain first — "one row per order line"; model the business process, not the source system.
+- Star schema for BI, Data Vault for auditable multi-source integration, OBT for zero-join ML/single-consumer scans.
+- SCD2: the fact's surrogate FK pins it to the dimension version true at event time; expire + insert in one transaction.
+- Data contracts: versioned, machine-enforced in producer CI — a renamed column is caught at build time, not as NULLs in gold.
+:::
+
 A data platform moves data from operational systems to analytical consumers reliably and on time; interviews ask you to draw it, defend each layer boundary, and match modeling to workload.
 
 :::scenario Scenario — Source to Gold
@@ -154,6 +165,16 @@ Result: old row `valid_to = 2026-09-30, is_current = false`; new row `valid_from
 - **Observability** ([Monte Carlo](https://www.montecarlodata.com/blog-what-is-data-observability/)) — pillars: freshness, volume, schema, distribution, lineage. [OpenLineage](https://openlineage.io/) events from Airflow/dbt/Spark land table+column lineage in DataHub/Unity Catalog; quality gates (dbt tests, Delta expectations) at layer boundaries send failures to quarantine, never poison gold.
 - **Data contracts** ([datacontract.com](https://datacontract.com/), [Gable](https://www.gable.ai/topics/what-is-a-data-contract)) — versioned machine-enforceable producer→consumer agreement: schema, semantics, SLOs, semver change policy. Enforced in producer CI + schema registry + ingest validation — a renamed column is caught at producer build time, not as NULLs in gold weeks later. Someone owns the interface.
 - **Orchestration** — dbt transforms inside the warehouse; the orchestrator coordinates across systems. Airflow: ecosystem breadth, mixed workloads, tasks-not-data weakness. Dagster: asset-oriented, lineage-first ([Dagster vs Airflow](https://dagster.io/blog/dagster-airflow)). Most platforms run dbt *inside* Airflow or Dagster.
+
+:::cards
+Q: What does the ingestion layer do? :: Only transport — no business logic; the choices are pull vs push and full vs incremental.
+Q: Why is log-based CDC the OLTP default? :: Captures hard deletes at minimal source overhead with seconds latency; polling misses deletes, triggers slow every write.
+Q: What belongs in bronze? :: An immutable, append-only raw copy plus ingest metadata — replay insurance, never edited downstream.
+Q: What happens to rows failing the silver quality gate? :: Quarantined with reason and lineage — gold stays clean; fix upstream and replay.
+Q: Name the #1 data-modeling question. :: Declare the grain — e.g. "one row per order line."
+Q: Why does SCD2 preserve as-of analytics? :: The fact's surrogate FK pins it to the dimension version true at event time — expire + insert in one transaction.
+Q: Name the data-observability pillars. :: Freshness, volume, schema, distribution, lineage.
+:::
 
 ### Key Takeaways
 

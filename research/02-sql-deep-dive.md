@@ -1,5 +1,16 @@
 ## SQL Deep Dive: The Problems EPAM Actually Asks
 
+
+:::tldr
+- Window functions compute per-row values over a frame without collapsing rows — the core difference from GROUP BY.
+- Canonical dedup: `ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)`, keep rn=1 — one scan, deterministic ties.
+- Logical order: FROM/JOIN → WHERE → GROUP BY/HAVING → windows → ORDER BY; WHERE filters rows, HAVING filters groups.
+- SARGable predicates only: `CAST(dt AS STRING)` full-scans; `dt = DATE '2024-01-01'` prunes partitions.
+- LEFT JOIN plus WHERE on the right table's column silently becomes an INNER JOIN — move it into ON.
+- Duplicate join keys fan out rows: a 1.1x key duplication silently doubles summed revenue.
+- CTEs get inlined and recomputed — Snowflake: `AS MATERIALIZED`; Spark: `CACHE TABLE`.
+:::
+
 EPAM senior DE screens live in SQL mechanics — windows, dedup, grouping traps — and in whether you know how the engine logically executes a query.
 
 :::scenario Scenario — SQL Execution & Window Playbook
@@ -149,6 +160,16 @@ WHERE CAST(dt AS STRING) = '2024-01-01'   -- full scan
 3. Sessionize a clickstream with a 30-minute inactivity cutoff; count sessions per user per day.
 4. Compute cumulative revenue by month and the change vs the prior month (LAG).
 5. Why does this LEFT JOIN return more rows than the left table?
+
+:::cards
+Q: What do window functions do that GROUP BY cannot? :: Keep every row while computing a value over a related frame — no collapse.
+Q: Name the canonical dedup pattern for latest record per key. :: `ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)`, keep rn=1.
+Q: RANK vs DENSE_RANK on scores 100, 100, 90? :: RANK: 1,1,3 with gaps; DENSE_RANK: 1,1,2 without.
+Q: Why are aggregates illegal in WHERE? :: WHERE filters rows before grouping; group-level filters belong in HAVING.
+Q: What silently turns a LEFT JOIN into an INNER JOIN? :: A WHERE predicate on the right table's column — move it into ON.
+Q: What does a 1.1x duplicate join key do to a revenue SUM? :: Fans out rows and silently doubles the total.
+Q: How do you stop CTE recomputation? :: Snowflake: `WITH t AS MATERIALIZED`; Spark: `CACHE TABLE` to pin intermediates.
+:::
 
 ### Key Takeaways
 

@@ -1,5 +1,16 @@
 ## Spark Performance: Catalyst, AQE & Tuning
 
+
+:::tldr
+- Catalyst: rule-based logical optimization (pushdown, pruning, folding) + cost-based physical planning; without `ANALYZE TABLE`, `sizeInBytes` defaults huge so auto-broadcast never fires at compile time.
+- AQE re-plans at each shuffle boundary from actual map-output stats — default since 3.2: coalesce toward ~64 MB, skew-join split, SMJ→BHJ/SHJ switch; useless without an Exchange.
+- AQE skew-join split fires only above BOTH thresholds: > 5× median partition AND > 256 MB — joins only; groupBy skew needs salting.
+- Join choice = one threshold + honest stats: broadcast ≤ 10 MB (misestimate → driver OOM), SHJ on hint, SMJ the robust default.
+- Size partitions ≈ shuffle bytes ÷ 128–256 MB — the 200 default is wrong in both directions; over-provision and let AQE coalesce (it cannot split ordinary oversized partitions).
+- Unified memory (fraction 0.6): storage evicts, execution spills; G1GC for ≥4–8 GB heaps; GC > 10–15% of task time = allocation churn.
+- Diagnose from the UI: max ≫ p50 → skew; spill counters → memory; fix data shape before knobs.
+:::
+
 Catalyst compiles your query into fused machine code, AQE repairs bad plans mid-flight using runtime stats, and nearly every production Spark incident reduces to one UI metric: shuffle size, skew, spill, or GC.
 
 :::scenario Scenario — Skew Diagnosis
@@ -163,6 +174,16 @@ Over-provision `spark.sql.shuffle.partitions` and let AQE coalesce — AQE merge
 
 :::warning
 `/*+ BROADCAST */` overrides stats. Stale statistics after heavy appends make a "small" side huge at runtime — the driver collects it all and dies. Verify `sizeInBytes` in the plan before forcing.
+:::
+
+:::cards
+Q: What does AQE re-plan with, and since which release? :: Actual shuffle stats at each Exchange boundary — default since Spark 3.2.
+Q: State both AQE skew-join split triggers. :: Partition above 5× the median AND above 256 MB — split toward ~64 MB subtasks.
+Q: Why doesn't AQE fix skewed groupBy? :: Skew split covers joins only (SMJ/SHJ) — aggregate skew needs salting.
+Q: Broadcast join condition and its failure mode? :: One side ≤ 10 MB per honest stats; stale/underestimated stats make the driver OOM collecting it.
+Q: How do you size shuffle partitions? :: ≈ shuffle bytes ÷ 128–256 MB — over-provision, AQE coalesces; the 200 default is wrong both ways.
+Q: Storage vs execution memory under pressure? :: Storage evicts blocks; execution never evicts — it spills to disk.
+Q: What does max task time ≫ p50 in the UI mean? :: Skew; uniformly slow tasks point to sizing, spill, or GC instead.
 :::
 
 ### Key Takeaways

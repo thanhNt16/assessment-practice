@@ -1,5 +1,16 @@
 ## Personal Assistant Chatbot
 
+
+:::tldr
+- Requirements before architecture: text-in/text-out, English-only, strict safety, ≥ 4096-token context, follow-ups in session, 80K (instruction, answer) pairs → decoder-only LLM.
+- Three stages, three jobs: pretraining (trillions of tokens, 1000s GPUs, months) buys knowledge; SFT (10K–100K demos) turns continuer into responder; RLHF (100K–1M comparisons → reward model → PPO/DPO) aligns.
+- Data quality inverts across stages: trillions of low-quality web tokens → small expert demonstrations → ranked comparisons; rank, never score — annotator numbers drift.
+- The 4096-token requirement forces RoPE-style positional encoding — absolute encodings trained at 512 break at long context.
+- Decoding default for open-ended chat: top-p/nucleus + tuned temperature (modern practice 0.1–1.5); greedy/beam loop in dialogue.
+- Evaluation is four layers: perplexity baseline, task benchmarks (MMLU, GSM8K, HumanEval), safety benchmarks (RealToxicityPrompts, CrowS-Pairs, TruthfulQA), human + Arena-style online.
+- Safety enforced at inference on both directions: input safety filter, prompt enhancer, output evaluator routing failures to the rejection generator; session management supplies follow-up context.
+:::
+
 The canonical "build an LLM product" round: sequence requirements → data → three-stage training → decoding → evaluation → safety rails, with a number at each stage (ch4 §Clarifying Requirements).
 
 ### Requirements & ML Framing
@@ -150,6 +161,16 @@ flowchart TD
 - **Absolute positional encoding at long context:** trained at 512, breaks at 4096 — the reason modern LLMs use RoPE (ch4 §Absolute positional encoding).
 - **Scoring instead of ranking annotations:** numeric scores drift between annotators; rankings are the reliable protocol (ch4 §Training data).
 - **Skipping dedup:** duplicate articles overexpose the model to certain data (ch4 §Data Preparation).
+
+:::cards
+Q: Name the three training stages. :: Pretraining, supervised finetuning, RLHF — knowledge, response behavior, human alignment respectively.
+Q: Why rank instead of score responses? :: Absolute numeric scores drift between annotators; rankings become (prompt, winning, losing) preference pairs.
+Q: Why RoPE over absolute positional encoding? :: Absolute encodings trained at 512 break at 4096; RoPE captures relative position geometrically.
+Q: Default decoding for open-ended chat? :: Top-p (nucleus) sampling with tuned temperature — deterministic search loops in dialogue.
+Q: Why does top-k fail? :: Fixed k misfits the distribution — sharp loses the obvious token, flat caps diversity.
+Q: Name the evaluation layers. :: Perplexity, task benchmarks, safety benchmarks, human plus online signals (LMSYS Arena).
+Q: How do follow-ups work? :: Session management feeds chat history into the prompt enhancer's context.
+:::
 
 ### Key Takeaways
 
