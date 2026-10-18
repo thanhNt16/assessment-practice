@@ -262,6 +262,19 @@ html.dark .dg-dark{display:block}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
 .sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
 .sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
 .sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
 .sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -270,6 +283,10 @@ html.dark .dg-dark{display:block}
 .sc-btn.ok{border-color:#047857;color:#047857}
 .sc-btn.bad{border-color:#dc2626;color:#dc2626}
 .sc-bar{display:flex;gap:8px;margin-top:10px}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 html.dark .sc-btn{background:var(--vp-c-bg)}
@@ -363,7 +380,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 6 of 17</div><h1>Batch vs Streaming</h1>
 <p>Batch answers &quot;what is true given all data up to now&quot; over bounded input; streaming answers &quot;what is true right now&quot; over unbounded input — the real trade is latency vs reprocessing cost, not throughput.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Batch or Streaming?</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Batch or Streaming?", "nodes": [{"id": "start", "label": "Frame the question", "cap": "Batch answers what is true given all data up to now over bounded input; streaming answers what is true right now."}, {"id": "sla", "label": "Pick by SLA", "cap": "Fraud under 5 s is product-correctness; an hourly dashboard gets cheap batch; between them, micro-batch."}, {"id": "batch", "label": "Schedule the batch", "cap": "Bounded input, logical execution date, partition filters; backfill by rerunning old partitions deterministically."}, {"id": "micro", "label": "Step up to micro-batch", "cap": "Spark Structured Streaming: about a 500 ms floor, batch SQL reuse, coarse watermarks."}, {"id": "stream", "label": "Go true streaming", "cap": "Flink or Kafka Streams at 10–100 ms — and a permanent tax of state ops, checkpoints, watermark tuning."}, {"id": "etime", "label": "Reason in event time", "cap": "Only event time is reproducible; windows, billing, analytics hang off it; processing time is for lag monitoring."}, {"id": "wm", "label": "Trust the watermark", "cap": "W = maxObservedEventTime minus allowedLateness, a monotonic promise; a window emits when W passes its end."}, {"id": "idle", "label": "Pin the min-watermark", "cap": "W is the min across partitions, so one stalled source freezes every window; idle sources need special handling."}, {"id": "late", "label": "Handle the stragglers", "cap": "Within allowedLateness: re-accumulate and re-fire as a retraction; beyond it: side output or dead-letter queue."}, {"id": "state", "label": "Bound the state", "cap": "Window contents, join buffers, dedup keys live in RocksDB or heap and grow forever without a TTL."}, {"id": "eos", "label": "Make it exactly-once", "cap": "Replayable source, exactly-once state, transactional or idempotent sink — otherwise at-least-once plus dedupe."}, {"id": "dedupe", "label": "Dedupe downstream", "cap": "No transactional or idempotent sink means at-least-once is the ceiling — dedupe by key at the consumer."}], "edges": [{"src": "start", "label": "frame", "dst": "sla", "kind": null, "choice": false, "loop": false}, {"src": "sla", "label": "SLA under 5 seconds?", "dst": "stream", "kind": "success", "choice": true, "loop": false}, {"src": "sla", "label": "hourly", "dst": "batch", "kind": null, "choice": false, "loop": false}, {"src": "batch", "label": "Freshness now hurts decisions?", "dst": "micro", "kind": "success", "choice": true, "loop": false}, {"src": "batch", "label": "rerun", "dst": "eos", "kind": null, "choice": false, "loop": false}, {"src": "micro", "label": "eventtime", "dst": "etime", "kind": null, "choice": false, "loop": false}, {"src": "stream", "label": "eventtime", "dst": "etime", "kind": null, "choice": false, "loop": false}, {"src": "etime", "label": "watch", "dst": "wm", "kind": null, "choice": false, "loop": false}, {"src": "wm", "label": "One partition goes idle?", "dst": "idle", "kind": "success", "choice": true, "loop": false}, {"src": "wm", "label": "closes", "dst": "late", "kind": null, "choice": false, "loop": false}, {"src": "idle", "label": "resume", "dst": "wm", "kind": null, "choice": false, "loop": true}, {"src": "late", "label": "bound", "dst": "state", "kind": null, "choice": false, "loop": false}, {"src": "state", "label": "guarantee", "dst": "eos", "kind": null, "choice": false, "loop": false}, {"src": "eos", "label": "Sink is plain non-transactional HTTP?", "dst": "dedupe", "kind": "fail", "choice": true, "loop": false}], "start": "start"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Batch or Streaming?</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Batch or Streaming?", "nodes": [{"id": "start", "label": "Frame the question", "cap": "Batch answers what is true given all data up to now over bounded input; streaming answers what is true right now."}, {"id": "sla", "label": "Pick by SLA", "cap": "Fraud under 5 s is product-correctness; an hourly dashboard gets cheap batch; between them, micro-batch."}, {"id": "batch", "label": "Schedule the batch", "cap": "Bounded input, logical execution date, partition filters; backfill by rerunning old partitions deterministically."}, {"id": "micro", "label": "Step up to micro-batch", "cap": "Spark Structured Streaming: about a 500 ms floor, batch SQL reuse, coarse watermarks."}, {"id": "stream", "label": "Go true streaming", "cap": "Flink or Kafka Streams at 10–100 ms — and a permanent tax of state ops, checkpoints, watermark tuning."}, {"id": "etime", "label": "Reason in event time", "cap": "Only event time is reproducible; windows, billing, analytics hang off it; processing time is for lag monitoring."}, {"id": "wm", "label": "Trust the watermark", "cap": "W = maxObservedEventTime minus allowedLateness, a monotonic promise; a window emits when W passes its end."}, {"id": "idle", "label": "Pin the min-watermark", "cap": "W is the min across partitions, so one stalled source freezes every window; idle sources need special handling."}, {"id": "late", "label": "Handle the stragglers", "cap": "Within allowedLateness: re-accumulate and re-fire as a retraction; beyond it: side output or dead-letter queue."}, {"id": "state", "label": "Bound the state", "cap": "Window contents, join buffers, dedup keys live in RocksDB or heap and grow forever without a TTL."}, {"id": "eos", "label": "Make it exactly-once", "cap": "Replayable source, exactly-once state, transactional or idempotent sink — otherwise at-least-once plus dedupe."}, {"id": "dedupe", "label": "Dedupe downstream", "cap": "No transactional or idempotent sink means at-least-once is the ceiling — dedupe by key at the consumer."}], "edges": [{"src": "start", "label": "frame", "dst": "sla", "kind": null, "choice": false, "loop": false}, {"src": "sla", "label": "SLA under 5 seconds?", "dst": "stream", "kind": "success", "choice": true, "loop": false}, {"src": "sla", "label": "hourly", "dst": "batch", "kind": null, "choice": false, "loop": false}, {"src": "batch", "label": "Freshness now hurts decisions?", "dst": "micro", "kind": "success", "choice": true, "loop": false}, {"src": "batch", "label": "rerun", "dst": "eos", "kind": null, "choice": false, "loop": false}, {"src": "micro", "label": "eventtime", "dst": "etime", "kind": null, "choice": false, "loop": false}, {"src": "stream", "label": "eventtime", "dst": "etime", "kind": null, "choice": false, "loop": false}, {"src": "etime", "label": "watch", "dst": "wm", "kind": null, "choice": false, "loop": false}, {"src": "wm", "label": "One partition goes idle?", "dst": "idle", "kind": "success", "choice": true, "loop": false}, {"src": "wm", "label": "closes", "dst": "late", "kind": null, "choice": false, "loop": false}, {"src": "idle", "label": "resume", "dst": "wm", "kind": null, "choice": false, "loop": true}, {"src": "late", "label": "bound", "dst": "state", "kind": null, "choice": false, "loop": false}, {"src": "state", "label": "guarantee", "dst": "eos", "kind": null, "choice": false, "loop": false}, {"src": "eos", "label": "Sink is plain non-transactional HTTP?", "dst": "dedupe", "kind": "fail", "choice": true, "loop": false}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/batch-vs-stream.png" alt="batch-vs-stream.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/batch-vs-stream.dark.png" alt="batch-vs-stream.png diagram (dark)" loading="lazy"></div>
 
 <h2 id="batch-scheduled-bounded-reproducible" tabindex="-1">Batch: Scheduled, Bounded, Reproducible<a class="header-anchor" href="#batch-scheduled-bounded-reproducible">&ZeroWidthSpace;</a></h2>
@@ -815,12 +832,12 @@ function mountScenario(div,d,idx){
   </defs>`;
   const kindOf=id=>{const n=d.nodes.find(n=>n.id===id);
     const out=d.edges.filter(e=>e.src===id&&e.choice).length;
-    if(id===d.start)return ['#fed7aa','#c2410c'];
-    if(out>0)return ['#fef3c7','#b45309'];
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
     const inbound=d.edges.find(e=>e.dst===id);
-    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857'];
-    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626'];
-    return ['#dbeafe','#1e3a5f'];};
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
   const el={};
   // edges first (under nodes)
   d.edges.forEach((e,i)=>{
@@ -834,8 +851,10 @@ function mountScenario(div,d,idx){
       p.setAttribute('stroke-dasharray','7 5');
     } else dstr=scPath(a,b);
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
     p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
     p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
@@ -846,8 +865,8 @@ function mountScenario(div,d,idx){
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
-    const p=L.pos[n.id],[fill,stroke]=kindOf(n.id);
-    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
     const r=document.createElementNS(NS,'rect');
     r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
     r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
@@ -863,10 +882,14 @@ function mountScenario(div,d,idx){
       ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
       if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
     g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
-    g.addEventListener('click',()=>enter(n.id));
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
   });
   body.appendChild(svg);
   // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
   let cur=null;const visited=new Set();
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
@@ -898,6 +921,9 @@ function mountScenario(div,d,idx){
   div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
   div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
     d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{

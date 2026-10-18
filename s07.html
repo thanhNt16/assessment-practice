@@ -262,6 +262,19 @@ html.dark .dg-dark{display:block}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
 .sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
 .sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
 .sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
 .sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -270,6 +283,10 @@ html.dark .dg-dark{display:block}
 .sc-btn.ok{border-color:#047857;color:#047857}
 .sc-btn.bad{border-color:#dc2626;color:#dc2626}
 .sc-bar{display:flex;gap:8px;margin-top:10px}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 html.dark .sc-btn{background:var(--vp-c-bg)}
@@ -363,7 +380,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 7 of 17</div><h1>Data Warehouse vs Data Lake vs Lakehouse</h1>
 <p>Analytics storage evolved through four generations because each one's failure mode became the next one's feature list — know the mechanisms, not just the product names.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Storage Generation Choice</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Storage Generation Choice", "nodes": [{"id": "start", "label": "Scope the estate", "cap": "Structured BI only, or raw logs, JSON, images, ML too? Utilization and lock-in tolerance pick the storage generation."}, {"id": "dw", "label": "Run the cloud DW", "cap": "Disaggregated compute, micro-partition pruning, auto-suspend bills zero while idle — but formats stay proprietary."}, {"id": "lake", "label": "Land everything raw", "cap": "Open object storage plus schema-on-read: landing anything is free — including silence about schema drift."}, {"id": "swamp", "label": "Hit the swamp", "cap": "No atomic commits corrupt partitions, no enforcement, no compaction, no governance — structural, not bad engineers."}, {"id": "lakehouse", "label": "Add the table format", "cap": "Parquet plus a transactional table format plus catalog plus any engine — the format and catalog are the platform."}, {"id": "etl", "label": "Keep ETL at the boundary", "cap": "Mask PII before load, honor cross-region rules — transform before the trust boundary; ELT everywhere else."}, {"id": "tco", "label": "Right-size the compute", "cap": "Under 30 percent utilization, per-second auto-suspend; over 60 sustained, always-on or reserved — watch egress."}, {"id": "olap", "label": "Add an OLAP serving tier", "cap": "MPP warehouses trade latency for SQL breadth; feed a hot engine from the lake or DW for interactive serving."}, {"id": "own", "label": "Mesh the ownership", "cap": "Centralize the substrate — storage, formats, catalog, governance — and decentralize product ownership on top."}], "edges": [{"src": "start", "label": "Analytics needs raw logs, JSON, images, ML assets?", "dst": "lake", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "structured-bi-only", "dst": "dw", "kind": null, "choice": false, "loop": false}, {"src": "dw", "label": "copies", "dst": "lakehouse", "kind": null, "choice": false, "loop": false}, {"src": "lake", "label": "breaks", "dst": "swamp", "kind": null, "choice": false, "loop": false}, {"src": "swamp", "label": "fix-open", "dst": "lakehouse", "kind": null, "choice": false, "loop": false}, {"src": "lakehouse", "label": "Compliance forbids raw PII landing?", "dst": "etl", "kind": "success", "choice": true, "loop": false}, {"src": "lakehouse", "label": "pick-compute", "dst": "tco", "kind": null, "choice": false, "loop": false}, {"src": "etl", "label": "pick-compute", "dst": "tco", "kind": null, "choice": false, "loop": false}, {"src": "tco", "label": "Sub-second high-QPS dashboards?", "dst": "olap", "kind": "success", "choice": true, "loop": false}, {"src": "tco", "label": "own", "dst": "own", "kind": null, "choice": false, "loop": false}], "start": "start"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Storage Generation Choice</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Storage Generation Choice", "nodes": [{"id": "start", "label": "Scope the estate", "cap": "Structured BI only, or raw logs, JSON, images, ML too? Utilization and lock-in tolerance pick the storage generation."}, {"id": "dw", "label": "Run the cloud DW", "cap": "Disaggregated compute, micro-partition pruning, auto-suspend bills zero while idle — but formats stay proprietary."}, {"id": "lake", "label": "Land everything raw", "cap": "Open object storage plus schema-on-read: landing anything is free — including silence about schema drift."}, {"id": "swamp", "label": "Hit the swamp", "cap": "No atomic commits corrupt partitions, no enforcement, no compaction, no governance — structural, not bad engineers."}, {"id": "lakehouse", "label": "Add the table format", "cap": "Parquet plus a transactional table format plus catalog plus any engine — the format and catalog are the platform."}, {"id": "etl", "label": "Keep ETL at the boundary", "cap": "Mask PII before load, honor cross-region rules — transform before the trust boundary; ELT everywhere else."}, {"id": "tco", "label": "Right-size the compute", "cap": "Under 30 percent utilization, per-second auto-suspend; over 60 sustained, always-on or reserved — watch egress."}, {"id": "olap", "label": "Add an OLAP serving tier", "cap": "MPP warehouses trade latency for SQL breadth; feed a hot engine from the lake or DW for interactive serving."}, {"id": "own", "label": "Mesh the ownership", "cap": "Centralize the substrate — storage, formats, catalog, governance — and decentralize product ownership on top."}], "edges": [{"src": "start", "label": "Analytics needs raw logs, JSON, images, ML assets?", "dst": "lake", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "structured-bi-only", "dst": "dw", "kind": null, "choice": false, "loop": false}, {"src": "dw", "label": "copies", "dst": "lakehouse", "kind": null, "choice": false, "loop": false}, {"src": "lake", "label": "breaks", "dst": "swamp", "kind": null, "choice": false, "loop": false}, {"src": "swamp", "label": "fix-open", "dst": "lakehouse", "kind": null, "choice": false, "loop": false}, {"src": "lakehouse", "label": "Compliance forbids raw PII landing?", "dst": "etl", "kind": "success", "choice": true, "loop": false}, {"src": "lakehouse", "label": "pick-compute", "dst": "tco", "kind": null, "choice": false, "loop": false}, {"src": "etl", "label": "pick-compute", "dst": "tco", "kind": null, "choice": false, "loop": false}, {"src": "tco", "label": "Sub-second high-QPS dashboards?", "dst": "olap", "kind": "success", "choice": true, "loop": false}, {"src": "tco", "label": "own", "dst": "own", "kind": null, "choice": false, "loop": false}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/lakehouse-stack.png" alt="lakehouse-stack.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/lakehouse-stack.dark.png" alt="lakehouse-stack.png diagram (dark)" loading="lazy"></div>
 
 <h2 id="evolution-database-warehouse-lake-lakehouse" tabindex="-1">Evolution: Database → Warehouse → Lake → Lakehouse<a class="header-anchor" href="#evolution-database-warehouse-lake-lakehouse">&ZeroWidthSpace;</a></h2>
@@ -823,12 +840,12 @@ function mountScenario(div,d,idx){
   </defs>`;
   const kindOf=id=>{const n=d.nodes.find(n=>n.id===id);
     const out=d.edges.filter(e=>e.src===id&&e.choice).length;
-    if(id===d.start)return ['#fed7aa','#c2410c'];
-    if(out>0)return ['#fef3c7','#b45309'];
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
     const inbound=d.edges.find(e=>e.dst===id);
-    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857'];
-    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626'];
-    return ['#dbeafe','#1e3a5f'];};
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
   const el={};
   // edges first (under nodes)
   d.edges.forEach((e,i)=>{
@@ -842,8 +859,10 @@ function mountScenario(div,d,idx){
       p.setAttribute('stroke-dasharray','7 5');
     } else dstr=scPath(a,b);
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
     p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
     p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
@@ -854,8 +873,8 @@ function mountScenario(div,d,idx){
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
-    const p=L.pos[n.id],[fill,stroke]=kindOf(n.id);
-    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
     const r=document.createElementNS(NS,'rect');
     r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
     r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
@@ -871,10 +890,14 @@ function mountScenario(div,d,idx){
       ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
       if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
     g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
-    g.addEventListener('click',()=>enter(n.id));
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
   });
   body.appendChild(svg);
   // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
   let cur=null;const visited=new Set();
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
@@ -906,6 +929,9 @@ function mountScenario(div,d,idx){
   div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
   div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
     d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{

@@ -262,6 +262,19 @@ html.dark .dg-dark{display:block}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
 .sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
 .sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
 .sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
 .sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -270,6 +283,10 @@ html.dark .dg-dark{display:block}
 .sc-btn.ok{border-color:#047857;color:#047857}
 .sc-btn.bad{border-color:#dc2626;color:#dc2626}
 .sc-bar{display:flex;gap:8px;margin-top:10px}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 html.dark .sc-btn{background:var(--vp-c-bg)}
@@ -363,7 +380,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 16 of 17</div><h1>Generative AI System Design (Aminian &amp; Sheng)</h1>
 <p>Your A3 defense treats your pipeline as Scenario 0 and hypothetical extensions as the follow-up round - when the committee asks &quot;where would GenAI plug into your system?&quot;, this note is the vocabulary and decision framework. One repeating skeleton across all 11 designs; density here favors the chapters that map to data-engineering work (RAG, LLM serving) over the image/video ones.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Where GenAI Plugs In</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Where GenAI Plugs In", "nodes": [{"id": "requirements", "label": "Clarify before naming a model", "cap": "Pin freshness, latency, confidence thresholds first — the Scenario-0 discipline transferred to GenAI."}, {"id": "model", "label": "Choose model by arithmetic", "cap": "One-pass latency → GAN/VAE; ceiling quality → diffusion; resolution at scale → AR; video → latent diffusion."}, {"id": "approach", "label": "Exhaust retrieval + prompts first", "cap": "Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness."}, {"id": "prompt", "label": "Prompt-engineer only", "cap": "No index needed when context fits — rare at enterprise scale; monitor cost per user as prompts grow."}, {"id": "pipeline", "label": "Run the RAG pipeline", "cap": "parse → chunk (500 chars, 200 overlap) → embed → ANN-index; 5M pages → 40M chunks, +20%/yr."}, {"id": "retrieve", "label": "Interrogate retrieval quality", "cap": "Response quality is highly dependent on retrieval relevance — a better LLM cannot fix bad chunks."}, {"id": "fixretrieval", "label": "Fix retrieval before the model", "cap": "Rule-based parsers break on varied layouts — Layout-Parser + OCR; cross-modal via CLIP space or caption-then-embed."}, {"id": "ann", "label": "Swap in ANN indexing", "cap": "Linear scan is O(N x D) — 40M comparisons per query; ANN (tree / LSH / clustering / HNSW) is mandatory past millions."}, {"id": "raft", "label": "Finetune last, via RAFT", "cap": "Finetune with golden + distractor docs to ignore retrieval noise — only when retrieval is fixed and answers still bad."}, {"id": "answers", "label": "Evaluate offline + online", "cap": "Name the instrument (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) and the business metric (CTR, adoption, cost per user)."}, {"id": "metrics", "label": "Match metric to claim", "cap": "CLIP = semantics, DINO = visual detail, face models = identity — CLIP and DINO can score high on two different people."}, {"id": "serve", "label": "Deploy + monitor as a named stage", "cap": "Serving + retraining loops are their own step — re-rolling seeds with new prompts quietly multiplies GPU spend."}], "edges": [{"src": "requirements", "label": "Fresh answers over private docs", "dst": "approach", "kind": "success", "choice": true, "loop": false}, {"src": "requirements", "label": "Generate images or video", "dst": "model", "kind": "success", "choice": true, "loop": false}, {"src": "model", "label": "evaluate", "dst": "answers", "kind": null, "choice": false, "loop": false}, {"src": "approach", "label": "All docs fit the 128K context window", "dst": "prompt", "kind": "success", "choice": true, "loop": false}, {"src": "approach", "label": "size the index", "dst": "pipeline", "kind": null, "choice": false, "loop": false}, {"src": "pipeline", "label": "query", "dst": "retrieve", "kind": null, "choice": false, "loop": false}, {"src": "retrieve", "label": "Chunks are relevant", "dst": "answers", "kind": "success", "choice": true, "loop": false}, {"src": "retrieve", "label": "still irrelevant", "dst": "fixretrieval", "kind": "fail", "choice": false, "loop": false}, {"src": "fixretrieval", "label": "Index still exact nearest-neighbor", "dst": "ann", "kind": "fail", "choice": true, "loop": false}, {"src": "fixretrieval", "label": "Retrieval fixed, answers still bad", "dst": "raft", "kind": "success", "choice": true, "loop": false}, {"src": "ann", "label": "then RAFT if needed", "dst": "raft", "kind": null, "choice": false, "loop": false}, {"src": "raft", "label": "evaluate", "dst": "answers", "kind": null, "choice": false, "loop": false}, {"src": "answers", "label": "Identity claim on CLIP alone", "dst": "metrics", "kind": "fail", "choice": true, "loop": false}, {"src": "answers", "label": "deploy", "dst": "serve", "kind": null, "choice": false, "loop": false}, {"src": "metrics", "label": "deploy", "dst": "serve", "kind": null, "choice": false, "loop": false}], "start": "requirements"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Where GenAI Plugs In</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Where GenAI Plugs In", "nodes": [{"id": "requirements", "label": "Clarify before naming a model", "cap": "Pin freshness, latency, confidence thresholds first — the Scenario-0 discipline transferred to GenAI."}, {"id": "model", "label": "Choose model by arithmetic", "cap": "One-pass latency → GAN/VAE; ceiling quality → diffusion; resolution at scale → AR; video → latent diffusion."}, {"id": "approach", "label": "Exhaust retrieval + prompts first", "cap": "Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness."}, {"id": "prompt", "label": "Prompt-engineer only", "cap": "No index needed when context fits — rare at enterprise scale; monitor cost per user as prompts grow."}, {"id": "pipeline", "label": "Run the RAG pipeline", "cap": "parse → chunk (500 chars, 200 overlap) → embed → ANN-index; 5M pages → 40M chunks, +20%/yr."}, {"id": "retrieve", "label": "Interrogate retrieval quality", "cap": "Response quality is highly dependent on retrieval relevance — a better LLM cannot fix bad chunks."}, {"id": "fixretrieval", "label": "Fix retrieval before the model", "cap": "Rule-based parsers break on varied layouts — Layout-Parser + OCR; cross-modal via CLIP space or caption-then-embed."}, {"id": "ann", "label": "Swap in ANN indexing", "cap": "Linear scan is O(N x D) — 40M comparisons per query; ANN (tree / LSH / clustering / HNSW) is mandatory past millions."}, {"id": "raft", "label": "Finetune last, via RAFT", "cap": "Finetune with golden + distractor docs to ignore retrieval noise — only when retrieval is fixed and answers still bad."}, {"id": "answers", "label": "Evaluate offline + online", "cap": "Name the instrument (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) and the business metric (CTR, adoption, cost per user)."}, {"id": "metrics", "label": "Match metric to claim", "cap": "CLIP = semantics, DINO = visual detail, face models = identity — CLIP and DINO can score high on two different people."}, {"id": "serve", "label": "Deploy + monitor as a named stage", "cap": "Serving + retraining loops are their own step — re-rolling seeds with new prompts quietly multiplies GPU spend."}], "edges": [{"src": "requirements", "label": "Fresh answers over private docs", "dst": "approach", "kind": "success", "choice": true, "loop": false}, {"src": "requirements", "label": "Generate images or video", "dst": "model", "kind": "success", "choice": true, "loop": false}, {"src": "model", "label": "evaluate", "dst": "answers", "kind": null, "choice": false, "loop": false}, {"src": "approach", "label": "All docs fit the 128K context window", "dst": "prompt", "kind": "success", "choice": true, "loop": false}, {"src": "approach", "label": "size the index", "dst": "pipeline", "kind": null, "choice": false, "loop": false}, {"src": "pipeline", "label": "query", "dst": "retrieve", "kind": null, "choice": false, "loop": false}, {"src": "retrieve", "label": "Chunks are relevant", "dst": "answers", "kind": "success", "choice": true, "loop": false}, {"src": "retrieve", "label": "still irrelevant", "dst": "fixretrieval", "kind": "fail", "choice": false, "loop": false}, {"src": "fixretrieval", "label": "Index still exact nearest-neighbor", "dst": "ann", "kind": "fail", "choice": true, "loop": false}, {"src": "fixretrieval", "label": "Retrieval fixed, answers still bad", "dst": "raft", "kind": "success", "choice": true, "loop": false}, {"src": "ann", "label": "then RAFT if needed", "dst": "raft", "kind": null, "choice": false, "loop": false}, {"src": "raft", "label": "evaluate", "dst": "answers", "kind": null, "choice": false, "loop": false}, {"src": "answers", "label": "Identity claim on CLIP alone", "dst": "metrics", "kind": "fail", "choice": true, "loop": false}, {"src": "answers", "label": "deploy", "dst": "serve", "kind": null, "choice": false, "loop": false}, {"src": "metrics", "label": "deploy", "dst": "serve", "kind": null, "choice": false, "loop": false}], "start": "requirements"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/rag-pipeline.png" alt="rag-pipeline.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/rag-pipeline.dark.png" alt="rag-pipeline.png diagram (dark)" loading="lazy"></div>
 
 <h2 id="the-repeating-framework-ch2-ch11" tabindex="-1">The Repeating Framework (ch2-ch11)<a class="header-anchor" href="#the-repeating-framework-ch2-ch11">&ZeroWidthSpace;</a></h2>
@@ -790,12 +807,12 @@ function mountScenario(div,d,idx){
   </defs>`;
   const kindOf=id=>{const n=d.nodes.find(n=>n.id===id);
     const out=d.edges.filter(e=>e.src===id&&e.choice).length;
-    if(id===d.start)return ['#fed7aa','#c2410c'];
-    if(out>0)return ['#fef3c7','#b45309'];
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
     const inbound=d.edges.find(e=>e.dst===id);
-    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857'];
-    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626'];
-    return ['#dbeafe','#1e3a5f'];};
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
   const el={};
   // edges first (under nodes)
   d.edges.forEach((e,i)=>{
@@ -809,8 +826,10 @@ function mountScenario(div,d,idx){
       p.setAttribute('stroke-dasharray','7 5');
     } else dstr=scPath(a,b);
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
     p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
     p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
@@ -821,8 +840,8 @@ function mountScenario(div,d,idx){
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
-    const p=L.pos[n.id],[fill,stroke]=kindOf(n.id);
-    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
     const r=document.createElementNS(NS,'rect');
     r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
     r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
@@ -838,10 +857,14 @@ function mountScenario(div,d,idx){
       ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
       if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
     g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
-    g.addEventListener('click',()=>enter(n.id));
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
   });
   body.appendChild(svg);
   // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
   let cur=null;const visited=new Set();
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
@@ -873,6 +896,9 @@ function mountScenario(div,d,idx){
   div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
   div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
     d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{

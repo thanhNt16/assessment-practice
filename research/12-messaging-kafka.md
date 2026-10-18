@@ -7,13 +7,11 @@ Queues distribute work, pub/sub fans out events, and Kafka is a third model — 
 -> followers fetch => @isr
 @isr ISR caught up? :: replicas within replica.lag.time.max.ms (30s) stay in-sync
 ? yes, all in ISR => @acks
-? ISR shrunk to 1 => @ner |fail
+? ISR shrunk to 1 => @durfail |fail
 @acks acks level? :: acks=1 covers only the leader's local write
-? acks=1, leader writes => @weak |fail
+? acks=1, leader writes => @durfail |fail
 ? acks=all + min.insync=2 => @hw |success
-@weak Leader crash before followers sync :: acknowledged data lost — acks=1 is not durable
--> recover => @isr
-@ner NOT_ENOUGH_REPLICAS :: explicit failure, not silent degradation — resurface when ISR recovers
+@durfail Durability lost :: acks=1 loses acknowledged data on leader crash; ISR=1 → NOT_ENOUGH_REPLICAS, explicit not silent
 -> retry when ISR recovers => @isr
 @hw HW advances past the write :: consumers only read offsets replicated to all ISR
 -> leader dies => @elect

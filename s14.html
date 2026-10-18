@@ -262,6 +262,19 @@ html.dark .dg-dark{display:block}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
 .sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:4px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
 .sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
 .sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
 .sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
@@ -270,6 +283,10 @@ html.dark .dg-dark{display:block}
 .sc-btn.ok{border-color:#047857;color:#047857}
 .sc-btn.bad{border-color:#dc2626;color:#dc2626}
 .sc-bar{display:flex;gap:8px;margin-top:10px}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:transparent;color:var(--vp-c-text-3);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font-body)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 html.dark .sc-btn{background:var(--vp-c-bg)}
@@ -363,7 +380,7 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 
 <div class="kicker">Section 14 of 17</div><h1>Resources &amp; Practice Lab</h1>
 <p>Five sources cover the whole A3 surface with different jobs: the <a href="https://dataengineering.wiki/Index">Data Engineering Wiki</a> explains concepts, Zach Wilson's <a href="https://github.com/dataexpert-io/data-engineer-handbook">Data Engineer Handbook</a> curates everything else, Joseph Machado's <a href="https://www.startdataengineering.com/">Start Data Engineering</a> provides the builds, and two newsletters — <a href="https://dataengineerthings.substack.com/">Data Engineer Things</a> and <a href="https://dataengineeringcentral.substack.com/">Data Engineering Central</a> — keep you current. Use them as a pipeline: wiki to learn, handbook to find, SDE to build, newsletters to stay sharp.</p>
-<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — From Five Sources to One Repo</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — From Five Sources to One Repo", "nodes": [{"id": "diagnose", "label": "Diagnose the weak area", "cap": "Start from the need, not the firehose: wiki explains, handbook curates, SDE builds, newsletters keep you sharp."}, {"id": "wiki", "label": "Open the Wiki page", "cap": "Mid-build lookups — `Kappa Architecture`, `Idempotence`; one verified link per section, never search blind."}, {"id": "handbook", "label": "Read the Handbook like a menu", "cap": "The single index for books and courses — commit to the Fundamentals → DDIA 2e pair, close the tab, build."}, {"id": "sde", "label": "Build from Start Data Engineering", "cap": "100+ posts with full code; each drill names its tutorial and the section it trains."}, {"id": "news", "label": "Finish the newsletter archives", "cap": "DET for community and events, DEC for practitioner benchmarks — Week 6, for current tool takes only."}, {"id": "ratio", "label": "Hold the 1:2 read-to-build ratio", "cap": "Tutorial hell: a 40th Spark video compounds to zero — every reading hour earns two hours in drills."}, {"id": "spine", "label": "Attach drills to one build spine", "cap": "`API → ingest → lake → transform+DQ → serve → ops` — one repo, layers added weekly, reps compound."}, {"id": "archetype", "label": "Pick ONE archetype, finish it", "cap": "Batch lakehouse, streaming, CDC, DQ-gated, or LLM — a small finished repo beats three half-cloned tutorials."}, {"id": "ship", "label": "Ship README + rehearse the walkthrough", "cap": "The drill-15 walkthrough **IS** the A3 architecture screen — rehearse until 5 minutes feels short."}], "edges": [{"src": "diagnose", "label": "Need a concept mid-build", "dst": "wiki", "kind": "success", "choice": true, "loop": false}, {"src": "diagnose", "label": "Need a book or course", "dst": "handbook", "kind": "success", "choice": true, "loop": false}, {"src": "diagnose", "label": "Need hands-on reps", "dst": "sde", "kind": "success", "choice": true, "loop": false}, {"src": "diagnose", "label": "Need current signal", "dst": "news", "kind": "success", "choice": true, "loop": false}, {"src": "wiki", "label": "looked it up", "dst": "spine", "kind": null, "choice": false, "loop": false}, {"src": "handbook", "label": "picked the pair", "dst": "ratio", "kind": null, "choice": false, "loop": false}, {"src": "sde", "label": "drilling", "dst": "spine", "kind": null, "choice": false, "loop": false}, {"src": "news", "label": "chose current signal", "dst": "ratio", "kind": null, "choice": false, "loop": false}, {"src": "ratio", "label": "Whiteboard rerun, schema drift, hot-key failures", "dst": "spine", "kind": "success", "choice": true, "loop": false}, {"src": "ratio", "label": "Cannot explain what breaks on rerun", "dst": "wiki", "kind": "fail", "choice": true, "loop": true}, {"src": "spine", "label": "archetype chosen", "dst": "archetype", "kind": null, "choice": false, "loop": false}, {"src": "archetype", "label": "Finished the archetype", "dst": "ship", "kind": "success", "choice": true, "loop": false}, {"src": "archetype", "label": "Three half-cloned tutorials instead", "dst": "diagnose", "kind": "fail", "choice": true, "loop": true}], "start": "diagnose"}</script></div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — From Five Sources to One Repo</b></span></div><div class="sc-body"></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div><div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button><button data-a="hl">✎ Highlight</button></div></div><script type="application/json" class="sc-json">{"title": "Scenario — From Five Sources to One Repo", "nodes": [{"id": "diagnose", "label": "Diagnose the weak area", "cap": "Start from the need, not the firehose: wiki explains, handbook curates, SDE builds, newsletters keep you sharp."}, {"id": "wiki", "label": "Open the Wiki page", "cap": "Mid-build lookups — `Kappa Architecture`, `Idempotence`; one verified link per section, never search blind."}, {"id": "handbook", "label": "Read the Handbook like a menu", "cap": "The single index for books and courses — commit to the Fundamentals → DDIA 2e pair, close the tab, build."}, {"id": "sde", "label": "Build from Start Data Engineering", "cap": "100+ posts with full code; each drill names its tutorial and the section it trains."}, {"id": "news", "label": "Finish the newsletter archives", "cap": "DET for community and events, DEC for practitioner benchmarks — Week 6, for current tool takes only."}, {"id": "ratio", "label": "Hold the 1:2 read-to-build ratio", "cap": "Tutorial hell: a 40th Spark video compounds to zero — every reading hour earns two hours in drills."}, {"id": "spine", "label": "Attach drills to one build spine", "cap": "`API → ingest → lake → transform+DQ → serve → ops` — one repo, layers added weekly, reps compound."}, {"id": "archetype", "label": "Pick ONE archetype, finish it", "cap": "Batch lakehouse, streaming, CDC, DQ-gated, or LLM — a small finished repo beats three half-cloned tutorials."}, {"id": "ship", "label": "Ship README + rehearse the walkthrough", "cap": "The drill-15 walkthrough **IS** the A3 architecture screen — rehearse until 5 minutes feels short."}], "edges": [{"src": "diagnose", "label": "Need a concept mid-build", "dst": "wiki", "kind": "success", "choice": true, "loop": false}, {"src": "diagnose", "label": "Need a book or course", "dst": "handbook", "kind": "success", "choice": true, "loop": false}, {"src": "diagnose", "label": "Need hands-on reps", "dst": "sde", "kind": "success", "choice": true, "loop": false}, {"src": "diagnose", "label": "Need current signal", "dst": "news", "kind": "success", "choice": true, "loop": false}, {"src": "wiki", "label": "looked it up", "dst": "spine", "kind": null, "choice": false, "loop": false}, {"src": "handbook", "label": "picked the pair", "dst": "ratio", "kind": null, "choice": false, "loop": false}, {"src": "sde", "label": "drilling", "dst": "spine", "kind": null, "choice": false, "loop": false}, {"src": "news", "label": "chose current signal", "dst": "ratio", "kind": null, "choice": false, "loop": false}, {"src": "ratio", "label": "Whiteboard rerun, schema drift, hot-key failures", "dst": "spine", "kind": "success", "choice": true, "loop": false}, {"src": "ratio", "label": "Cannot explain what breaks on rerun", "dst": "wiki", "kind": "fail", "choice": true, "loop": true}, {"src": "spine", "label": "archetype chosen", "dst": "archetype", "kind": null, "choice": false, "loop": false}, {"src": "archetype", "label": "Finished the archetype", "dst": "ship", "kind": "success", "choice": true, "loop": false}, {"src": "archetype", "label": "Three half-cloned tutorials instead", "dst": "diagnose", "kind": "fail", "choice": true, "loop": true}], "start": "diagnose"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/study-path.png" alt="study-path.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/study-path.dark.png" alt="study-path.png diagram (dark)" loading="lazy"></div>
 
 <h2 id="the-five-sources-at-a-glance" tabindex="-1">The Five Sources at a Glance<a class="header-anchor" href="#the-five-sources-at-a-glance">&ZeroWidthSpace;</a></h2>
@@ -967,12 +984,12 @@ function mountScenario(div,d,idx){
   </defs>`;
   const kindOf=id=>{const n=d.nodes.find(n=>n.id===id);
     const out=d.edges.filter(e=>e.src===id&&e.choice).length;
-    if(id===d.start)return ['#fed7aa','#c2410c'];
-    if(out>0)return ['#fef3c7','#b45309'];
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
     const inbound=d.edges.find(e=>e.dst===id);
-    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857'];
-    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626'];
-    return ['#dbeafe','#1e3a5f'];};
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
   const el={};
   // edges first (under nodes)
   d.edges.forEach((e,i)=>{
@@ -986,8 +1003,10 @@ function mountScenario(div,d,idx){
       p.setAttribute('stroke-dasharray','7 5');
     } else dstr=scPath(a,b);
     p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
     const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
     p.setAttribute('stroke',col);p.setAttribute('stroke-width','2');
+    p.setAttribute('data-k',ekind);
     p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
     p.setAttribute('filter',`url(#${SK_ID}${idx})`);
     p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
@@ -998,8 +1017,8 @@ function mountScenario(div,d,idx){
       t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
   });
   d.nodes.forEach(n=>{
-    const p=L.pos[n.id],[fill,stroke]=kindOf(n.id);
-    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
     const r=document.createElementNS(NS,'rect');
     r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
     r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
@@ -1015,10 +1034,14 @@ function mountScenario(div,d,idx){
       ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
       if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
     g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
-    g.addEventListener('click',()=>enter(n.id));
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
   });
   body.appendChild(svg);
   // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
   let cur=null;const visited=new Set();
   function paint(){
     d.nodes.forEach(n=>{const c=el[n.id];
@@ -1050,6 +1073,9 @@ function mountScenario(div,d,idx){
   div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
   div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
     d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.textContent=hlMode?'✎ Highlight: tap nodes':'✎ Highlight'};
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{
