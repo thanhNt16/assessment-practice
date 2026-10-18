@@ -133,6 +133,7 @@ Treat datasets as products with contracts — SLI/SLO/SLA map cleanly onto data 
 
 One loop: alert → classify → contain → fix → backfill → verify → learn.
 
+:::steps One incident, walked end to end
 ```mermaid
 flowchart TD
     A[Alert fires] --> B{Classify root cause}
@@ -146,6 +147,14 @@ flowchart TD
     G --> H[Verify recon and tests]
     H --> I[Blameless postmortem]
 ```
+Alert fires — quality gates and freshness SLOs page before consumers notice. :: A
+Classify first: upstream schema or source change, bad deploy, or corrupt partition — contain before fixing. :: B,C,D,E
+Containment options: pause ingest, roll back the deploy, quarantine the partition — alert when quarantine passes ~1 percent, never drop records silently. :: C,D,E
+Fix and add the missing check — every incident ends as a new automated check; that is how reliability compounds. :: F
+Backfill idempotently: DELETE + INSERT per partition or MERGE — same input, same output, never blind append. :: G
+Verify reconciliation: row counts per partition, checksums on business keys, sampled source-vs-target diff. :: H
+Close with a blameless postmortem. :: I
+:::
 
 - **Backfill runbook**: use lineage to enumerate impacted tables; reprocess only affected partitions; idempotent means `DELETE + INSERT` per partition or `MERGE` — never blind append.
 - **Replay**: re-consume from source offsets, or reprocess DLQ records into the main path once the fix ships.

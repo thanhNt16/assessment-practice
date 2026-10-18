@@ -64,6 +64,7 @@ A table format is a transactional metadata layer over Parquet/ORC files that tur
 
 ### Apache Iceberg: A Metadata Tree and a Catalog
 
+:::steps Pruning down the Iceberg metadata tree
 ```mermaid
 flowchart LR
     C[Catalog pointer] --> M[metadata.json v5]
@@ -73,6 +74,13 @@ flowchart LR
     ML -. prunes manifests by partition range .-> MF
     MF -. prunes files by column min-max .-> DF
 ```
+Every plan starts at the catalog pointer — commit is a CAS swap of that entry, so arbitration lives in the catalog, not on storage. :: C
+metadata.json (v5 here) is the table state: schemas, partition spec, current snapshot. :: M
+The manifest list pins snapshot s42 and carries partition-range summaries — it prunes manifests before any file I/O. :: ML
+Manifests carry per-column min/max and null counts, so planning is O(pruned metadata). :: MF
+Only the surviving data file 00001.parquet is read — hidden partitioning means engines never hand-write partition filters. :: DF
+Snapshots form a DAG: branches and tags give audit and backfill; v3 adds DV bitmaps, variant, and row lineage. :: C,M,ML,MF,DF
+:::
 
 - **Commit = catalog pointer swap**: write new manifests + `metadata.json` vN+1, then CAS the catalog entry. Arbitration lives in the catalog, not on storage.
 - **Planning is O(pruned metadata)**: manifest lists carry partition-range summaries; manifests carry per-column min/max/null counts — data files pruned before any I/O.

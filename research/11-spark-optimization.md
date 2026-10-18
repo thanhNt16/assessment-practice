@@ -47,6 +47,7 @@ Catalyst compiles your query into fused machine code, AQE repairs bad plans mid-
 
 - Four phases: parse → analyze (resolve names/types against the catalog) → optimize the logical plan (rules) → pick a physical plan (cost) → whole-stage codegen per stage:
 
+:::steps Catalyst, phase by phase
 ```mermaid
 flowchart LR
   Q[[SQL or DataFrame]] --> U[Unresolved Logical Plan]
@@ -57,6 +58,13 @@ flowchart LR
   AQE --> |whole-stage codegen| EX[Executed stages]
   EX -. completed shuffle stats .-> AQE
 ```
+SQL or DataFrame code parses into an unresolved logical plan — names not yet bound. :: Q,U
+The analyzer resolves references against the catalog to an analyzed logical plan. :: AN
+Rule batches run to a fixed point — predicate pushdown, column pruning, constant folding — no statistics needed. :: OPT
+Cost-based JoinSelection picks physical strategies from catalog stats (sizeInBytes, rowCount); without ANALYZE TABLE auto-broadcast never fires at compile time. :: PH
+AdaptiveSparkPlan re-plans at runtime from completed shuffle stage statistics — isFinalPlan=true in explain output. :: AQE
+Whole-stage codegen fuses each stage into one Java function — no per-row virtual dispatch. :: EX
+:::
 
 - **Rule-based** optimizer: batches of `Rule[LogicalPlan]` applied to a fixed point — no statistics needed ([SQL docs](https://spark.apache.org/docs/latest/sql-programming-guide.html)):
 

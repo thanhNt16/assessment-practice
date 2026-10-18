@@ -93,6 +93,7 @@ e4 arrives after W passed 10:05:
 Allowed lateness is a correctness-vs-latency dial from the [Dataflow Model](https://research.google/pubs/pub43864/). Name the three levers: watermark delay, allowed lateness, side outputs — and that idle parallel sources freeze W.
 :::
 
+:::steps Watermarks and late data, one window
 ```mermaid
 sequenceDiagram
     participant P as Pipeline
@@ -107,6 +108,12 @@ sequenceDiagram
         W->>P: side output to correction stream
     end
 ```
+A window collects events by event time — this one owns the 10:00-10:05 range no matter when records physically arrive.
+The watermark advances to 10:02:30 — the pipeline tracks how complete event time is before closing any window.
+The watermark passes 10:05: the window emits its result downstream.
+A late event stamped 10:04:58 arrives after emission — within allowed lateness, the window re-accumulates and re-fires with a retraction.
+Beyond allowed lateness, records go to the side output (correction stream) — never silently dropped.
+:::
 
 ### Lambda vs Kappa
 
