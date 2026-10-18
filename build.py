@@ -102,9 +102,11 @@ md = MarkdownIt("commonmark", {"html": True, "linkify": True, "breaks": False})
 md.enable("table")
 
 MERMAID_FENCE_RE = re.compile(r'```mermaid\n(.*?)```', re.S)
-CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|glide|diagram)\s*(.*)$')
+CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|glide|diagram|scenario)\s*(.*)$')
 GLIDE_STEP_RE = re.compile(r'^(\d+)\)\s+(.*?)\s*::\s*(.+)$')
 GLIDE_QUIZ_RE = re.compile(r'^\?\s+(.*?)\s*::\s*(.+)$')
+SC_NODE_RE  = re.compile(r'^@(\w+)\s+(.*?)\s*::\s*(.+)$')
+SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(.*?)\s*=>\s*@(\w+)(\s*\|\s*(success|fail))?$')
 def preprocess(src):
     """Extract mermaid fences; convert :::containers (incl. glide) to placeholders."""
     mer, glides = [], []
@@ -113,6 +115,7 @@ def preprocess(src):
         return f"\nMERMAIDPLOT{len(mer)-1}X\n"
     src = MERMAID_FENCE_RE.sub(stash, src)
     out, in_c, glide_lines = [], False, []
+    scenarios, sc_title = [], None
     for line in src.split("\n"):
         s = line.strip()
         mo = CONTAINER_OPEN_RE.match(s)
@@ -120,6 +123,9 @@ def preprocess(src):
             typ, title = mo.group(1), mo.group(2).strip()
             if typ == "glide":
                 in_c, glide_lines, glide_title = "glide", [], title
+                continue
+            if typ == "scenario":
+                in_c, glide_lines, sc_title = "scenario", [], title
                 continue
             if typ == "diagram":
                 slug = title or "diagram"
@@ -136,7 +142,10 @@ def preprocess(src):
             in_c = True
             continue
         if re.match(r'^:{3,}$', s) and in_c:
-            if in_c == "glide":
+            if in_c == "scenario":
+                scenarios.append(scenario_parse(sc_title, glide_lines))
+                out.append(f"\nSCENARIOPLOT{len(scenarios)-1}X\n")
+            elif in_c == "glide":
                 payload = {"title": glide_title, "steps": [], "quiz": []}
                 for gl in glide_lines:
                     if not gl.strip(): continue
@@ -157,13 +166,40 @@ def preprocess(src):
                 out += ["", "</div>"]
             in_c = False
             continue
-        if in_c == "glide":
+        if in_c in ("glide", "scenario"):
             glide_lines.append(line)
             continue
         out.append(line)
-    if in_c == "glide":
-        raise ValueError("Unclosed :::glide block")
-    return "\n".join(out), mer, glides
+    if in_c in ("glide", "scenario"):
+        raise ValueError(f"Unclosed :::{in_c} block")
+    return "\n".join(out), mer, glides, scenarios
+
+def scenario_parse(title, lines):
+    nodes, edges, order, last = [], [], [], None
+    for ln in lines:
+        ln = ln.strip()
+        if not ln: continue
+        m = SC_NODE_RE.match(ln)
+        if m:
+            nid = m.group(1)
+            nodes.append({"id": nid, "label": m.group(2), "cap": m.group(3)})
+            order.append(nid); last = nid
+            continue
+        m = SC_EDGE_RE.match(ln)
+        if m:
+            tok, label, dst, kind = m.group(1), m.group(2), m.group(3), m.group(5)
+            if tok == "?" and last is None:
+                raise ValueError(f"?-edge before any node in {title!r}: {ln!r}")
+            edges.append({"src": last, "label": label, "dst": dst, "kind": kind,
+                          "choice": tok == "?", "loop": dst in {n["id"] for n in nodes}})
+            continue
+        raise ValueError(f"Malformed scenario line in {title!r}: {ln!r}")
+    ids = {n["id"] for n in nodes}
+    for e in edges:
+        if e["dst"] not in ids:
+            raise ValueError(f"Scenario {title!r}: edge to unknown node @{e['dst']}")
+    return {"title": title, "nodes": nodes, "edges": edges,
+            "start": order[0] if order else None}
 
 def glide_html(g):
     chips = "".join(
@@ -185,9 +221,17 @@ def glide_html(g):
             f'<button class="gnext" type="button">▶</button></div>'
             f'<div class="glide-quiz">{quiz}</div></div>')
 
+def scenario_html(g, idx):
+    return (f'<div class="scenario" data-sc="{idx}">'
+            f'<div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · {html.escape(g["title"])}</b></span></div>'
+            f'<div class="sc-body"></div>'
+            f'<div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div>'
+            f'<div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button></div></div>'
+            f'<script type="application/json" class="sc-json">{html.escape(json.dumps(g, ensure_ascii=False))}</script></div>')
+
 def render_page(src, sec_no):
     """Render a section file: ## → h1, ### → h2 with anchors."""
-    src, mer, glides = preprocess(src)
+    src, mer, glides, scenarios = preprocess(src)
     lines = src.split("\n")
     subs = []
     h1_title = None
@@ -227,6 +271,8 @@ def render_page(src, sec_no):
         out = out.replace(f"MERMAIDPLOT{i}X", f'<div class="mermaid">\n{m}\n</div>')
     for i, g in enumerate(glides):
         out = out.replace(f"GLIDEPLOT{i}X", glide_html(g))
+    for i, g in enumerate(scenarios):
+        out = out.replace(f"SCENARIOPLOT{i}X", scenario_html(g, i))
     return out, h1_title, subs
 
 # ---------------- collect sections ----------------

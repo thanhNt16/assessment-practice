@@ -19,9 +19,9 @@ Custom SVG flowchart engine inside `build.py`'s JS bundle — no mermaid, no exc
 | Form | Meaning |
 |---|---|
 | `@id Label :: caption` | node; `@id` is the handle, `::` splits label/caption |
-| `-> label => @target` | unconditional edge |
-| `? choice => @target \|kind` | choice edge from nearest node; `kind` ∈ `success`, `fail`, or unset (neutral) |
-| `@id … :: caption \|loop` | back-edge flag — drawn dashed, excluded from layout ranking |
+| `-> label => @target` | unconditional edge from nearest declared node |
+| `? choice => @target \|kind` | choice edge from nearest declared node; `kind` ∈ `success`, `fail`, or unset (neutral) |
+| `-> label => @already-declared` | loop back-edge — auto-detected (dst already declared), drawn dashed, excluded from layout ranking |
 
 First declared node = start. Nodes may carry multi-line captions (`\n` via `|` inside caption? — no: captions are single-line; keep ≤120 chars).
 
@@ -70,4 +70,4 @@ Copy `Excalifont-Regular-*.woff2` (largest single file covers full latin) → `f
 ## Risks
 
 - Font loading race → `document.fonts.load('14px Excalifont')` before layout
-- DAG cycles → `|loop` flag escapes ranking; malformed graphs fall back to linear listing with console warn
+- DAG cycles → loop edges (auto-detected re-entry) escape ranking; malformed graphs fall back to linear listing with console warn
