@@ -4,7 +4,7 @@
 index.html  — hero + interactive Duolingo-style course path + learning map.
 sNN.html    — one page per section (short, readable), sidebar nav, prev/next.
 """
-import re, html, json
+import re, html, json, math
 from pathlib import Path
 from markdown_it import MarkdownIt
 
@@ -1449,6 +1449,8 @@ NAV = f"""<nav class="nav">
   <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
   <a class="home-link" href="index.html#vmap">🗺️ Path</a>
   <a class="home-link" href="review.html">🎴 Review</a>
+  <a class="home-link" href="graph.html">🕸 Graph</a>
+  <a class="home-link" href="cram.html">📋 Cram</a>
   <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
 </nav>"""
 
@@ -1660,5 +1662,259 @@ review_body = f"""  <main class="review-main">
     f'<script>window.STUDY_ALL_CARDS={script_json(study["cards"])};'
     f'window.STUDY_NODE_NAMES={script_json([n["short"] for n in NODES])}</script>'
     f'<script>{REVIEW_JS}</script>')))
+# ---------------- concept graph page ----------------
+def _ref_mod(t, refs):
+    counts = {}
+    for s in refs.get(t) or []:
+        counts[module_of(s - 1)] = counts.get(module_of(s - 1), 0) + 1
+    if not counts:
+        return None
+    best = max(counts.values())
+    return next(m[0] for m in MODULES if counts.get(m[0]) == best)
 
-print(f"Done — index.html + {len(FILES)} section pages + review.html")
+def graph_data():
+    """Deterministic radial layout: 5 module anchors, per-module arcs, build-time only."""
+    refs, edges = study["termRefs"], study["edges"]
+    deg = {}
+    for e in edges:
+        deg[e["a"]] = deg.get(e["a"], 0) + 1
+        deg[e["b"]] = deg.get(e["b"], 0) + 1
+    keep = [t["t"] for t in study["terms"] if refs.get(t["t"]) or deg.get(t["t"])]
+    adj = {}
+    for e in edges:
+        adj.setdefault(e["a"], []).append(e["b"])
+        adj.setdefault(e["b"], []).append(e["a"])
+    mod = {}
+    for t in keep:  # edge-only terms inherit the nearest term's module
+        m, seen, q = None, {t}, [t]
+        while q and m is None:
+            u = q.pop(0)
+            m = _ref_mod(u, refs)
+            q += [v for v in adj.get(u, []) if v not in seen and not seen.add(v)]
+        mod[t] = m or MODULES[0][0]
+    freq = {t: len(refs.get(t) or []) for t in keep}
+    groups = {}
+    for t in keep:
+        groups.setdefault(mod[t], []).append(t)
+    CX = CY = 480.0
+    pos = {}
+    for mi, (name, _a, _b) in enumerate(MODULES):
+        ts = sorted(groups.get(name, []), key=lambda t: (-freq[t], t))
+        n = len(ts)
+        if not n:
+            continue
+        anchor = math.radians(-90 + mi * (360 / len(MODULES)))
+        spread = math.radians(min(80, 7 * n))
+        for k, t in enumerate(ts):
+            ang = anchor - spread / 2 + spread * (k + 0.5) / n
+            r = 170 + 22 * (k % 6) + (7 if k % 2 == 0 else -7)
+            pos[t] = (CX + r * math.cos(ang), CY + r * math.sin(ang), mi)
+    paths = []
+    for i, e in enumerate(edges):
+        ax, ay, _ = pos[e["a"]]
+        bx, by, _ = pos[e["b"]]
+        mx, my = (ax + bx) / 2, (ay + by) / 2
+        dx, dy = bx - ax, by - ay
+        L = math.hypot(dx, dy) or 1
+        off = 18 if i % 2 == 0 else -18
+        qx, qy = mx - dy / L * off, my + dx / L * off
+        paths.append(f'<path class="ge" d="M {ax:.1f} {ay:.1f} Q {qx:.1f} {qy:.1f} {bx:.1f} {by:.1f}" '
+                     f'data-a="{html.escape(e["a"])}" data-b="{html.escape(e["b"])}">'
+                     f'<title>{html.escape(e["a"])} &#8596; {html.escape(e["b"])}: {html.escape(e["why"])}</title></path>')
+    nodes = []
+    for t in sorted(pos):
+        x, y, mi = pos[t]
+        rr = 6 + min(10, freq[t] * 2)
+        side = x >= CX
+        lx = x + rr + 4 if side else x - rr - 4
+        nodes.append(f'<g class="gn term" data-term="{html.escape(t)}">'
+                     f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{rr}" fill="var(--c{mi + 1})"/>'
+                     f'<text x="{lx:.1f}" y="{y + 4:.1f}" text-anchor="{"start" if side else "end"}">{html.escape(t)}</text></g>')
+    svg = (f'<svg class="gsvg" id="graphSvg" viewBox="0 0 960 960" xmlns="http://www.w3.org/2000/svg" '
+           f'role="img" aria-label="Concept graph"><g id="graphVp">{"".join(paths)}{"".join(nodes)}</g></svg>')
+    legend = "".join(f'<span class="gl"><span class="gl-dot" style="background:var(--c{mi + 1})"></span>{html.escape(name)}</span>'
+                     for mi, (name, _a, _b) in enumerate(MODULES))
+    return {"svg": svg, "legend": legend, "kept": len(keep), "total": len(study["terms"]),
+            "orphans": len(study["terms"]) - len(keep), "edges": len(edges)}
+
+GRAPH_CSS = r"""
+/* concept graph */
+:root{--c1:#5672cd;--c2:#047857;--c3:#D95C41;--c4:#8b5cf6;--c5:#e38407}
+html.dark{--c1:#8aa4e8;--c2:#30a46c;--c3:#E07A64;--c4:#b79cf7;--c5:#f5a623}
+.graph-main{max-width:1080px}
+.g-sub{color:var(--vp-c-text-2);font-size:15px;margin:4px 0 0}
+.g-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:14px 0 0;font-size:13px;color:var(--vp-c-text-2)}
+.g-legend .gl{display:inline-flex;align-items:center;gap:6px}
+.gl-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.graph-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt);margin:16px 0}
+.graph-wrap svg{display:block;width:100%;min-width:720px;height:auto}
+.gsvg{user-select:none;touch-action:pan-y}
+.gsvg .gn{cursor:pointer}
+.gsvg .gn circle{transition:opacity .2s}
+.gsvg .gn,.gsvg .ge{transition:opacity .2s}
+.gsvg .gn text{font-size:11px;fill:var(--vp-c-text-1);paint-order:stroke;stroke:var(--vp-c-bg-alt);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.gsvg .ge{fill:none;stroke:var(--vp-c-text-3);stroke-opacity:.35;stroke-width:1.2;pointer-events:stroke;transition:stroke-opacity .2s,stroke .2s}
+.gsvg .ge:hover{stroke:var(--vp-c-brand-1);stroke-opacity:.9;stroke-width:2}
+.gsvg.focusing .gn:not(.lit){opacity:.15}
+.gsvg.focusing .ge:not(.lit){opacity:.08}
+"""
+
+GRAPH_JS = r"""
+(function(){
+  const svg=document.getElementById('graphSvg');if(!svg)return;
+  const vp=document.getElementById('graphVp');
+  let tx=0,ty=0,k=1,drag=null,moved=false;
+  const apply=()=>vp.setAttribute('transform','translate('+tx+' '+ty+') scale('+k+')');
+  const pt=e=>new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  svg.addEventListener('wheel',e=>{e.preventDefault();
+    const f=e.deltaY<0?1.15:1/1.15,p=pt(e);
+    tx=p.x-(p.x-tx)*f;ty=p.y-(p.y-ty)*f;k*=f;apply();},{passive:false});
+  svg.addEventListener('pointerdown',e=>{if(e.target.closest('.gn'))return;
+    drag={x:e.clientX,y:e.clientY,tx,ty};moved=false;svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',e=>{if(!drag)return;
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(Math.abs(dx)+Math.abs(dy)>3)moved=true;
+    const m=svg.getScreenCTM();tx=drag.tx+dx/m.a;ty=drag.ty+dy/m.d;apply();});
+  const end=()=>{drag=null};
+  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  svg.addEventListener('click',e=>{
+    if(moved){moved=false;return;}
+    const n=e.target.closest('.gn');
+    svg.querySelectorAll('.lit').forEach(x=>x.classList.remove('lit'));
+    if(!n){svg.classList.remove('focusing');return;}
+    svg.classList.add('focusing');n.classList.add('lit');
+    const t=n.dataset.term,nb=new Set([t]);
+    svg.querySelectorAll('.ge').forEach(p=>{
+      if(p.dataset.a===t||p.dataset.b===t){p.classList.add('lit');nb.add(p.dataset.a);nb.add(p.dataset.b);}});
+    svg.querySelectorAll('.gn').forEach(g=>g.classList.toggle('lit',nb.has(g.dataset.term)));
+
+  });
+})();
+"""
+
+g = graph_data()
+graph_body = f"""  <main class="review-main graph-main">
+    <h1>Concept Graph</h1>
+    <p class="g-sub">{g["kept"]} terms · {g["edges"]} relations across 5 modules. Click a term to focus its neighborhood — scroll to zoom, drag to pan, hover an edge for why it links.</p>
+    <div class="g-legend">{g["legend"]}</div>
+    <div class="graph-wrap">
+{g["svg"]}
+    </div>
+    <div class="footer-note">Layout computed at build time — deterministic across reloads.</div>
+  </main>"""
+(ROOT / "graph.html").write_text(shell("Concept Graph", graph_body, extra=(
+    f'<script>window.STUDY_TERMS={script_json({t["t"]: t["def"] for t in study["terms"]})};'
+    f'window.STUDY_TERMREFS={script_json(study["termRefs"])}</script>'
+    f'<style>{GRAPH_CSS}</style><script>{GRAPH_JS}</script>')))
+
+# ---------------- cram page ----------------
+CRAM_CSS = r"""
+/* cram page */
+.cram-sub{color:var(--vp-c-text-2);font-size:15px;margin:4px 0 0}
+.cram-mod h2{font-family:var(--font-head);font-size:26px;font-weight:600;margin:36px 0 8px}
+.cram-sec{border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);margin:10px 0;overflow:hidden}
+.cram-sec summary{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;list-style:none}
+.cram-sec summary::-webkit-details-marker{display:none}
+.cram-sec summary::before{content:'▸';color:var(--vp-c-text-3);display:inline-block;transition:transform .15s}
+.cram-sec[open] summary::before{transform:rotate(90deg)}
+.cs-num{font-family:var(--font-mono);font-size:12px;color:var(--vp-c-text-3)}
+.cram-stat{margin-left:auto;font-size:12px;color:var(--vp-c-text-3);font-weight:400;white-space:nowrap}
+.cram-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:400;color:var(--vp-c-text-2);cursor:pointer;white-space:nowrap}
+.cram-body{padding:0 16px 14px;border-top:1px solid var(--vp-c-divider)}
+.cram-tldr{margin:12px 0;padding-left:1.25rem;font-size:14.5px}
+.cram-cards{display:grid;gap:10px;margin:0 0 12px}
+.cram-card{border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-alt)}
+.cram-card.known{border-color:#1d914e}
+html.dark .cram-card.known{border-color:#4ccb7f}
+.cram-q{display:block;width:100%;text-align:left;border:none;background:none;font:inherit;color:var(--vp-c-text-1);padding:10px 14px;cursor:pointer;line-height:1.55}
+.cram-q::before{content:'▸ ';color:var(--vp-c-brand-2)}
+.cram-card.open .cram-q::before{content:'▾ '}
+.cram-card:not(.open) .cram-a{display:none}
+.cram-a{padding:0 14px 12px}
+.cram-a p{margin:0 0 10px;font-size:14.5px;color:var(--vp-c-text-2);line-height:1.6}
+.cram-know{flex:none;padding:6px 14px}
+.cram-know:disabled{opacity:.55;cursor:default}
+.cram-know:disabled:hover{background:none;color:#047857}
+html.dark .cram-know:disabled:hover{background:none;color:#30a46c}
+.cram-open{display:inline-block;font-size:13px;margin:2px 0 12px}
+@media(max-width:768px){
+  .cram-sec summary{flex-wrap:wrap;gap:6px 10px}
+  .cram-stat{margin-left:22px;order:3;width:100%}
+}
+"""
+
+CRAM_JS = r"""
+(function(){
+  const KEY='cram-reviewed',pad=n=>'s'+String(n).padStart(2,'0');
+  const rev=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+  document.querySelectorAll('.cram-check').forEach(l=>l.addEventListener('click',e=>e.stopPropagation()));
+  document.querySelectorAll('input[data-review]').forEach(cb=>{
+    cb.checked=!!rev()[pad(cb.dataset.review)];
+    cb.addEventListener('change',()=>{const o=rev();o[pad(cb.dataset.review)]=cb.checked;
+      localStorage.setItem(KEY,JSON.stringify(o));});
+  });
+  document.getElementById('cramReset').addEventListener('click',()=>{
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('input[data-review]').forEach(cb=>cb.checked=false);
+  });
+  document.querySelectorAll('.cram-q').forEach(b=>b.addEventListener('click',()=>b.closest('.cram-card').classList.toggle('open')));
+  const stat=sec=>{
+    const ids=[...document.querySelectorAll('.cram-sec[data-sec="'+sec+'"] .cram-card')].map(c=>c.dataset.id);
+    const o=schedAll();
+    return ids.filter(id=>o[id]&&o[id].iv>=1).length+'/'+ids.length;
+  };
+  const paintStats=()=>document.querySelectorAll('.cram-sec').forEach(d=>{
+    d.querySelector('.cram-stat').textContent=stat(d.dataset.sec)+' known';});
+  const markKnown=c=>{const b=c.querySelector('.cram-know');c.classList.add('known');b.disabled=true;};
+  const o=schedAll();
+  document.querySelectorAll('.cram-card').forEach(c=>{
+    if(o[c.dataset.id]&&o[c.dataset.id].iv>=1)markKnown(c);});
+  document.querySelectorAll('.cram-know').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const c=b.closest('.cram-card');schedGrade(c.dataset.id,'good');markKnown(c);paintStats();
+    if(window.__ringRefresh)window.__ringRefresh();
+  }));
+  paintStats();
+  const mq=matchMedia('(max-width:768px)');
+  if(mq.matches){let first=true;
+    document.querySelectorAll('.cram-sec').forEach(d=>{if(d.open&&!first)d.open=false;first=false;});}
+  document.querySelectorAll('.cram-sec').forEach(d=>d.addEventListener('toggle',()=>{
+    if(!mq.matches||!d.open)return;
+    document.querySelectorAll('.cram-sec[open]').forEach(o2=>{if(o2!==d)o2.open=false;});
+  }));
+})();
+"""
+
+def cram_body():
+    chips = "".join(f'<a class="chip" href="#mod-{mi}">{html.escape(name)}</a>'
+                    for mi, (name, _a, _b) in enumerate(MODULES))
+    mods = []
+    for mi, (name, a, b) in enumerate(MODULES):
+        secs = []
+        for i in range(a, b):
+            n = i + 1
+            bullets = "".join(f'<li>{md_inline(x)}</li>' for x in study["tldr"][n])
+            cards = "".join(
+                f'<div class="cram-card" data-id="{c["id"]}">'
+                f'<button class="cram-q" type="button">{md_inline(c["q"])}</button>'
+                f'<div class="cram-a"><p>{md_inline(c["a"])}</p>'
+                f'<button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div>'
+                for c in study["cards"] if c["sec"] == n)
+            secs.append(f'''<details class="cram-sec" open data-sec="{n}">
+<summary><span class="cs-num">{n:02d}</span> {strip(sections[i]["title"])}<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="{n}"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr">{bullets}</ul><div class="cram-cards">{cards}</div><a class="cram-open" href="{page_url(i)}">open section →</a></div>
+</details>''')
+        mods.append(f'<section class="cram-mod"><h2 id="mod-{mi}">{html.escape(name)}</h2>{"".join(secs)}</section>')
+    return (f'  <main class="review-main">\n    <h1>Cram</h1>\n'
+            f'    <p class="cram-sub">Every TL;DR and card front, grouped by module. Tap a question to reveal the answer; "Known" feeds the same scheduler as Review.</p>\n'
+            f'    <div class="chip-row">{chips}<button class="grade-btn g-again" id="cramReset" type="button">Reset reviewed</button></div>\n'
+            f'{"".join(mods)}\n  </main>')
+
+(ROOT / "cram.html").write_text(shell("Cram", cram_body(), extra=(
+    f'<script>window.STUDY_ALL_CARDS={script_json(study["cards"])}</script>'
+    f'<style>{CRAM_CSS}</style><script>{CRAM_JS}</script>')))
+
+print(f"  graph.html: {g['kept']} nodes ({g['total']} terms − {g['orphans']} orphans), {g['edges']} edges")
+print(f"  cram.html: {len(study['cards'])} cards, {len(study['tldr'])} TL;DRs")
+
+print(f"Done — index.html + {len(FILES)} section pages + review.html + graph.html + cram.html")

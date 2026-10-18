@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Cram — EPAM A3 Senior Data Engineer assessment prep.">
+<title>Cram | Learn Data Platform Engineering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --vp-c-brand-1:#D95C41;--vp-c-brand-2:#C14E36;--vp-c-brand-3:#A8412B;
+  --vp-c-brand-soft:rgba(217,92,65,.1);
+  --vp-c-bg:#FAF9F5;--vp-c-bg-alt:#F4F3EE;--vp-c-bg-elv:#FFFFFF;
+  --vp-c-divider:rgba(0,0,0,.08);--vp-c-text-1:#1A1A1A;--vp-c-text-2:#4A4A4A;
+  --vp-c-text-3:#757575;
+  --vp-code-bg:rgba(142,150,170,.14);--vp-code-color:#1A1A1A;
+  --vp-c-tip-1:#D95C41;
+  --nav-h:64px;--sidebar-w:272px;--outline-w:256px;
+  --font-body:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Newsreader",serif;
+  --font-mono:"JetBrains Mono","Fira Code",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html.dark{
+  --vp-c-brand-1:#E07A64;--vp-c-brand-2:#E07A64;--vp-c-brand-3:#D95C41;
+  --vp-c-brand-soft:rgba(224,122,100,.15);
+  --vp-c-bg:#1A1A1A;--vp-c-bg-alt:#242424;--vp-c-bg-elv:#242424;
+  --vp-c-divider:rgba(255,255,255,.1);--vp-c-text-1:#E5E5E5;--vp-c-text-2:#B3B3B3;
+  --vp-c-text-3:#808080;
+  --vp-code-bg:rgba(101,117,133,.16);--vp-code-color:#E5E5E5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 24px)}
+body{margin:0;font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--vp-c-text-1);background:var(--vp-c-bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--vp-c-brand-2);text-decoration:none}
+a:hover{color:var(--vp-c-brand-1)}
+
+/* ---------- navbar ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--vp-c-divider);background:var(--vp-c-bg);z-index:100}
+.nav .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--vp-c-text-1);text-decoration:none}
+.nav .logo svg{flex:none}
+.nav .spacer{flex:1}
+.nav .search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--vp-c-divider);border-radius:8px;padding:6px 12px;color:var(--vp-c-text-3);font-size:13px;background:var(--vp-c-bg-alt);min-width:180px;cursor:text}
+.nav .search-box kbd{margin-left:auto;border:1px solid var(--vp-c-divider);border-radius:4px;padding:0 5px;font-size:11px;font-family:var(--font-mono);background:var(--vp-c-bg)}
+.nav .theme-btn{border:none;background:none;cursor:pointer;color:var(--vp-c-text-2);padding:8px;display:flex;border-radius:50%}
+.nav .theme-btn:hover{background:var(--vp-c-brand-soft);color:var(--vp-c-text-1)}
+.menu-toggle{display:none;border:none;background:none;color:var(--vp-c-text-2);cursor:pointer;padding:8px}
+.nav .home-link{color:var(--vp-c-text-2);font-size:14px;padding:8px;border-radius:8px;text-decoration:none}
+.nav .home-link:hover{color:var(--vp-c-text-1);background:var(--vp-c-brand-soft)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;padding-top:var(--nav-h);overflow-x:clip}
+.sidebar{position:fixed;top:var(--nav-h);bottom:0;left:0;width:var(--sidebar-w);overflow-y:auto;padding:24px 8px 96px 32px;border-right:1px solid var(--vp-c-divider);background:var(--vp-c-bg)}
+.sidebar .group-title{font-weight:700;font-size:14px;padding:8px 12px 4px;display:flex;justify-content:space-between;align-items:center}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar-link{display:flex;gap:8px;align-items:baseline;padding:5px 12px;font-size:14px;color:var(--vp-c-text-2);border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.4;text-decoration:none}
+.sidebar-link:hover{color:var(--vp-c-text-1)}
+.sidebar-link.active{color:var(--vp-c-brand-2);font-weight:600;border-left-color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft)}
+.sl-num{font-size:11px;color:var(--vp-c-text-3);font-family:var(--font-mono);flex:none}
+.sidebar-link.active .sl-num{color:var(--vp-c-brand-2)}
+.main{flex:1;min-width:0;margin-left:var(--sidebar-w)}
+@media(min-width:1440px){.main{margin-right:var(--outline-w)}}
+.vp-doc{max-width:784px;margin:0 auto;padding:32px 24px 96px}
+
+/* ---------- outline ---------- */
+.outline{position:fixed;top:var(--nav-h);right:0;bottom:0;width:var(--outline-w);overflow-y:auto;padding:24px 16px 96px;border-left:1px solid var(--vp-c-divider);display:none}
+@media(min-width:1440px){.outline{display:block}}
+.outline .outline-title{font-weight:600;font-size:14px;padding:0 12px 8px}
+.outline ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--vp-c-divider)}
+.outline-link{display:block;padding:4px 12px;font-size:13px;color:var(--vp-c-text-3);border-left:2px solid transparent;margin-left:-1px;line-height:1.4;text-decoration:none}
+.outline-link.lvl3{padding-left:26px}
+.outline-link:hover{color:var(--vp-c-text-1)}
+.outline-link.active{color:var(--vp-c-brand-2);border-left-color:var(--vp-c-brand-2)}
+
+/* ---------- typography ---------- */
+.vp-doc .kicker{font-size:13px;font-weight:700;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
+.vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
+.vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
+.vp-doc p{margin:16px 0}
+.header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
+.vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
+.header-anchor::before{content:"#"}
+.vp-doc strong{font-weight:600}
+.vp-doc code{font-family:var(--font-mono);font-size:.875em;background:var(--vp-code-bg);color:var(--vp-code-color);padding:.15em .35em;border-radius:4px}
+.vp-doc pre{position:relative;margin:16px 0;padding:20px 24px;border-radius:8px;background:var(--vp-code-bg);overflow-x:auto;font-size:14px;line-height:1.7}
+.vp-doc pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.vp-doc pre .copy-btn{position:absolute;top:8px;right:8px;border:1px solid var(--vp-c-divider);border-radius:4px;background:var(--vp-c-bg);color:var(--vp-c-text-3);font-size:11px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .2s;font-family:var(--font-body)}
+.vp-doc pre:hover .copy-btn{opacity:1}
+.vp-doc blockquote{margin:16px 0;padding:8px 16px;border-left:4px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.vp-doc blockquote p{margin:4px 0}
+.vp-doc ul,.vp-doc ol{padding-left:1.25rem;margin:16px 0}
+.vp-doc li{margin:4px 0}
+.vp-doc li::marker{color:var(--vp-c-text-3)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0}
+.vp-doc table{border-collapse:collapse;width:100%;margin:0;font-size:14px}
+.vp-doc th,.vp-doc td{border:1px solid var(--vp-c-divider);padding:8px 16px;text-align:left;line-height:1.6}
+.vp-doc th{background:var(--vp-c-bg-alt);font-weight:600}
+.vp-doc tr:nth-child(2n) td{background:var(--vp-c-bg-alt)}
+
+/* tables: stacked cards on small screens */
+@media (max-width:768px){
+.table-wrap{overflow:visible;margin:16px 0}
+.vp-doc table{display:block;border-collapse:separate;font-size:13.5px}
+.vp-doc thead{display:none}
+.vp-doc tbody{display:block}
+.vp-doc tr{display:block;border:1px solid var(--vp-c-divider);border-radius:10px;
+  background:var(--vp-c-bg-elv);margin:0 0 10px;overflow:hidden}
+.vp-doc tr:nth-child(2n) td{background:transparent}
+.vp-doc td{display:flex;gap:10px;border:none;border-bottom:1px solid var(--vp-c-divider);
+  padding:8px 12px;align-items:baseline}
+.vp-doc td:last-child{border-bottom:none}
+.vp-doc td::before{content:attr(data-th);flex:0 0 38%;font-weight:600;font-size:11.5px;
+  color:var(--vp-c-text-3);text-transform:uppercase;letter-spacing:.4px;line-height:1.5}
+.vp-doc td>a,.vp-doc td code{font-size:inherit}
+}
+@media (min-width:769px){
+.vp-doc table{min-width:520px}
+}
+.vp-doc hr{border:none;border-top:1px solid var(--vp-c-divider);margin:40px 0}
+.vp-doc a{text-decoration:underline;text-underline-offset:2px}
+.vp-doc a:hover{text-decoration:none}
+.vp-doc a.vm-btn,.vp-doc a.pw-link,.vp-doc .pager a,.vp-doc .feature a,.vp-doc .btn,.vp-doc a.vm-go{text-decoration:none}
+.vp-doc pre.ascii{font-size:12.5px;line-height:1.5}
+
+/* hero */
+.hero{padding:24px 0 8px}
+.hero .kicker{font-size:14px;font-weight:600;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:var(--font-head);font-size:56px;font-weight:600;margin:8px 0 12px;line-height:1.1;color:var(--vp-c-brand-1)}
+.hero .tagline{font-size:18px;color:var(--vp-c-text-2);max-width:640px}
+.hero .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid var(--vp-c-divider)}
+.btn.brand{background:#A8412B;color:#fff!important;border-color:#A8412B}
+.btn.brand:hover{background:#C14E36}
+.btn.alt{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)!important}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 8px}
+.feature{border:1px solid var(--vp-c-divider);border-radius:12px;padding:20px;background:var(--vp-c-bg-elv);transition:border-color .2s}
+.feature:hover{border-color:var(--vp-c-brand-3)}
+.feature .icon{font-size:22px}
+.feature h3{margin:8px 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:var(--vp-c-text-2);line-height:1.55}
+.feature a{font-size:13px;font-weight:600}
+
+/* mermaid */
+.mermaid{display:flex;justify-content:center;margin:24px 0;padding:16px;background:var(--vp-c-bg-alt);border:1px solid var(--vp-c-divider);border-radius:12px;overflow-x:auto}
+.mermaid svg{max-width:100%;height:auto}
+
+/* custom containers */
+.ct{margin:18px 0;padding:14px 18px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-elv);font-size:14.5px;line-height:1.65}
+.ct p{margin:6px 0}
+.ct .ct-title{font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.ct-info{border-left:4px solid var(--vp-c-brand-3)}
+.ct-info .ct-title{color:var(--vp-c-brand-2)}
+.ct-tip{border-left:4px solid #22a55b;background:rgba(34,165,91,.07)}
+.ct-tip .ct-title{color:#1d914e}
+.ct-warning{border-left:4px solid #e38407;background:rgba(227,132,7,.08)}
+.ct-warning .ct-title{color:#b4690e}
+html.dark .ct-tip{background:rgba(34,165,91,.12)}
+html.dark .ct-tip .ct-title{color:#4ccb7f}
+html.dark .ct-warning{background:rgba(227,132,7,.12)}
+html.dark .ct-warning .ct-title{color:#f0b45c}
+
+/* ---------- Duolingo path map ---------- */
+.vmap{margin:28px 0 8px;border:1px solid var(--vp-c-divider);border-radius:16px;background:var(--vp-c-bg-elv);overflow:hidden}
+.vmap-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--vp-c-divider);font-weight:700;font-size:14px}
+.vm-progress{color:var(--vp-c-text-3);font-weight:600;font-size:13px}
+.vmap-body{position:relative;padding:8px 0 24px}
+.vm-svg{display:block;margin:0 auto;width:340px;height:auto}
+.nav-mod{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--vp-c-text-3);padding:14px 12px 3px}
+.vm-mod{position:absolute;left:12px;right:12px;border:1px dashed var(--vp-c-divider);border-radius:12px;pointer-events:none}
+.vm-mod span{position:absolute;top:-9px;left:14px;background:var(--vp-c-bg-elv);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--vp-c-text-3)}
+.vm-path{stroke:var(--vp-c-divider);stroke-width:14;stroke-linecap:round;stroke-dasharray:0 18}
+.vm-node{position:absolute;width:72px;height:64px}
+.vm-btn{position:relative;width:64px;height:60px;border:none;border-radius:50%;background:var(--vp-c-bg-alt);border-bottom:5px solid var(--vp-c-divider);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .2s;padding:0;color:var(--vp-c-text-1)}
+.vm-btn:hover{transform:scale(1.08);filter:brightness(1.05)}
+.vm-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.vm-check{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:#22a55b;color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;border:2px solid var(--vp-c-bg-elv)}
+.vm-node.done .vm-btn{background:#e3f5e9;border-bottom-color:#1d914e}
+.vm-node.done .vm-check{display:flex}
+html.dark .vm-node.done .vm-btn{background:#12351f}
+.vm-node.current .vm-btn{background:var(--vp-c-brand-soft);border-bottom-color:var(--vp-c-brand-2);animation:vm-pulse 2s infinite}
+@keyframes vm-pulse{0%,100%{box-shadow:0 0 0 6px var(--vp-c-brand-soft)}50%{box-shadow:0 0 0 12px var(--vp-c-brand-soft)}}
+.vm-num{position:absolute;left:-26px;top:16px;font-size:12px;font-weight:700;color:var(--vp-c-text-3);width:20px;text-align:center}
+.vm-card{position:absolute;min-width:180px;max-width:230px;background:var(--vp-c-bg);border:1px solid var(--vp-c-divider);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;top:-18px;left:auto;right:calc(100% + 14px)}
+.vm-node:hover .vm-card,.vm-node.open .vm-card{opacity:1;pointer-events:auto}
+.vm-card-title{font-weight:700;font-size:14px}
+.vm-card-blurb{font-size:12.5px;color:var(--vp-c-text-2);line-height:1.5;margin:4px 0 8px}
+.vm-go{font-size:13px;font-weight:700}
+.vm-node[data-side="r"] .vm-card{right:auto;left:calc(100% + 14px)}
+
+/* compact path list (section pages) */
+.pathlist{list-style:none;margin:0 0 8px;padding:0}
+.pw-link{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:13px;color:var(--vp-c-text-2);border-radius:6px;text-decoration:none}
+.pw-link:hover{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)}
+.pw-ic{width:20px;flex:none}
+.pw-name{flex:1}
+.pw-check{color:#22a55b;font-weight:700;opacity:0}
+.pw-item.done .pw-check{opacity:1}
+.pw-item.done .pw-name{color:var(--vp-c-text-3);text-decoration:line-through}
+.pw-item.current .pw-link{color:var(--vp-c-brand-2);font-weight:600;background:var(--vp-c-brand-soft)}
+
+/* mark-as-read + pager */
+.mark-done{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 18px;border-radius:20px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.mark-done:hover{border-color:#22a55b}
+.mark-done.done{background:#e3f5e9;border-color:#1d914e;color:#1d914e}
+html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--vp-c-divider)}
+.pager a{flex:1;max-width:48%;border:1px solid var(--vp-c-divider);border-radius:8px;padding:12px 16px;font-size:14px}
+.pager a .plabel{font-size:12px;color:var(--vp-c-text-3)}
+.pager a .ptitle{font-weight:600;color:var(--vp-c-brand-2)}
+.pager a.next{text-align:right;margin-left:auto}
+.footer-note{text-align:center;color:var(--vp-c-text-3);font-size:13px;margin-top:48px}
+
+@media(max-width:960px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;z-index:99;top:var(--nav-h);left:0;bottom:0;background:var(--vp-c-bg);width:min(320px,85vw);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .nav{padding:0 16px}
+  .nav .search-box{display:none}
+  .vp-doc{padding:24px 16px 96px}
+  .hero h1{font-size:30px}
+  .vp-doc table{table-layout:fixed}
+  .vp-doc th{white-space:normal}
+  .vp-doc td,.vp-doc th{overflow-wrap:anywhere}
+  .vp-doc code{overflow-wrap:anywhere;word-break:break-word}
+  .vp-doc pre{font-size:12.5px;padding:14px 16px}
+  .vp-doc pre code{overflow-wrap:normal;word-break:normal}
+  .mermaid{padding:8px}
+  .vm-num{display:none}
+}
+@media(max-width:760px){
+  .vm-card{position:fixed;top:auto;bottom:16px;left:16px!important;right:16px!important;max-width:none;z-index:200}
+  .vm-node.open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;pointer-events:none}
+  .vm-node.open .vm-btn{position:relative;z-index:160}
+  .vm-svg{width:min(340px,90vw)}
+}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .hero .tagline{font-size:16px}
+  .btn{padding:9px 14px;font-size:13px}
+  .features{grid-template-columns:1fr 1fr}
+  .vp-doc h1{font-size:26px}
+  .vp-doc h2{font-size:20px}
+  .vm-svg{width:min(300px,85vw)}
+}
+@media(max-width:420px){.features{grid-template-columns:1fr}}
+.dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
+.dg-frame iframe{display:block;width:100%;height:640px;border:0}
+.dg-png img{display:block;width:100%;height:auto}
+.dg-dark{display:none}
+html.dark .dg-light{display:none}
+html.dark .dg-dark{display:block}
+.dg-png img{cursor:zoom-in}
+@font-face{font-family:Excalifont;src:url(fonts/Excalifont.woff2) format('woff2');font-display:swap}
+.scenario{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);overflow:hidden}
+.sc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--vp-c-divider);font-weight:600;font-size:14px}
+.sc-head .sc-ic{margin-right:6px}
+.sc-body{position:relative;height:420px;overflow:hidden;padding:0;cursor:grab;overscroll-behavior:contain;touch-action:none}
+.sc-body.dragging{cursor:grabbing;user-select:none}
+.sc-svg{display:block;position:absolute;top:0;left:0;transform-origin:0 0;font-family:Excalifont,cursive}
+.sc-svg .sc-node{cursor:pointer}
+.sc-svg text{font-family:Excalifont,cursive}
+.sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
+.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:3.5px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-node text{stroke:#e5e7eb;stroke-width:.55px}
+html.dark .sc-node.hl text{stroke:#ffffff}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
+.sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
+.sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
+.sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sc-btn{border:1.5px solid var(--vp-c-divider);border-radius:9px;background:var(--vp-c-bg);color:var(--vp-c-text-1);font-family:Excalifont,cursive;font-size:15px;padding:6px 14px;cursor:pointer}
+.sc-btn:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.sc-btn.ok{border-color:#047857;color:#047857}
+.sc-btn.bad{border-color:#dc2626;color:#dc2626}
+.sc-bar{position:absolute;top:8px;right:8px;left:auto;display:flex;gap:4px;justify-content:flex-end;width:auto;padding:0;z-index:5;pointer-events:none}
+.sc-bar>*{pointer-events:auto}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);font-size:13px;padding:4px 10px;cursor:pointer;font-family:var(--font-body);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+html.dark .sc-btn{background:var(--vp-c-bg)}
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
+.lb.open{display:block}
+.lb-vp{position:absolute;inset:0;overflow:auto;padding:64px 20px 20px;cursor:zoom-out}
+.lb-img{display:block;margin:0 auto;max-width:none;background:var(--vp-c-bg-elv);border-radius:10px}
+.lb-bar{position:fixed;top:12px;right:16px;display:flex;gap:8px;z-index:201;align-items:center}
+.lb-bar button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-size:15px;padding:5px 12px;cursor:pointer;font-family:var(--font-body)}
+.lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
+@media (max-width:640px){.dg-frame iframe{height:480px}}
+/* glossary terms, popups, related chips */
+.term{border-bottom:1px dotted var(--vp-c-brand-1);cursor:help}
+.term-pop{position:absolute;max-width:340px;background:var(--vp-c-bg-elv);border:1px solid var(--vp-c-divider);border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);font-size:13px;z-index:60;color:var(--vp-c-text-1)}
+.term-pop b{font-size:14px}
+.term-pop p{margin:6px 0 0;line-height:1.55}
+.term-pop .tp-links{margin-top:8px;font-size:12px;color:var(--vp-c-text-3)}
+.term-pop .tp-links a{color:var(--vp-c-brand-1)}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+a.chip{padding:6px 12px;border-radius:16px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);font-size:13px;color:var(--vp-c-text-1);text-decoration:none}
+a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+
+/* ---------- self-check flipcards + review hub ---------- */
+.selfcheck{margin:28px 0 0;padding:20px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt)}
+.sc-title{font-family:var(--font-head);font-size:20px;font-weight:600;margin:0 0 14px}
+.sc-deck{display:grid;gap:14px}
+.flipcard{perspective:1000px;cursor:pointer}
+.fc-inner{display:grid;transition:transform .35s,opacity .2s;transform-style:preserve-3d;position:relative}
+.flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+.flipcard.gone .fc-inner{opacity:0}
+.fc-front,.fc-back{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--vp-c-divider);border-left:3px solid var(--vp-c-brand-1);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 18px;min-height:180px;display:flex;flex-direction:column}
+.fc-back{transform:rotateY(180deg);border-left-color:#047857}
+.fc-front p,.fc-back p{margin:10px 0 0;font-size:15px;line-height:1.6}
+.fc-sec{display:inline-block;font-size:12px;font-weight:600;color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft);border-radius:12px;padding:2px 10px;align-self:flex-start}
+.fc-sec:hover{color:var(--vp-c-brand-1)}
+.fc-hint{margin-top:auto;padding-top:10px;font-size:11px;color:var(--vp-c-text-3)}
+.fc-grades{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.grade-btn{flex:1;border:1.5px solid;border-radius:8px;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 4px;cursor:pointer}
+.g-again{color:#e5484d;border-color:#e5484d}
+.g-again:hover{background:#e5484d;color:#fff}
+.g-hard{color:#e38407;border-color:#e38407}
+.g-hard:hover{background:#e38407;color:#fff}
+.g-good{color:#047857;border-color:#047857}
+.g-good:hover{background:#047857;color:#fff}
+.g-easy{color:#5672cd;border-color:#5672cd}
+.g-easy:hover{background:#5672cd;color:#fff}
+html.dark .g-again{color:#ff6369;border-color:#ff6369}
+html.dark .g-again:hover{background:#ff6369;color:#1A1A1A}
+html.dark .g-hard{color:#f5a623;border-color:#f5a623}
+html.dark .g-good{color:#30a46c;border-color:#30a46c}
+html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
+/* review hub */
+.review-main{flex:1;min-width:0;width:100%;max-width:860px;margin:0 auto;padding:32px 24px 96px}
+.review-main h1{font-family:var(--font-head);font-size:36px;font-weight:600;margin:8px 0}
+.review-stats{color:var(--vp-c-text-2);font-size:15px}
+.review-stats b{color:var(--vp-c-text-1)}
+.review-pos{text-align:right;font-size:12.5px;color:var(--vp-c-text-3);min-height:16px;margin:-10px 0 4px}
+.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:0 0 28px;overflow:hidden}
+.review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
+.review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+</style>
+<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
+</head>
+<body>
+<nav class="nav">
+  <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <a class="logo" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D95C41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Learn Data Platform Engineering</span></a>
+  <div class="spacer"></div>
+  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <a class="home-link" href="review.html">🎴 Review</a>
+  <a class="home-link" href="graph.html">🕸 Graph</a>
+  <a class="home-link" href="cram.html">📋 Cram</a>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</nav>
+<div class="layout">
+  <main class="review-main">
+    <h1>Cram</h1>
+    <p class="cram-sub">Every TL;DR and card front, grouped by module. Tap a question to reveal the answer; "Known" feeds the same scheduler as Review.</p>
+    <div class="chip-row"><a class="chip" href="#mod-0">🎯 Goal &amp; Foundations</a><a class="chip" href="#mod-1">🏗️ Platform Design</a><a class="chip" href="#mod-2">⚙️ Technology Deep-Dive</a><a class="chip" href="#mod-3">🏁 Production &amp; Defense</a><a class="chip" href="#mod-4">🤖 GenAI &amp; ML Design</a><button class="grade-btn g-again" id="cramReset" type="button">Reset reviewed</button></div>
+<section class="cram-mod"><h2 id="mod-0">🎯 Goal &amp; Foundations</h2><details class="cram-sec" open data-sec="1">
+<summary><span class="cs-num">01</span> The EPAM A3 Senior Data Engineer Assessment<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="1"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Internal committee defense of YOUR project work — not external-style puzzles.</li><li>Bring: problem → constraints → 2–3 design options → tradeoff rationale → measured outcome.</li><li>Competency matrix is the rubric: map every claim to a matrix line.</li><li>Manager sponsorship + readiness review gate the attempt.</li><li>[WARN] Process details are reported, not officially documented.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s01-1"><button class="cram-q" type="button">What replaces coding puzzles in the internal A3 assessment?</button><div class="cram-a"><p>A committee defense of your real project work, scored against the competency matrix.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s01-2"><button class="cram-q" type="button">Name the 5-part structure for presenting your project.</button><div class="cram-a"><p>Problem, constraints, 2–3 design options with tradeoffs, chosen design rationale, measured outcome.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s01-3"><button class="cram-q" type="button">Who gates the assessment attempt?</button><div class="cram-a"><p>Your manager (sponsorship) plus a readiness review.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s01-4"><button class="cram-q" type="button">What is the single biggest defense mistake?</button><div class="cram-a"><p>Describing team achievements with &quot;we&quot; and never owning a decision with &quot;I&quot;.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s01.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="2">
+<summary><span class="cs-num">02</span> SQL Deep Dive: The Problems EPAM Actually Asks<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="2"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Window functions compute per-row values over a frame without collapsing rows — the core difference from GROUP BY.</li><li>Canonical dedup: <code>ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)</code>, keep rn=1 — one scan, deterministic ties.</li><li>Logical order: FROM/JOIN → WHERE → GROUP BY/HAVING → windows → ORDER BY; WHERE filters rows, HAVING filters groups.</li><li>SARGable predicates only: <code>CAST(dt AS STRING)</code> full-scans; <code>dt = DATE &#x27;2024-01-01&#x27;</code> prunes partitions.</li><li>LEFT JOIN plus WHERE on the right table&#x27;s column silently becomes an INNER JOIN — move it into ON.</li><li>Duplicate join keys fan out rows: a 1.1x key duplication silently doubles summed revenue.</li><li>CTEs get inlined and recomputed — Snowflake: <code>AS MATERIALIZED</code>; Spark: <code>CACHE TABLE</code>.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s02-1"><button class="cram-q" type="button">What do window functions do that GROUP BY cannot?</button><div class="cram-a"><p>Keep every row while computing a value over a related frame — no collapse.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s02-2"><button class="cram-q" type="button">Name the canonical dedup pattern for latest record per key.</button><div class="cram-a"><p><code>ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)</code>, keep rn=1.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s02-3"><button class="cram-q" type="button">RANK vs DENSE_RANK on scores 100, 100, 90?</button><div class="cram-a"><p>RANK: 1,1,3 with gaps; DENSE_RANK: 1,1,2 without.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s02-4"><button class="cram-q" type="button">Why are aggregates illegal in WHERE?</button><div class="cram-a"><p>WHERE filters rows before grouping; group-level filters belong in HAVING.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s02-5"><button class="cram-q" type="button">What silently turns a LEFT JOIN into an INNER JOIN?</button><div class="cram-a"><p>A WHERE predicate on the right table&#x27;s column — move it into ON.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s02-6"><button class="cram-q" type="button">What does a 1.1x duplicate join key do to a revenue SUM?</button><div class="cram-a"><p>Fans out rows and silently doubles the total.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s02-7"><button class="cram-q" type="button">How do you stop CTE recomputation?</button><div class="cram-a"><p>Snowflake: <code>WITH t AS MATERIALIZED</code>; Spark: <code>CACHE TABLE</code> to pin intermediates.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s02.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="3">
+<summary><span class="cs-num">03</span> Python &amp; PySpark: Coding Patterns<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="3"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>&quot;File won&#x27;t fit in memory&quot; → generator: yield, don&#x27;t return — dicts/sets are O(n) RAM, generators O(1).</li><li>Reach for Spark at &gt;10 GB, multi-file/Parquet input, cross-dataset joins, or &quot;distributed&quot;; plain Python under ~1 GB.</li><li>Driver OOM: <code>collect()</code>/<code>toPandas()</code>. Executor OOM: skew, <code>repartition(1)</code> before a heavy stage, cache without MEMORY_AND_DISK.</li><li>UDF ladder: native 1× → pandas UDF ~2–5× (Arrow batches) → Python UDF ~10×+; use <code>F.when</code>, never a UDF, for conditionals.</li><li>Skew: diagnose via <code>groupBy(col).count().orderBy(desc(&quot;count&quot;))</code> or a Spark UI straggler; fix by salting the hot key (16 buckets) + two-stage agg.</li><li><code>repartition(n, col)</code> shuffles and balances; <code>coalesce(n)</code> skips the shuffle but can leave skew.</li><li>Cache only when reused ≥2× (<code>MEMORY_AND_DISK</code>, then <code>unpersist()</code>) — blind <code>.cache()</code> is a memory leak.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s03-1"><button class="cram-q" type="button">File won&#x27;t fit in memory — expected plain-Python answer?</button><div class="cram-a"><p>Stream it with a generator: yield, don&#x27;t return.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s03-2"><button class="cram-q" type="button">When do you choose PySpark over pandas?</button><div class="cram-a"><p>Over ~10 GB, multi-file/Parquet input, cross-dataset joins, or explicit distribution requirements.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s03-3"><button class="cram-q" type="button">Name two causes of driver OOM.</button><div class="cram-a"><p><code>collect()</code> and <code>toPandas()</code> pulling full results into driver RAM (also oversized <code>take()</code>).</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s03-4"><button class="cram-q" type="button">Name three causes of executor OOM.</button><div class="cram-a"><p>One giant partition (skew), <code>repartition(1)</code> before a heavy stage, cache without MEMORY_AND_DISK.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s03-5"><button class="cram-q" type="button">Relative cost of native vs pandas vs Python UDFs?</button><div class="cram-a"><p>Native 1×; pandas UDFs ~2–5× via Arrow batches; Python UDFs ~10×+.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s03-6"><button class="cram-q" type="button">How do you fix a skewed groupBy?</button><div class="cram-a"><p>Salt the hot key into N buckets and aggregate in two stages; or let AQE split skewed partitions.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s03-7"><button class="cram-q" type="button">When is cache() justified?</button><div class="cram-a"><p>Only when a DataFrame is reused ≥2× — persist MEMORY_AND_DISK, then unpersist.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s03.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="4">
+<summary><span class="cs-num">04</span> Distributed Systems Fundamentals<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="4"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>CAP forces the C-vs-A choice only under a network partition: CP refuses stale answers (ZooKeeper, etcd), AP serves possibly stale (Cassandra, DynamoDB).</li><li>Quorum rule: <code>R + W &gt; N</code> forces read/write overlap; <code>W &gt; N/2</code> prevents split-brain.</li><li>N=5 math: W=3/R=3 → 99.1% both paths; W=1/R=5 → ~99.999% writes but 59.0% reads.</li><li>Retries are mandatory → at-least-once delivery → duplicates guaranteed; idempotency keys, dedup tables, upserts make replays no-ops.</li><li>&quot;Exactly-once&quot; is effectively-once end-to-end: idempotent producer + transactional offsets + a sink that participates in commit.</li><li>Wall clocks lie across machines — order with event time + watermarks; LWW silently discards concurrent updates.</li><li>2PC is atomic but blocking (crashed coordinator holds locks); sagas chain local transactions with compensations.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s04-1"><button class="cram-q" type="button">When does CAP actually force a choice?</button><div class="cram-a"><p>Only during a network partition — before that you get both consistency and availability.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s04-2"><button class="cram-q" type="button">State the quorum rule and what it guarantees.</button><div class="cram-a"><p>R + W &gt; N forces read/write overlap so reads see the newest write; W &gt; N/2 prevents split-brain.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s04-3"><button class="cram-q" type="button">Availability of W=3/R=3 vs W=1/R=5 on N=5?</button><div class="cram-a"><p>99.1% on both paths vs ~99.999% writes and 59.0% reads.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s04-4"><button class="cram-q" type="button">Why are duplicate deliveries guaranteed?</button><div class="cram-a"><p>Retries are mandatory, so delivery is at-least-once — duplicates are normal, not exceptional.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s04-5"><button class="cram-q" type="button">What does &quot;exactly-once&quot; actually mean?</button><div class="cram-a"><p>Effectively-once end-to-end: idempotent producer, transactional offsets, and a sink participating in commit.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s04-6"><button class="cram-q" type="button">Why do windows close on event time + watermarks?</button><div class="cram-a"><p>Wall clocks lie across machines; event time plus watermarks make closes deterministic despite disorder.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s04-7"><button class="cram-q" type="button">Why is 2PC a poor fit across services?</button><div class="cram-a"><p>It blocks — a crashed coordinator leaves locks held; use sagas with compensating transactions.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s04.html">open section →</a></div>
+</details></section><section class="cram-mod"><h2 id="mod-1">🏗️ Platform Design</h2><details class="cram-sec" open data-sec="5">
+<summary><span class="cs-num">05</span> Data Platform Architecture<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="5"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Draw the spine: sources → ingestion → storage → transform → serve, plus cross-cutting orchestration, catalog, observability, security — mention unprompted.</li><li>Ingestion carries no business logic; log-based CDC (binlog/WAL → Debezium → Kafka) is the OLTP default — captures hard deletes; polling misses them, triggers slow every write.</li><li>Medallion invariants: bronze immutable raw (replay insurance), silver deduped/typed/validated with a quality gate → quarantine, gold curated for BI/ML; skip layers without trust boundaries.</li><li>Declare grain first — &quot;one row per order line&quot;; model the business process, not the source system.</li><li>Star schema for BI, Data Vault for auditable multi-source integration, OBT for zero-join ML/single-consumer scans.</li><li>SCD2: the fact&#x27;s surrogate FK pins it to the dimension version true at event time; expire + insert in one transaction.</li><li>Data contracts: versioned, machine-enforced in producer CI — a renamed column is caught at build time, not as NULLs in gold.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s05-1"><button class="cram-q" type="button">What does the ingestion layer do?</button><div class="cram-a"><p>Only transport — no business logic; the choices are pull vs push and full vs incremental.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s05-2"><button class="cram-q" type="button">Why is log-based CDC the OLTP default?</button><div class="cram-a"><p>Captures hard deletes at minimal source overhead with seconds latency; polling misses deletes, triggers slow every write.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s05-3"><button class="cram-q" type="button">What belongs in bronze?</button><div class="cram-a"><p>An immutable, append-only raw copy plus ingest metadata — replay insurance, never edited downstream.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s05-4"><button class="cram-q" type="button">What happens to rows failing the silver quality gate?</button><div class="cram-a"><p>Quarantined with reason and lineage — gold stays clean; fix upstream and replay.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s05-5"><button class="cram-q" type="button">Name the #1 data-modeling question.</button><div class="cram-a"><p>Declare the grain — e.g. &quot;one row per order line.&quot;</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s05-6"><button class="cram-q" type="button">Why does SCD2 preserve as-of analytics?</button><div class="cram-a"><p>The fact&#x27;s surrogate FK pins it to the dimension version true at event time — expire + insert in one transaction.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s05-7"><button class="cram-q" type="button">Name the data-observability pillars.</button><div class="cram-a"><p>Freshness, volume, schema, distribution, lineage.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s05.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="6">
+<summary><span class="cs-num">06</span> Batch vs Streaming<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="6"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Batch answers &quot;what is true given all data up to now&quot; (bounded); streaming &quot;what is true right now&quot; (unbounded) — the trade is latency vs reprocessing/state cost, not throughput.</li><li>Escalation path: batch → micro-batch (Spark SS ~500 ms floor) → true streaming (Flink/Kafka Streams 10–100 ms); each step up is a permanent tax: state ops, checkpoints, watermark tuning.</li><li>Only event time is reproducible; processing time is for lag monitoring.</li><li>Watermark <code>W = maxObservedEventTime − allowedLateness</code> (typ. 20 s–5 min); a window emits when W passes its end; W = min across partitions, so one idle source stalls everything.</li><li>Late events: within allowedLateness → re-accumulate and re-fire (retraction); beyond → side output or dead-letter queue.</li><li>State (windows, join buffers, dedup keys) needs a TTL or it grows forever.</li><li>Exactly-once exists only end-to-end: replayable source + exactly-once state + transactional/idempotent sink — else at-least-once plus dedupe.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s06-1"><button class="cram-q" type="button">What is the real batch-vs-streaming tradeoff?</button><div class="cram-a"><p>Latency vs reprocessing/state cost — never throughput.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s06-2"><button class="cram-q" type="button">Latency floors of micro-batch vs true streaming?</button><div class="cram-a"><p>Spark Structured Streaming ~500 ms; Flink/Kafka Streams 10–100 ms.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s06-3"><button class="cram-q" type="button">Define the watermark.</button><div class="cram-a"><p>W = maxObservedEventTime − allowedLateness — a monotonic promise; the window emits when W passes its end.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s06-4"><button class="cram-q" type="button">Why can one idle partition freeze all windows?</button><div class="cram-a"><p>W is the min across partitions, so a stalled source stalls watermark progress everywhere.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s06-5"><button class="cram-q" type="button">What happens to an event later than allowed lateness?</button><div class="cram-a"><p>Side output or dead-letter queue; within lateness, re-accumulate and re-fire as a retraction.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s06-6"><button class="cram-q" type="button">Fraud SLA under 5 s — batch or streaming?</button><div class="cram-a"><p>True streaming; an hourly dashboard gets cheap batch, in between micro-batch.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s06-7"><button class="cram-q" type="button">Name the three layers that must align for exactly-once.</button><div class="cram-a"><p>Replayable source, exactly-once checkpointed state, transactional or idempotent sink.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s06.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="7">
+<summary><span class="cs-num">07</span> Data Warehouse vs Data Lake vs Lakehouse<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="7"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Four generations, each failure mode the next&#x27;s feature list: EDW → lake → cloud DW → lakehouse; answer &quot;why the transition&quot; with failure mechanisms, not product names.</li><li>Lakes failed structurally (60–85% of big-data projects abandoned): no atomic commits, no schema enforcement, no compaction, no governance.</li><li>Lakehouse = Parquet + transactional table format + object storage + catalog + any engine — the format + catalog is the platform.</li><li>Cloud DW disaggregation (micro-partitions ~16 MB with min/max pruning, isolated virtual warehouses, per-second auto-suspend) vs shared-nothing rebalancing cost.</li><li>Lakehouse contribution: schema-on-write with late binding — enforce at commit, evolve without rewriting files.</li><li>ELT displaced ETL where storage/compute decoupled; ETL survives at trust boundaries (PII masking before load, cross-region).</li><li>Cost rule: utilization &lt;30% → per-second auto-suspend; &gt;60% sustained → always-on/reserved; watch egress and per-TB-scanned ($6.25/TB BigQuery).</li></ul><div class="cram-cards"><div class="cram-card" data-id="s07-1"><button class="cram-q" type="button">Why did data lakes fail?</button><div class="cram-a"><p>Structurally — no atomic commits, schema enforcement, compaction, or governance; the swamp, not bad engineers.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s07-2"><button class="cram-q" type="button">Name the layers that compose a lakehouse.</button><div class="cram-a"><p>Open Parquet files + transactional table format + object storage + catalog — any engine on top.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s07-3"><button class="cram-q" type="button">How does Snowflake prune without user partition keys?</button><div class="cram-a"><p>~16 MB micro-partitions carry automatic min/max metadata for pruning.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s07-4"><button class="cram-q" type="button">What did cloud DWs trade away?</button><div class="cram-a"><p>Openness — proprietary formats, and lake + warehouse means two copies of data plus lock-in.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s07-5"><button class="cram-q" type="button">When does ETL still beat ELT?</button><div class="cram-a"><p>At trust boundaries: PII masking before load and cross-region compliance.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s07-6"><button class="cram-q" type="button">Auto-suspend or always-on — the utilization rule?</button><div class="cram-a"><p>Under 30% → per-second auto-suspend; over 60% sustained → always-on or reserved.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s07-7"><button class="cram-q" type="button">What is data mesh, honestly?</button><div class="cram-a"><p>An org model for ownership — centralize the substrate, decentralize product ownership.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s07.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="8">
+<summary><span class="cs-num">08</span> Snowflake vs Databricks<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="8"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Converging from opposite origins; the deepest difference is storage ownership: Snowflake abstracts it (bundled bill), Databricks makes your lake the source of truth in your bucket.</li><li>Snowflake: warehouses XS→6XL auto-suspend to zero, ~16 MB micro-partitions with min/max pruning, Time Travel + zero-copy cloning.</li><li>Databricks: Spark + Photon (C++ vectorized) over your S3 with the Delta ACID log — Photon is why its SQL got competitive.</li><li>Billing: credits bundle IaaS (60 s minimum); DBUs stack on the VM bill — never compare list rates, model 3-year all-in TCO (worked example: ~15% DBX edge, entirely assumption-driven).</li><li>All-purpose ($0.55) vs jobs ($0.15) DBU misclassification is ~3×.</li><li>Fit: SQL/BI + turnkey ops → Snowflake; ML/GPU/code-first/continuous streaming → Databricks; governance parity, openness favors Unity Catalog.</li><li>Lock-in: Snowflake locks data gravity, Databricks locks workflows; Iceberg + one REST catalog (Open Catalog/Polaris/UC) is the neutral layer — vendor benchmarks contradict by workload shape, so run a 2-week PoC.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s08-1"><button class="cram-q" type="button">Deepest architectural difference between the platforms?</button><div class="cram-a"><p>Storage ownership: Snowflake bundles it; Databricks keeps your lake as source of truth in your bucket.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s08-2"><button class="cram-q" type="button">Why did Databricks SQL become competitive?</button><div class="cram-a"><p>Photon — C++ vectorized execution over Delta.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s08-3"><button class="cram-q" type="button">How do the billing models differ?</button><div class="cram-a"><p>Credits bundle IaaS with 60 s minimum; DBUs stack on top of the underlying VM bill.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s08-4"><button class="cram-q" type="button">Cost of all-purpose vs jobs DBU misclassification?</button><div class="cram-a"><p>About 3× — $0.55 vs $0.15 per DBU.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s08-5"><button class="cram-q" type="button">Contrast the lock-in shapes.</button><div class="cram-a"><p>Snowflake locks data gravity; Databricks locks workflows — the data stays in your bucket.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s08-6"><button class="cram-q" type="button">How should you treat vendor benchmarks?</button><div class="cram-a"><p>They contradict by workload shape — run a 2-week PoC on your schemas and query mix.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s08-7"><button class="cram-q" type="button">Neutral layer for sharing data between both engines?</button><div class="cram-a"><p>Iceberg tables plus one REST catalog — Open Catalog/Polaris or Unity.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s08.html">open section →</a></div>
+</details></section><section class="cram-mod"><h2 id="mod-2">⚙️ Technology Deep-Dive</h2><details class="cram-sec" open data-sec="9">
+<summary><span class="cs-num">09</span> Table Formats: Delta Lake vs Iceberg vs Hudi<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="9"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>A table format adds what Parquet lacks: atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files.</li><li>Delta is a log: <code>_delta_log</code> JSON commits + Parquet checkpoint every 10th commit, optimistic concurrency, Deletion Vectors since 2.x.</li><li>Iceberg is a tree: catalog CAS pointer → metadata.json → manifest list → manifests → data files, with pruning summaries at every level.</li><li>Hidden partitioning: transforms (<code>days(ts)</code>, <code>bucket(16, user_id)</code>) live in the spec — partition evolution is metadata-only, no rewrite.</li><li>Hudi is a timeline of instants (the WAL) over file groups; CoW rewrites bases, MoR appends logs until compaction folds them.</li><li>Delete cost ladder: CoW rewrite → position deletes → DV bitmaps → MoR log records — write cost falls, read cost rises. GDPR deletes: DVs make them KB-scale.</li><li>Time travel = replay; only VACUUM/expire_snapshots/clean truly deletes. Benchmarks are vendor-shaped — decide from estate: Iceberg multi-engine, Delta Databricks, Hudi keyed CDC.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s09-1"><button class="cram-q" type="button">What does a table format add over bare Parquet?</button><div class="cram-a"><p>Atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s09-2"><button class="cram-q" type="button">Describe Delta&#x27;s metadata structure.</button><div class="cram-a"><p>One <code>_delta_log</code> of JSON commits with a Parquet checkpoint every 10th commit.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s09-3"><button class="cram-q" type="button">Walk the Iceberg metadata tree.</button><div class="cram-a"><p>Catalog CAS pointer → metadata.json → manifest list → manifests → data files, pruned at each level.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s09-4"><button class="cram-q" type="button">What is Iceberg hidden partitioning?</button><div class="cram-a"><p>Transforms like <code>days(ts)</code> live in the spec — engines never hand-write partition filters; evolution is metadata-only.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s09-5"><button class="cram-q" type="button">Name the four delete strategies by cost ladder.</button><div class="cram-a"><p>CoW rewrites, position deletes, deletion-vector bitmaps, MoR log records — write cost falls, read cost rises.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s09-6"><button class="cram-q" type="button">When is data actually deleted?</button><div class="cram-a"><p>Only by VACUUM/expire_snapshots/clean — time travel is replay, not deletion.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s09-7"><button class="cram-q" type="button">Commit size of one 400-row UPDATE across formats?</button><div class="cram-a"><p>Delta/Iceberg ~KBs via DVs; Hudi CoW ~100 MB rewritten; Hudi MoR ~50 KB log append.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s09.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="10">
+<summary><span class="cs-num">10</span> Compute Engines: Spark vs Flink<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="10"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Spark is a batch engine that grew micro-batch streaming; Flink is a streaming engine where batch is just a bounded stream — scheduling, state, failure handling follow from that.</li><li>Latency floors: Spark ~batch interval (0.5–10 s, p99 pinned by batch commit); Flink ~10 ms record-at-a-time.</li><li>Spark pipeline: lazy plans → Catalyst (pushdown, join choice, whole-stage codegen) → stages cut at shuffle boundaries; AQE coalesces and skew-splits at runtime; RocksDB state store default since 4.0.</li><li>Flink exactly-once = rewindable source + async barrier snapshot (Chandy–Lamport) + TwoPhaseCommittingSink (pre-commit at checkpoint, commit on notifyCheckpointComplete).</li><li>Unaligned checkpoints under backpressure: barriers overtake in-flight buffers — larger snapshots, steady duration.</li><li>AQE skew rule: partition &gt; 256 MB and &gt; 5× median → split into ~64 MB subtasks (512 GB straggler: 60 min → 8 min, −87%); salting is the fallback costing two shuffles.</li><li>Set TTL on every keyed Flink op — unbounded state is the #1 production killer; checkpoint interval bounds 2PC deliverable latency.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s10-1"><button class="cram-q" type="button">Fundamental model difference between Spark and Flink?</button><div class="cram-a"><p>Spark runs incremental micro-batches; Flink processes record-at-a-time, with batch as a bounded stream.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s10-2"><button class="cram-q" type="button">Latency floor of each engine?</button><div class="cram-a"><p>Spark ~the batch interval (0.5–10 s); Flink ~10 ms.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s10-3"><button class="cram-q" type="button">What is a Flink checkpoint?</button><div class="cram-a"><p>An asynchronous Chandy–Lamport barrier snapshot — barriers ride the data, processing never pauses.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s10-4"><button class="cram-q" type="button">When do you enable unaligned checkpoints?</button><div class="cram-a"><p>Under backpressure — barriers overtake in-flight buffers and snapshot them too; bigger but steady duration.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s10-5"><button class="cram-q" type="button">Name Flink&#x27;s exactly-once assembly.</button><div class="cram-a"><p>Rewindable source + barrier-aligned snapshot + TwoPhaseCommittingSink committing on notifyCheckpointComplete.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s10-6"><button class="cram-q" type="button">When does AQE split a skewed partition?</button><div class="cram-a"><p>Above 256 MB and 5× the median — into ~64 MB subtasks, no code needed.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s10-7"><button class="cram-q" type="button">Why TTL on every keyed Flink operator?</button><div class="cram-a"><p>Unbounded keyed state is the #1 production killer.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s10.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="11">
+<summary><span class="cs-num">11</span> Spark Performance: Catalyst, AQE &amp; Tuning<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="11"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Catalyst: rule-based logical optimization (pushdown, pruning, folding) + cost-based physical planning; without <code>ANALYZE TABLE</code>, <code>sizeInBytes</code> defaults huge so auto-broadcast never fires at compile time.</li><li>AQE re-plans at each shuffle boundary from actual map-output stats — default since 3.2: coalesce toward ~64 MB, skew-join split, SMJ→BHJ/SHJ switch; useless without an Exchange.</li><li>AQE skew-join split fires only above BOTH thresholds: &gt; 5× median partition AND &gt; 256 MB — joins only; groupBy skew needs salting.</li><li>Join choice = one threshold + honest stats: broadcast ≤ 10 MB (misestimate → driver OOM), SHJ on hint, SMJ the robust default.</li><li>Size partitions ≈ shuffle bytes ÷ 128–256 MB — the 200 default is wrong in both directions; over-provision and let AQE coalesce (it cannot split ordinary oversized partitions).</li><li>Unified memory (fraction 0.6): storage evicts, execution spills; G1GC for ≥4–8 GB heaps; GC &gt; 10–15% of task time = allocation churn.</li><li>Diagnose from the UI: max ≫ p50 → skew; spill counters → memory; fix data shape before knobs.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s11-1"><button class="cram-q" type="button">What does AQE re-plan with, and since which release?</button><div class="cram-a"><p>Actual shuffle stats at each Exchange boundary — default since Spark 3.2.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s11-2"><button class="cram-q" type="button">State both AQE skew-join split triggers.</button><div class="cram-a"><p>Partition above 5× the median AND above 256 MB — split toward ~64 MB subtasks.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s11-3"><button class="cram-q" type="button">Why doesn&#x27;t AQE fix skewed groupBy?</button><div class="cram-a"><p>Skew split covers joins only (SMJ/SHJ) — aggregate skew needs salting.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s11-4"><button class="cram-q" type="button">Broadcast join condition and its failure mode?</button><div class="cram-a"><p>One side ≤ 10 MB per honest stats; stale/underestimated stats make the driver OOM collecting it.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s11-5"><button class="cram-q" type="button">How do you size shuffle partitions?</button><div class="cram-a"><p>≈ shuffle bytes ÷ 128–256 MB — over-provision, AQE coalesces; the 200 default is wrong both ways.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s11-6"><button class="cram-q" type="button">Storage vs execution memory under pressure?</button><div class="cram-a"><p>Storage evicts blocks; execution never evicts — it spills to disk.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s11-7"><button class="cram-q" type="button">What does max task time ≫ p50 in the UI mean?</button><div class="cram-a"><p>Skew; uniformly slow tasks point to sizing, spill, or GC instead.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s11.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="12">
+<summary><span class="cs-num">12</span> Messaging &amp; Streaming Backbones: Kafka and Friends<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="12"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Three messaging models: queue (one consumer, ack-then-delete), pub/sub (fan-out, no replay), log (Kafka: partitioned, replayable, consumer-owned offsets — replay is an offset reset).</li><li>Ordering is per-partition only: <code>hash(key) % partitions</code> gives per-entity order; changing partition count silently breaks the key map.</li><li>ISR = replicas current within <code>replica.lag.time.max.ms</code> (30 s); high watermark = highest offset replicated to all ISR — consumers read only up to HW.</li><li>Durability recipe: <code>acks=all</code> + RF=3 + <code>min.insync.replicas=2</code> + <code>unclean.leader.election.enable=false</code>; ISR shrunk to 1 → explicit <code>NOT_ENOUGH_REPLICAS</code>, not silent loss.</li><li>Exactly-once stops at Kafka&#x27;s edge: idempotent producer (PID + sequence, default since 3.0) + transactions + <code>read_committed</code>; across boundaries use the outbox — never dual-write.</li><li>Rebalance-proofing: cooperative-sticky assignor (KIP-429) + static membership + <code>max.poll.records</code> finishing inside <code>max.poll.interval.ms</code> (5 min default).</li><li>KRaft replaced ZooKeeper (removed in 4.0, 2025); schema evolution <code>FULL_TRANSITIVE</code> on shared topics; tiered storage decouples retention from broker disk.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s12-1"><button class="cram-q" type="button">What third model does Kafka add beyond queue and pub/sub?</button><div class="cram-a"><p>A partitioned, replayable append-only log with consumer-owned offsets.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s12-2"><button class="cram-q" type="button">What ordering does Kafka guarantee?</button><div class="cram-a"><p>Strict order only within a partition — key hashing fixes per-entity order.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s12-3"><button class="cram-q" type="button">State the canonical Kafka durability recipe.</button><div class="cram-a"><p>acks=all + RF=3 + min.insync.replicas=2 + unclean.leader.election disabled.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s12-4"><button class="cram-q" type="button">Define the high watermark.</button><div class="cram-a"><p>The highest offset replicated to all ISR — consumers read only up to it.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s12-5"><button class="cram-q" type="button">Why is dual-writing DB + Kafka wrong?</button><div class="cram-a"><p>A crash in between loses the event with no record — use the outbox pattern with CDC.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s12-6"><button class="cram-q" type="button">Where is exactly-once real in Kafka?</button><div class="cram-a"><p>Inside Kafka — idempotent producer + transactions + read_committed; across boundaries, at-least-once + idempotent sinks.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s12-7"><button class="cram-q" type="button">Name two rebalance-storm fixes.</button><div class="cram-a"><p>Cooperative-sticky assignor and static membership (group.instance.id).</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s12.html">open section →</a></div>
+</details></section><section class="cram-mod"><h2 id="mod-3">🏁 Production &amp; Defense</h2><details class="cram-sec" open data-sec="13">
+<summary><span class="cs-num">13</span> Pipeline Reliability: Testing, Quality, Observability<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="13"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Six quality dimensions are the shared vocabulary: accuracy, completeness, freshness, validity, uniqueness, consistency — every tool (GE, dbt, Soda) maps to them.</li><li>Test pyramid: unit tests every PR, data tests every pipeline run, expensive reconciliations daily/before publish, production monitoring continuous.</li><li>Observability = metrics (what broke) + logs (where) + lineage (what else); OpenLineage/Marquez bounds the blast radius.</li><li>Gate failure → circuit breaker: publish to staging, promote atomically — consumers keep last-known-good; alert when quarantine rate exceeds ~1%.</li><li>SLO math: 99% on-time over 30 daily runs → error budget 0.3 runs → page on the first miss; thresholds come from budget math, not complaints.</li><li>Idempotent backfill: DELETE + INSERT per partition or MERGE — never blind append; same input must give same output.</li><li>Incident loop: alert → classify → contain → fix → backfill → verify → blameless postmortem; every incident ends as a new automated check.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s13-1"><button class="cram-q" type="button">Name the six data-quality dimensions.</button><div class="cram-a"><p>Accuracy, completeness, freshness, validity, uniqueness, consistency.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s13-2"><button class="cram-q" type="button">What runs at each data-test-pyramid layer?</button><div class="cram-a"><p>Unit tests every PR, data tests every run, reconciliation daily, production monitoring continuous.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s13-3"><button class="cram-q" type="button">What happens when a quality gate fails?</button><div class="cram-a"><p>Circuit breaker — publish to staging, promote atomically so consumers keep last-known-good.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s13-4"><button class="cram-q" type="button">When should quarantine alerts fire?</button><div class="cram-a"><p>When the quarantine rate exceeds ~1% — never drop records silently.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s13-5"><button class="cram-q" type="button">Error budget for 99% freshness over 30 daily runs?</button><div class="cram-a"><p>0.3 runs — so page on the very first miss.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s13-6"><button class="cram-q" type="button">What makes a backfill idempotent?</button><div class="cram-a"><p>DELETE + INSERT per partition or MERGE — same input, same output, never blind append.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s13-7"><button class="cram-q" type="button">Name the incident loop stages.</button><div class="cram-a"><p>Alert, classify, contain, fix, backfill, verify, blameless postmortem — each incident adds a check.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s13.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="14">
+<summary><span class="cs-num">14</span> Resources &amp; Practice Lab<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="14"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Five sources, five jobs: the wiki explains concepts, the handbook curates, Start Data Engineering builds (100+ posts), DET gives community signal, DEC practitioner benchmarks.</li><li>Canonical reading list = 4 books + 2 papers — Fundamentals of DE, DDIA 2e, Kimball, Learning Spark 2e; GFS, Lakehouse CIDR — not the handbook&#x27;s 25-book firehose.</li><li>Hold a 1:2 read-to-build ratio: tutorial hell (the 40th Spark video) compounds to zero; if you can&#x27;t whiteboard your build&#x27;s failure modes, you watched, not learned.</li><li>Attach every drill to one build spine — API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly, reps compound.</li><li>Pick ONE portfolio archetype (batch lakehouse, streaming, CDC, DQ-gated, LLM) and finish it; a small finished repo with a tradeoffs README beats three half-cloned tutorials.</li><li>Drill 15 — a 5-minute walkthrough of your own design doc — IS the A3 architecture screen; rehearse until 5 minutes feels short.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s14-1"><button class="cram-q" type="button">What job does each of the five sources do?</button><div class="cram-a"><p>Wiki explains, handbook curates, SDE builds, DET community, DEC practitioner benchmarks.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s14-2"><button class="cram-q" type="button">How big is the canonical reading list?</button><div class="cram-a"><p>Four books plus two papers, each tied to a course section — not the 25-book firehose.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s14-3"><button class="cram-q" type="button">Required read-to-build ratio, and the failure it prevents?</button><div class="cram-a"><p>1:2 — prevents tutorial hell, where the 40th Spark video compounds to zero.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s14-4"><button class="cram-q" type="button">What is the build spine?</button><div class="cram-a"><p>API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s14-5"><button class="cram-q" type="button">How many portfolio projects should you finish?</button><div class="cram-a"><p>One archetype — a small finished repo with a README of tradeoffs.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s14-6"><button class="cram-q" type="button">What is drill 15 and why does it matter?</button><div class="cram-a"><p>A 5-minute walkthrough of your design doc — it IS the A3 architecture screen.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s14.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="15">
+<summary><span class="cs-num">15</span> System Design Interview Playbook<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="15"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>The internal design round probes YOUR project plus hypothetical extensions; the committee scores narrative + evidence against the competency matrix.</li><li>Six steps: Clarify (SLA first, 3–5 min) → Estimate → High-level design (SLA on every hop) → Tradeoffs (per arrow: alternative, why rejected, one number) → Ops &amp; failure (unprompted) → Evolution (precomputed 10x).</li><li>Evidence ledger replaces STAR: claim → story → artifact → metric → matrix line; 4–5 proof stories, 90 s each, &quot;I&quot; never &quot;we&quot;.</li><li>Capacity math before architecture; your pipeline&#x27;s real numbers beat textbook figures — 100k ev/s × 500 B = 4.32 TB/day, RF=3 ≈ 13 TB → 6 brokers × 4 TB, 48 partitions ≈ 1.04 MB/s each.</li><li>Exactly-once is not correctness: checkpoints/2PC are processing semantics — late joins, timezones, fraud need dedup windows and reconciliation.</li><li>Migration invariant: no consumer ever sees wrong data — waves ordered by consumer, parity gate 7 consecutive days &lt; 0.01% delta.</li><li>English delivery is scored (B2 gates staffing); honest &quot;I don&#x27;t know — here&#x27;s how I&#x27;d reason&quot; reads senior.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s15-1"><button class="cram-q" type="button">What does the internal design round probe?</button><div class="cram-a"><p>Your own project (Scenario 0) plus hypothetical extensions — scored on narrative + evidence.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s15-2"><button class="cram-q" type="button">Name the six answer-framework steps.</button><div class="cram-a"><p>Clarify, estimate, high-level design, tradeoffs, ops and failure, evolution.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s15-3"><button class="cram-q" type="button">Why state the freshness SLA first?</button><div class="cram-a"><p>It decides the architecture — sub-second means Kafka+Flink; sub-minute allows a committing lakehouse sink.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s15-4"><button class="cram-q" type="button">What replaces STAR in defense prep?</button><div class="cram-a"><p>The evidence ledger: claim → story → artifact → metric → matrix line — 4–5 stories, 90 seconds each.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s15-5"><button class="cram-q" type="button">Storage math for 100k ev/s at 500 B with RF=3?</button><div class="cram-a"><p>4.32 TB/day raw → ~13 TB replicated → 6 brokers × 4 TB, 48 partitions at ~1 MB/s.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s15-6"><button class="cram-q" type="button">Why is exactly-once not correctness?</button><div class="cram-a"><p>Checkpoints/2PC are processing semantics only — dedup windows and reconciliation handle late, wrong, or fraudulent data.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s15-7"><button class="cram-q" type="button">Golden invariant of a warehouse-to-lakehouse migration?</button><div class="cram-a"><p>No consumer ever sees wrong data — waves ordered by consumer, gated on 7 days under 0.01% delta.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s15.html">open section →</a></div>
+</details></section><section class="cram-mod"><h2 id="mod-4">🤖 GenAI &amp; ML Design</h2><details class="cram-sec" open data-sec="16">
+<summary><span class="cs-num">16</span> Generative AI System Design (Aminian &amp; Sheng)<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="16"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>The skeleton is the transferable asset: clarify requirements → frame as ML task → data → model → eval → system design + deployment/monitoring — one rehearsal covers any prompt.</li><li>Model choice is requirements arithmetic, not fashion: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → AR, video economics → latent diffusion.</li><li>Exhaust retrieval + prompts before finetuning: finetuning can&#x27;t cite sources and needs constant retraining; RAFT only when retrieval is fixed and answers are still bad.</li><li>RAG pipeline: parse → chunk (500 chars, 200 overlap) → embed → ANN-index; size it explicitly — 5M pages → 40M chunks, +20%/yr.</li><li>Retrieval quality is the ceiling: a better LLM cannot fix bad chunks.</li><li>Pair offline metrics (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) with online business metrics (CTR, adoption, cost per user) — naming both unprompted is the scoring behavior.</li><li>Deployment is a named stage: safety chain, serving, monitoring, retraining loops — users re-rolling seeds quietly multiplies GPU spend.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s16-1"><button class="cram-q" type="button">What is the repeating framework across all 11 GenAI design chapters?</button><div class="cram-a"><p>Clarify requirements → frame as ML task → data preparation → model development → evaluation → overall system design, with deployment + monitoring on top.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s16-2"><button class="cram-q" type="button">How do you pick the generative model family?</button><div class="cram-a"><p>Requirements arithmetic: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → autoregressive tokens, video economics → latent diffusion.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s16-3"><button class="cram-q" type="button">Why retrieval (RAG) before finetuning for knowledge injection?</button><div class="cram-a"><p>Finetuning can&#x27;t cite sources and needs constant retraining; RAG balances cost, scalability, freshness — RAFT finetuning only after retrieval is fixed.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s16-4"><button class="cram-q" type="button">What must accompany offline metrics in a GenAI evaluation answer?</button><div class="cram-a"><p>Online business metrics — CTR, adoption, cost per user per month — because users re-roll failed generations and burn GPU money; name both unprompted.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s16.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="17">
+<summary><span class="cs-num">17</span> Machine Learning System Design Interview (Aminian &amp; Xu)<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="17"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>All 11 chapters share one 7-step skeleton: clarify → frame as ML task → data prep → model development → evaluate → deploy/serve → monitor.</li><li>The load-bearing move is business goal → ML objective with failure modes named: clicks reward clickbait, completions bias short videos → maximize relevant watch time.</li><li>Model ladder: popularity baseline → LR → DNN → ensemble only if needed; GBDT is rejected in continual-learning systems — no fine-tuning, retrain from scratch.</li><li>Metric elimination chain: MRR ignores post-first hits, recall@k drowns under millions of relevant items, precision@k is rank-blind → nDCG or mAP.</li><li>Serving skeleton: candidate generation (ANN above ~millions, inverted index, FoF) → ranking (feature store: static batch + dynamic) → re-ranking — business rules live in re-rank, never the model.</li><li>Observed-pairs-only MF loss hits zero with all-ones embeddings — weight unobserved pairs (WALS); calibrate ad pCTRs (NCE &lt; 1 vs background CTR) or the auction breaks.</li><li>Freshness is a design constraint: ad click models need ~5-minute updates; Gmail Smart Compose: decoder-only, pretrain + finetune on 1B emails, deterministic beam search under ~100 ms.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s17-1"><button class="cram-q" type="button">Name the 7-step ML design framework.</button><div class="cram-a"><p>Clarify, frame as ML task, data prep, model development, evaluation, deployment/serving, monitoring.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s17-2"><button class="cram-q" type="button">Why not optimize raw clicks?</button><div class="cram-a"><p>Clicks reward clickbait and completions bias short videos — name failure modes, choose relevance-aware objectives.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s17-3"><button class="cram-q" type="button">Why reject GBDT in continual-learning systems?</button><div class="cram-a"><p>It cannot be fine-tuned — every refresh means retraining from scratch.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s17-4"><button class="cram-q" type="button">Walk the ranking-metric elimination chain.</button><div class="cram-a"><p>MRR ignores post-first hits, recall@k drowns in millions, precision@k is rank-blind — use nDCG or mAP.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s17-5"><button class="cram-q" type="button">Where do business rules belong in serving?</button><div class="cram-a"><p>In re-ranking — never baked into the model.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s17-6"><button class="cram-q" type="button">Why weight unobserved pairs in matrix factorization?</button><div class="cram-a"><p>Observed-only loss reaches zero with degenerate all-ones embeddings — WALS forces real separation.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s17-7"><button class="cram-q" type="button">What does NCE below 1 indicate?</button><div class="cram-a"><p>The model&#x27;s cross-entropy beats the background-CTR baseline — calibration before serving to auctions.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s17.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="18">
+<summary><span class="cs-num">18</span> Machine Translation (Google Translate)<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="18"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Translation = seq2seq → encoder-decoder Transformer: bidirectional encoder, causally-masked decoder with cross-attention; chosen for variable-length I/O and source understanding.</li><li>Scope first: 4 languages (EN/ES/KO/FR), auto language detection (encoder-only classifier routes the fleet), inputs ≤ 1,000 words, 300M sentence pairs.</li><li>Two-stage training: masked-LM pretraining (next-token would let the encoder leak the answer) then supervised next-token finetuning; start from T5/BART checkpoints to skip stage 1.</li><li>Keep preprocessing that preserves grammar; drop legacy lowercasing/stemming/stop-words; subword BPE with <code>&lt;/w&gt;</code> boundary tokens solves vocabulary size and OOV.</li><li>Placeholder named entities (ENTITY_1) in, restored after decoding — models choke on uncommon proper nouns.</li><li>Beam search, not stochastic sampling — determinism is a feature in translation.</li><li>Evaluate three ways: BLEU (precision, punishes rewording), ROUGE (recall), METEOR (synonyms, best human correlation) + online feedback; never trust BLEU alone.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s18-1"><button class="cram-q" type="button">Why encoder-decoder for translation?</button><div class="cram-a"><p>Bidirectional source understanding, natural variable-length I/O, cross-attention into encoder output.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s18-2"><button class="cram-q" type="button">Why masked LM, not next-token, in pretraining?</button><div class="cram-a"><p>Full-sentence input with next-token prediction lets the encoder leak the answer.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s18-3"><button class="cram-q" type="button">How does BPE handle unseen words?</button><div class="cram-a"><p>Rare words decompose into known subword pieces; <code>&lt;/w&gt;</code> marks word boundaries.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s18-4"><button class="cram-q" type="button">How are named entities handled?</button><div class="cram-a"><p>Replaced with ENTITY_1-style placeholders before training, restored after decoding.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s18-5"><button class="cram-q" type="button">Why beam search over top-k/top-p?</button><div class="cram-a"><p>Deterministic same-input-same-output and higher accuracy — diversity is a defect in translation.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s18-6"><button class="cram-q" type="button">Which metric matches synonyms via WordNet?</button><div class="cram-a"><p>METEOR — harmonic mean of precision and recall, best human-judgment correlation.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s18-7"><button class="cram-q" type="button">What routes input when language is unknown?</button><div class="cram-a"><p>An encoder-only language-detection classifier routes to the per-pair model.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s18.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="19">
+<summary><span class="cs-num">19</span> Personal Assistant Chatbot<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="19"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Requirements before architecture: text-in/text-out, English-only, strict safety, ≥ 4096-token context, follow-ups in session, 80K (instruction, answer) pairs → decoder-only LLM.</li><li>Three stages, three jobs: pretraining (trillions of tokens, 1000s GPUs, months) buys knowledge; SFT (10K–100K demos) turns continuer into responder; RLHF (100K–1M comparisons → reward model → PPO/DPO) aligns.</li><li>Data quality inverts across stages: trillions of low-quality web tokens → small expert demonstrations → ranked comparisons; rank, never score — annotator numbers drift.</li><li>The 4096-token requirement forces RoPE-style positional encoding — absolute encodings trained at 512 break at long context.</li><li>Decoding default for open-ended chat: top-p/nucleus + tuned temperature (modern practice 0.1–1.5); greedy/beam loop in dialogue.</li><li>Evaluation is four layers: perplexity baseline, task benchmarks (MMLU, GSM8K, HumanEval), safety benchmarks (RealToxicityPrompts, CrowS-Pairs, TruthfulQA), human + Arena-style online.</li><li>Safety enforced at inference on both directions: input safety filter, prompt enhancer, output evaluator routing failures to the rejection generator; session management supplies follow-up context.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s19-1"><button class="cram-q" type="button">Name the three training stages.</button><div class="cram-a"><p>Pretraining, supervised finetuning, RLHF — knowledge, response behavior, human alignment respectively.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s19-2"><button class="cram-q" type="button">Why rank instead of score responses?</button><div class="cram-a"><p>Absolute numeric scores drift between annotators; rankings become (prompt, winning, losing) preference pairs.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s19-3"><button class="cram-q" type="button">Why RoPE over absolute positional encoding?</button><div class="cram-a"><p>Absolute encodings trained at 512 break at 4096; RoPE captures relative position geometrically.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s19-4"><button class="cram-q" type="button">Default decoding for open-ended chat?</button><div class="cram-a"><p>Top-p (nucleus) sampling with tuned temperature — deterministic search loops in dialogue.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s19-5"><button class="cram-q" type="button">Why does top-k fail?</button><div class="cram-a"><p>Fixed k misfits the distribution — sharp loses the obvious token, flat caps diversity.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s19-6"><button class="cram-q" type="button">Name the evaluation layers.</button><div class="cram-a"><p>Perplexity, task benchmarks, safety benchmarks, human plus online signals (LMSYS Arena).</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s19-7"><button class="cram-q" type="button">How do follow-ups work?</button><div class="cram-a"><p>Session management feeds chat history into the prompt enhancer&#x27;s context.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s19.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="20">
+<summary><span class="cs-num">20</span> Image Captioning<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="20"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Captioning = translation where the image is the source language: image encoder → embedding sequence → decoder-only Transformer → caption token by token.</li><li>ViT-style encoder emitting per-patch tokens beats a single global vector — attention wants sequences, and a global summary loses local detail.</li><li>Data quality dominates at 400M noisy pairs: dedup via perceptual hash/CLIP, CLIP relevance filter (~0.25 threshold), LLM-summarize long captions, drop &lt;256×256, resize+center-crop preserving aspect ratio.</li><li>Reuse pretrained weights both sides: GPT-2/Llama decoder, CLIP/ViT encoder; joint finetuning with next-token cross-entropy.</li><li>Beam search at serving — quality, determinism (&quot;same image, same caption&quot;), coherence; 1–2 s latency makes it affordable.</li><li>Ambiguous images are a designed skip path: cumulative probability below the confidence threshold disables the suggestion; post-processing neutralizes biased terms.</li><li>Evaluate with CIDEr over multiple reference captions — TF-IDF vectorize, cosine-similarity, average; blind spots: novel-but-correct phrasing, word-order semantics.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s20-1"><button class="cram-q" type="button">Frame image captioning as an ML task.</button><div class="cram-a"><p>Translation with pixels as the source language — image encoder, decoder-only Transformer emits the caption.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s20-2"><button class="cram-q" type="button">Per-patch tokens or one global vector?</button><div class="cram-a"><p>Per-patch sequence — attention needs sequences and a global vector discards local detail.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s20-3"><button class="cram-q" type="button">Name three cleaning steps for the 400M pairs.</button><div class="cram-a"><p>Dedup via perceptual hash/CLIP, CLIP relevance filter below ~0.25, LLM summarization of long captions.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s20-4"><button class="cram-q" type="button">Why summarize long captions before training?</button><div class="cram-a"><p>The model imitates caption length — long training captions produce long, unusable suggestions.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s20-5"><button class="cram-q" type="button">Why beam search over sampling?</button><div class="cram-a"><p>Higher quality, deterministic same-image-same-caption, coherent — diversity is unwanted.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s20-6"><button class="cram-q" type="button">How are ambiguous images handled?</button><div class="cram-a"><p>Beam-search cumulative probability below a confidence threshold disables the suggestion.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s20-7"><button class="cram-q" type="button">What is CIDEr and its blind spots?</button><div class="cram-a"><p>TF-IDF vectors, cosine similarity vs references, averaged; blind to novel phrasing and word-order semantics.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s20.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="21">
+<summary><span class="cs-num">21</span> Retrieval-Augmented Generation<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="21"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>RAG = offline pipeline (parse → chunk → embed → index) + online loop (query → embed → ANN → prompt → LLM); tune retrieval before blaming the model.</li><li>Pick RAG over finetuning when knowledge changes (~20%/yr) and answers must cite sources; finetuning can&#x27;t stay current and produces no references.</li><li>Varied layouts need AI-based parsing — layout detection + OCR per box in reading order; fixed-template rule-based parsers break.</li><li>Chunk math drives capacity: 5M pages × 1,500 chars, chunk 500 with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks.</li><li>Shared embedding space is the invariant: same encoder for chunks and queries; CLIP or caption-then-embed aligns images.</li><li>Exact search is O(N×D) — 40M comparisons per query; ANN (clustering, LSH, HNSW) is mandatory at this scale.</li><li>Evaluate the RAG triad — context relevance, faithfulness, answer relevance; one aggregate score hides which half broke. RAFT-finetune (golden + distractor docs) only after retrieval is fixed.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s21-1"><button class="cram-q" type="button">Why RAG over finetuning for document QA?</button><div class="cram-a"><p>Knowledge changes often and citations are required — finetuning can&#x27;t stay current or provide references.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s21-2"><button class="cram-q" type="button">Why AI-based over rule-based parsing?</button><div class="cram-a"><p>Varied single/double-column layouts break fixed templates — layout detection plus OCR reads boxes in order.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s21-3"><button class="cram-q" type="button">Compute chunks for 5M pages.</button><div class="cram-a"><p>1,500-char pages, 500-char chunks with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s21-4"><button class="cram-q" type="button">What is the shared embedding space contract?</button><div class="cram-a"><p>The same encoder embeds chunks and queries; CLIP or captioning aligns images.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s21-5"><button class="cram-q" type="button">Why is exact nearest-neighbor search infeasible?</button><div class="cram-a"><p>O(N×D) — 40M comparisons per query; ANN is ~O(log N×D).</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s21-6"><button class="cram-q" type="button">Name the RAG triad.</button><div class="cram-a"><p>Context relevance, faithfulness, answer relevance.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s21-7"><button class="cram-q" type="button">When do you RAFT-finetune?</button><div class="cram-a"><p>Only after retrieval is fixed — golden plus distractor docs teach the LLM to ignore noise.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s21.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="22">
+<summary><span class="cs-num">22</span> Realistic Face Generation<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="22"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Requirements select the model: faces only, 1024×1024, &lt;1s latency, 70k licensed images, balanced demographics, attribute control as stretch goal.</li><li>GAN over diffusion/autoregressive: single forward pass meets &lt;1s; the structured latent space enables later StyleGAN attribute control — quality traded for speed, instability accepted.</li><li>Data prep: quality filter, flip/rotate/color augmentation, resize to 1024 with pixels normalized −1..1 (drives the Tanh output), classifier-tagged demographic rebalancing.</li><li>Alternating freeze-train is the core discipline: train D a few iters, freeze, train G — imbalance is the root of all three classic failures.</li><li>Three failures, named fixes: vanishing gradients → WGAN critic; mode collapse → unrolled GAN; non-convergence (D accuracy → 50%) → different learning rates + noise into D.</li><li>Sampling: random over the full latent Gaussian — diversity matters for faces; truncation trades diversity for realism.</li><li>Evaluate IS (higher-better), FID (lower-better), and pairwise human votes — automated metrics misalign with judgment.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s22-1"><button class="cram-q" type="button">Why GAN over diffusion here?</button><div class="cram-a"><p>One forward pass meets the &lt;1s SLA, and the structured latent space enables facial attribute manipulation.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s22-2"><button class="cram-q" type="button">Why normalize pixels to −1..1?</button><div class="cram-a"><p>It matches the generator&#x27;s final Tanh activation — a ReLU output would mismatch the range.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s22-3"><button class="cram-q" type="button">Name the three GAN training failures.</button><div class="cram-a"><p>Vanishing gradients, mode collapse, failure to converge.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s22-4"><button class="cram-q" type="button">Fix for mode collapse?</button><div class="cram-a"><p>Wasserstein loss or an unrolled GAN.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s22-5"><button class="cram-q" type="button">When does GAN training stop?</button><div class="cram-a"><p>When discriminator accuracy nears 50% — past it, feedback becomes coin flips and quality degrades.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s22-6"><button class="cram-q" type="button">Why random over truncated latent sampling?</button><div class="cram-a"><p>Diversity matters for faces; truncation buys realism at diversity&#x27;s cost.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s22-7"><button class="cram-q" type="button">Which metric is lower-is-better?</button><div class="cram-a"><p>FID — Fréchet distance between real and generated feature distributions.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s22.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="23">
+<summary><span class="cs-num">23</span> High-Resolution Image Synthesis<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="23"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Requirements: 5M natural-scene images, unconditional generation, 1024²–2048² output, ~5 s per image — not real-time.</li><li>Latency math picks the model: pixel-level autoregression is O(N²) (~1M steps at 1024²) and diffusion is O(T·N²) (minutes); chunk tokens at 64×64 px/token cut it to 256 steps — seconds.</li><li>VQ-VAE tokenizer: CNN encoder → nearest-neighbor codebook quantizer → transposed-conv decoder; discrete latents kill posterior collapse and shrink the prediction space to k tokens.</li><li>Stage I losses weighted: reconstruction (MSE) + quantization (stop-gradient) + perceptual (VGG features) + adversarial (patch-based); MSE-only shows artifacts at high res.</li><li>Nearest-neighbor lookup has no gradient — straight-through gradient copies decoder gradients to the encoder.</li><li>Two independently trained models composed at inference: tokenizer (reconstruction) + generator (decoder-only Transformer, next-token cross-entropy over cached sequences).</li><li>Serving mirrors the split: generation service, decoding service (encoder never ships), 2× super-resolution (RCAN/ESRGAN) for 2048²; gate on quality plus time and cost per image.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s23-1"><button class="cram-q" type="button">Why autoregressive over diffusion here?</button><div class="cram-a"><p>Chunked AR is 256 token steps (seconds); diffusion is O(T·N²) with more steps at high res — minutes.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s23-2"><button class="cram-q" type="button">What is posterior collapse and the fix?</button><div class="cram-a"><p>A powerful decoder ignores its latents at high res; discrete codebook tokens force it to use them.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s23-3"><button class="cram-q" type="button">Name the four Stage I tokenizer losses.</button><div class="cram-a"><p>Reconstruction, quantization, perceptual, adversarial — pixel fidelity, codebook commitment, features, realism.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s23-4"><button class="cram-q" type="button">How do gradients flow through the quantizer?</button><div class="cram-a"><p>Straight-through — nearest-neighbor has no gradient, so decoder gradients copy to the encoder.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s23-5"><button class="cram-q" type="button">Token math for 1024×1024?</button><div class="cram-a"><p>64×64 px per token → 256 sequential generation steps.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s23-6"><button class="cram-q" type="button">Why split generation and decoding services?</button><div class="cram-a"><p>Distinct computational profiles and latencies — each scales independently.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s23-7"><button class="cram-q" type="button">How is 2048² served?</button><div class="cram-a"><p>Generate at 1024², then a pretrained 2× super-resolution upscaler (RCAN/ESRGAN).</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s23.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="24">
+<summary><span class="cs-num">24</span> Text-to-Image Generation<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="24"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Requirements drive decisions: 1024×1024, ~500M pairs, ≤128-word prompts, ~10 s SLA, broad scope, fairness and safety.</li><li>Diffusion over autoregressive: AR simpler to train, diffusion wins fine detail plus a sampling-steps dial — pay implementation complexity for quality.</li><li>Training is four steps: sample t from 1..1000, closed-form noise to x_t, condition on text + timestep, predict the noise ε (not x₀) with MSE loss.</li><li>U-Net vs DiT: cross-attention is the steering layer — queries from image features, keys/values from text-encoder (CLIP/T5) embeddings.</li><li>Sampling&#x27;s two fixes: classifier-free guidance buys prompt adherence; DDIM cuts 1,000 steps to ~20 for the latency budget.</li><li>Data curation is where quality comes from: dedup, NSFW/aesthetic filters, CLIP-gated captions with BLIP-3 recaptioning.</li><li>Serve gated twice — prompt safety before compute, harm detection after generation — with a 64→256→1024 super-resolution cascade; watch average cost per user per month (re-rolling seeds burns GPU money).</li></ul><div class="cram-cards"><div class="cram-card" data-id="s24-1"><button class="cram-q" type="button">Why diffusion over autoregressive for text-to-image?</button><div class="cram-a"><p>Superior fine detail plus a tunable sampling-steps dial — complexity traded for quality.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s24-2"><button class="cram-q" type="button">What does the model predict during training?</button><div class="cram-a"><p>The noise ε, not the clean image x₀ — predicting x₀ underperforms.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s24-3"><button class="cram-q" type="button">How does the prompt steer denoising?</button><div class="cram-a"><p>Cross-attention — queries from image features, keys/values from text-encoder embeddings.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s24-4"><button class="cram-q" type="button">Name the two sampling fixes.</button><div class="cram-a"><p>Classifier-free guidance for prompt adherence; DDIM cuts steps from 1,000 to ~20.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s24-5"><button class="cram-q" type="button">Why cascade super-resolution?</button><div class="cram-a"><p>Diffusion can&#x27;t generate high resolution directly — train low, upscale 64→256→1024.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s24-6"><button class="cram-q" type="button">Why two safety gates?</button><div class="cram-a"><p>Prompt filtering before compute misses model-generated harm — output harm detection catches it after generation.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s24-7"><button class="cram-q" type="button">Which online metric reveals hidden dissatisfaction?</button><div class="cram-a"><p>Average cost per user per month — unhappy users re-roll seeds, compounding compute spend.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s24.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="25">
+<summary><span class="cs-num">25</span> Personalized Headshot Generation<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="25"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Requirements: 10–20 uploads, 1024×1024, 50 headshots per user, async &lt;1 hour, no user prompts, identity fidelity critical.</li><li>Tuning-based over tuning-free: identity preservation is the product; per-user models with richer detail from 10–20 images vs one reference image.</li><li>Method scorecard: textual inversion low effectiveness (one token embedding), LoRA low-rank delta at MB storage, DreamBooth full-parameter finetune — highest identity, GB storage, ~15 min.</li><li>DreamBooth fits here: 15-min finetune inside the SLA; models discarded after delivery, so the GB-per-subject cost never accrues.</li><li>Rare-token identifier <code>[V]</code>: common words carry meanings to overwrite, random strings fragment — rare tokens are distinct yet cohesive.</li><li>Loss = α × reconstruction + β × class-specific prior preservation, plus generic &quot;a person&quot; faces in training — learn the instance without destroying the class.</li><li>Quality gate is a face-recognition model: CLIP scores text alignment, DINO fine visual detail, but neither measures identity; failed generations retry with a new seed.</li></ul><div class="cram-cards"><div class="cram-card" data-id="s25-1"><button class="cram-q" type="button">Why tuning-based over tuning-free?</button><div class="cram-a"><p>Identity preservation is the product — 10–20 images give richer identity than one reference image.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s25-2"><button class="cram-q" type="button">Rank the three methods by identity fidelity.</button><div class="cram-a"><p>DreamBooth (full finetune) &gt; LoRA (low-rank delta) &gt; textual inversion (one token embedding).</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s25-3"><button class="cram-q" type="button">Why DreamBooth despite GB-per-subject storage?</button><div class="cram-a"><p>15-min finetune fits the &lt;1h async SLA and models are discarded after the 50 headshots.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s25-4"><button class="cram-q" type="button">Why a rare token instead of a common word?</button><div class="cram-a"><p>Common words carry meanings the model must overwrite; rare tokens are distinct yet tokenizer-cohesive.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s25-5"><button class="cram-q" type="button">Name the two DreamBooth losses.</button><div class="cram-a"><p>Reconstruction on &quot;[V] person&quot; plus class-specific prior preservation on &quot;a person&quot;.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s25-6"><button class="cram-q" type="button">Why add generic face images to training?</button><div class="cram-a"><p>Prevents overfitting to one identity and forgetting the generic face class.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s25-7"><button class="cram-q" type="button">Why isn&#x27;t CLIP enough for identity?</button><div class="cram-a"><p>CLIP/DINO score semantics and detail, not identity — a face recognition model closes the gap.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s25.html">open section →</a></div>
+</details><details class="cram-sec" open data-sec="26">
+<summary><span class="cs-num">26</span> Text-to-Video Generation<span class="cram-stat"></span><label class="cram-check"><input type="checkbox" data-review="26"> reviewed</label></summary>
+<div class="cram-body"><ul class="cram-tldr"><li>Requirements: 5-second 720p (1280×720) at 24 FPS silent videos, minutes of latency acceptable, ~100M video–caption pairs, &gt;6000 H100s.</li><li>The multiplier drives everything: 5 s × 24 FPS = 120 frames; pixel-space diffusion ≈ 7 minutes per video on an H100.</li><li>LDM is the enabling trick: VAE compresses 8× spatial and 8× temporal — 512× fewer values to denoise.</li><li>Precompute and cache latents (~200 TB for 100M videos): per-step VAE encoding would stall every training iteration; re-caption with LLaMa3-Video/LLaVA for alignment.</li><li>DiT over U-Net for new builds: 3D patchify, Transformer scaling with data + compute — Sora and Movie Gen both chose it.</li><li>Evaluate three axes: frame quality (FID/IS — blind to motion), temporal consistency (FVD, lower-better, over I3D features), alignment (CLIP similarity) + pairwise human votes.</li><li>Serve with double safety gates (prompt filter before, harm detector after) and restore quality with spatial SR (to 720p) + temporal SR (12→24 FPS).</li></ul><div class="cram-cards"><div class="cram-card" data-id="s26-1"><button class="cram-q" type="button">Why latent diffusion for video?</button><div class="cram-a"><p>VAE compresses 8× spatial and 8× temporal — 512× smaller, making training and inference affordable.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s26-2"><button class="cram-q" type="button">Pixel-space cost of a 5s 720p video?</button><div class="cram-a"><p>~7 minutes per video on an H100 — 120 frames at 3.6× image pixels.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s26-3"><button class="cram-q" type="button">Why precompute and cache latents?</button><div class="cram-a"><p>Per-step VAE encoding stalls training — ~200 TB cache for 100M videos buys it back.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s26-4"><button class="cram-q" type="button">Why DiT over U-Net for video?</button><div class="cram-a"><p>3D patchify with Transformer scaling and modality flexibility — Sora and Movie Gen chose it.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s26-5"><button class="cram-q" type="button">How do you handle scarce video–text pairs?</button><div class="cram-a"><p>Fold images in as single-frame videos — one joint training stage.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s26-6"><button class="cram-q" type="button">Which metric catches flicker?</button><div class="cram-a"><p>FVD — Fréchet distance over I3D features; FID/IS score frames and miss motion.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div><div class="cram-card" data-id="s26-7"><button class="cram-q" type="button">Name the two super-resolution stages.</button><div class="cram-a"><p>Spatial SR restores 720p; temporal SR interpolates 12 FPS to 24 FPS.</p><button class="grade-btn g-good cram-know" type="button">Known ✓</button></div></div></div><a class="cram-open" href="s26.html">open section →</a></div>
+</details></section>
+  </main>
+</div>
+<script>
+// theme
+const root=document.documentElement;
+const stored=localStorage.getItem('vp-theme');
+const prefersDark=matchMedia('(prefers-color-scheme: dark)').matches;
+if(stored==='dark'||(!stored&&prefersDark)){root.classList.add('dark')}
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  root.classList.toggle('dark');
+  localStorage.setItem('vp-theme',root.classList.contains('dark')?'dark':'light');
+  setTimeout(()=>location.reload(),60);
+});
+document.getElementById('menuBtn')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.querySelectorAll('.sidebar-link,.pw-link').forEach(a=>a.addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open')));
+// copy buttons + ascii class
+document.querySelectorAll('.vp-doc pre').forEach(pre=>{
+  const code=pre.querySelector('code');
+  const m=/language-(\w+)/.exec(code?code.className:'');
+  if(m&&m[1]==='text')pre.classList.add('ascii');
+  const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+  btn.onclick=e=>{e.stopPropagation();navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)};
+  pre.appendChild(btn);
+});
+// wrap tables for scroll
+document.querySelectorAll('.vp-doc table').forEach(t=>{
+  const heads=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());
+  t.querySelectorAll('tbody td').forEach((td,i)=>{td.dataset.th=heads[i%heads.length]||''});
+  const w=document.createElement('div');w.className='table-wrap';
+  t.parentNode.insertBefore(w,t);w.appendChild(t);
+});
+// scrollspy outline
+const heads=[...document.querySelectorAll('.vp-doc h2,.vp-doc h3')];
+const outLinks={};document.querySelectorAll('.outline-link').forEach(a=>outLinks[a.getAttribute('href')]=a);
+function spy(){
+  let cur=null;
+  for(const h of heads){if(h.getBoundingClientRect().top<=100)cur=h;else break}
+  for(const k in outLinks)outLinks[k].classList.remove('active');
+  if(cur&&outLinks['#'+cur.id])outLinks['#'+cur.id].classList.add('active');
+  else if(!cur&&outLinks['#'])outLinks['#'].classList.add('active');
+}
+addEventListener('scroll',spy,{passive:true});spy();
+// progress tracking (localStorage set of section indices)
+const PROGRESS_KEY='ldp-visited';
+const visited=new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]'));
+function saveVisited(){localStorage.setItem(PROGRESS_KEY,JSON.stringify([...visited]))}
+function paintProgress(){
+  document.querySelectorAll('.vm-node,.pw-item').forEach(n=>{
+    const i=+n.dataset.n;
+    n.classList.toggle('done',visited.has(i));
+  });
+  // current = first unvisited node (path) or explicit current page
+  const cur=document.querySelector('.pw-item.current');
+  if(!cur){
+    for(let i=0;i<document.querySelectorAll('.vm-node').length;i++){if(!visited.has(i)){const n=document.querySelector(`.vm-node[data-n="${i}"]`);if(n)n.classList.add('current');break}}
+  }
+  const pct=document.getElementById('vmProgress');if(pct)pct.textContent=visited.size+' / '+document.querySelectorAll('.vm-node').length;
+  const p2=document.getElementById('vmProgress2');if(p2)p2.textContent=visited.size+' / '+document.querySelectorAll('.pw-item').length;
+}
+// section page: auto-mark visited + mark-as-read toggle
+const secIdx=document.body.dataset.section;
+if(secIdx!==undefined){
+  visited.add(+secIdx);saveVisited();
+  const item=document.querySelector(`.pw-item[data-n="${secIdx}"]`);if(item)item.classList.add('current');
+  const btn=document.getElementById('markDone');
+  if(btn){
+    const paint=()=>{btn.classList.toggle('done',visited.has(+secIdx));btn.textContent=visited.has(+secIdx)?'✓ Section done — nice':'Mark section as done'};
+    btn.onclick=()=>{visited.has(+secIdx)?visited.delete(+secIdx):visited.add(+secIdx);saveVisited();paint();paintProgress()};
+    paint();
+  }
+}
+paintProgress();
+// vmap popovers: click toggles card; Go link navigates
+const vmNodes=[...document.querySelectorAll('.vm-node')];
+vmNodes.forEach(n=>{
+  const b=n.querySelector('.vm-btn');
+  b.addEventListener('click',e=>{
+    if(n.classList.contains('open'))return; // second tap follows link
+    e.preventDefault();
+    e.stopPropagation();
+    vmNodes.forEach(m=>{if(m!==n)m.classList.remove('open')});
+    n.classList.add('open');
+  });
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
+// diagram zoom lightbox
+const lb=document.createElement('div');lb.className='lb';
+lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
+document.body.appendChild(lb);
+const lbVp=lb.querySelector('.lb-vp'),lbImg=lb.querySelector('.lb-img'),lbPct=lb.querySelector('.lb-pct');
+let lbW=0,lbZoom=1;
+const lbSteps=[0.25,0.5,0.75,1,1.5,2,3,4];
+function lbSet(z){lbZoom=z;lbImg.style.width=(lbW*z)+'px';lbPct.textContent=Math.round(z*100)+'%'}
+lbImg.onload=()=>{lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)};
+document.querySelectorAll('.dg-png img').forEach(img=>img.addEventListener('click',e=>{
+  e.stopPropagation();
+  lbImg.src=img.src;
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(lbImg.complete&&lbImg.naturalWidth){lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)}
+}));
+function lbClose(){lb.classList.remove('open');document.body.style.overflow=''}
+lbVp.addEventListener('click',e=>{if(e.target===lbVp)lbClose()});
+lb.querySelectorAll('.lb-bar button').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();const a=b.dataset.z;
+  if(a==='close')return lbClose();
+  if(a==='reset')return lbSet(1);
+  const dz=parseFloat(a),n=lbSteps.filter(s=>dz>1?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(dz>1?(n[0]||4):(n[n.length-1]||0.25));
+}));
+lbVp.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();
+  const n=lbSteps.filter(s=>e.deltaY<0?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(e.deltaY<0?(n[0]||4):(n[n.length-1]||0.25));},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  if(e.key==='+'||e.key==='='){const n=lbSteps.find(s=>s>lbZoom+0.01);lbSet(n||4)}
+  if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
+  if(e.key==='0')lbSet(1);
+});
+// === scenario engine ===
+const SC_FONT_OK=document.fonts?document.fonts.load('16px Excalifont'):Promise.resolve();
+const SK_ID='scSketch';
+function scLayout(d,W){
+  // ranks: BFS depth from start; loop edges (dst already seen at insert) excluded
+  const adj={};d.nodes.forEach(n=>adj[n.id]=[]);
+  d.edges.forEach(e=>{if(!e.loop&&e.src)adj[e.src].push(e)});
+  const depth={};const q=[d.start];depth[d.start]=0;
+  while(q.length){const u=q.shift();(adj[u]||[]).forEach(e=>{if(depth[e.dst]===undefined){depth[e.dst]=depth[u]+1;q.push(e.dst)}})}
+  d.nodes.forEach(n=>{if(depth[n.id]===undefined)depth[n.id]=Object.keys(depth).length}); // unreachable → tail
+  const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
+  // measure
+  const cv=document.createElement('canvas').getContext('2d');
+  cv.font='18px Excalifont';
+  const pos={};
+  const ROWH=162,PAD=60;
+  Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(160,cv.measureText(d.nodes.find(n=>n.id===id).label).width+64));
+    const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
+    let x=Math.max(PAD,(W-total)/2);
+    ids.forEach((id,i)=>{pos[id]={x:x,y:64+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
+  });
+  const maxY=64+Math.max(...Object.values(depth))*ROWH+110;
+  return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
+}
+function scPath(a,b){ // cubic connector bottom->top
+  const x1=a.x+a.w/2,y1=a.y+a.h,x2=b.x+b.w/2,y2=b.y;
+  const dy=Math.max(24,(y2-y1)*0.45);
+  return `M${x1} ${y1} C${x1} ${y1+dy} ${x2} ${y2-dy} ${x2} ${y2}`;
+}
+const NS='http://www.w3.org/2000/svg';
+function mountScenario(div,d,idx){
+  if(!d.start||!d.nodes.length){console.warn('scenario: empty payload, skipping mount',idx);return;}
+  const body=div.querySelector('.sc-body'),cap=div.querySelector('.sc-cap'),
+        ch=div.querySelector('.sc-choices');
+  const W=Math.min(1100,body.clientWidth||900);
+  const L=scLayout(d,W);
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('class','sc-svg');svg.setAttribute('viewBox',`0 0 ${L.W} ${L.H}`);
+  svg.setAttribute('width',L.W);svg.setAttribute('height',L.H);
+  svg.innerHTML=`<defs>
+   <filter id="${SK_ID}${idx}"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
+   <marker id="scA${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#1e3a5f"/></marker>
+   <marker id="scAg${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#047857"/></marker>
+   <marker id="scAr${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#dc2626"/></marker>
+  </defs>`;
+  const kindOf=id=>{
+    const out=d.edges.filter(e=>e.src===id&&e.choice).length;
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
+    const inbound=d.edges.find(e=>e.dst===id&&e.kind)||d.edges.find(e=>e.dst===id);
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
+  const el={};
+  // edges first (under nodes)
+  d.edges.forEach((e,i)=>{
+    if(!e.src||!L.pos[e.src]||!L.pos[e.dst])return;
+    const p=document.createElementNS(NS,'path');
+    const a=L.pos[e.src],b=L.pos[e.dst];
+    let dstr;
+    if(e.loop||b.y<=a.y){ // back-edge: route right margin
+      const rx=L.W-24;
+      dstr=`M${a.x+a.w} ${a.y+a.h/2} C${rx} ${a.y} ${rx} ${b.y} ${b.x+b.w} ${b.y+b.h/2}`;
+      p.setAttribute('stroke-dasharray','7 5');
+    } else dstr=scPath(a,b);
+    p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
+    const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2.5');
+    p.setAttribute('data-k',ekind);
+    p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
+    p.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
+    if(e.label){const t=document.createElementNS(NS,'text');
+      const mx=a.x+a.w/2+(b.x+b.w/2-(a.x+a.w/2))*0.3,my=a.y+a.h+(b.y-a.y-a.h)*0.32-8;
+      t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
+      t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
+  });
+  d.nodes.forEach(n=>{
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
+    r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
+    r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','18');
+    t.setAttribute('fill','#1f2937');
+    // wrap label into ≤2 tspans
+    const words=n.label.split(' ');const lines=['',''];let li=0;
+    words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
+    lines.forEach((ln,i)=>{if(!ln)return;const ts=document.createElementNS(NS,'tspan');
+      ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
+      if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
+  });
+  body.appendChild(svg);
+  // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
+  let cur=null;const visited=new Set();
+  function paint(){
+    d.nodes.forEach(n=>{const c=el[n.id];
+      c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
+      c.r.setAttribute('stroke-width',n.id===cur?4:2.5);});
+    svg.querySelectorAll('.sc-edge').forEach(p=>{
+      const e=d.edges[+p.dataset.ei];
+      const on=visited.has(e.src)&&visited.has(e.dst);
+      p.style.opacity=on?1:.3;});
+    svg.querySelectorAll('.sc-edge-lbl').forEach(t=>{
+      const e=d.edges[+t.dataset.ei];
+      t.style.opacity=(visited.has(e.src)&&visited.has(e.dst))?1:.35;});
+  }
+  function enter(id){
+    cur=id;visited.add(id);
+    const n=d.nodes.find(n=>n.id===id);
+    cap.textContent=n.cap;
+    ch.innerHTML='';
+    d.edges.filter(e=>e.src===id&&e.choice).forEach(e=>{
+      const b=document.createElement('button');b.className='sc-btn'+(e.kind==='success'?' ok':e.kind==='fail'?' bad':'');
+      b.textContent='? '+e.label;b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    const nx=d.edges.filter(e=>e.src===id&&!e.choice&&!e.loop);
+    nx.forEach(e=>{const b=document.createElement('button');b.className='sc-btn';b.textContent='→ '+(e.label||'continue');b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    if(!d.edges.some(e=>e.src===id&&!e.loop)){const s=document.createElement('div');
+      s.className='sc-cap';s.style.marginTop='6px';
+      const win=n.cap;s.style.color='#047857';s.textContent='◼ outcome — '+win;ch.appendChild(s);}
+    paint();
+  }
+  div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
+  div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
+    d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.title=hlMode?'Highlight on — tap nodes':'Highlight'};
+  // zoom controls
+  // free-canvas pan/zoom (transform on svg inside clipped .sc-body)
+  const zPct=div.querySelector('[data-a="zpct"]');
+  let tx=0,ty=0,sc=1;
+  const apply=()=>{svg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+    if(zPct)zPct.textContent=Math.round(sc*100)+'%';};
+  const fit=()=>{const cw=body.clientWidth;
+    sc=Math.min(cw/L.W,1);tx=(cw-L.W*sc)/2;ty=16;apply();};
+  const zAt=(f,px,py)=>{const ns=Math.min(3,Math.max(.3,sc*f));
+    tx=px-(px-tx)*(ns/sc);ty=py-(py-ty)*(ns/sc);sc=ns;apply();};
+  const local=e=>{const r=body.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
+  if(zi)zi.onclick=()=>zAt(1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zo)zo.onclick=()=>zAt(1/1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zPct)zPct.onclick=fit;
+  // pointer pan + pinch
+  const ptrs=new Map();let pinched=false,moved=false;
+  body.addEventListener('pointerdown',e=>{
+    if(e.button!==0||hlMode)return;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    moved=false;if(ptrs.size>1)pinched=true;});
+  body.addEventListener('pointermove',e=>{
+    if(!ptrs.has(e.pointerId))return;
+    if(ptrs.size===2){const a=[...ptrs.entries()];const [id1,p1]=a[0],[id2,p2]=a[1];
+      const oldD=Math.hypot(p2.x-p1.x,p2.y-p1.y),oldM=[(p1.x+p2.x)/2,(p1.y+p2.y)/2];
+      ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const n1=ptrs.get(id1),n2=ptrs.get(id2);
+      const newD=Math.hypot(n2.x-n1.x,n2.y-n1.y),newM=[(n1.x+n2.x)/2,(n1.y+n2.y)/2];
+      const r=body.getBoundingClientRect();
+      tx+=newM[0]-oldM[0];ty+=newM[1]-oldM[1];
+      if(oldD)zAt(newD/oldD,newM[0]-r.left,newM[1]-r.top);
+      apply();return;}
+    const p=ptrs.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(Math.abs(dx)+Math.abs(dy)>0){tx+=dx;ty+=dy;
+      if(!moved){moved=true;body.classList.add('dragging');
+        try{body.setPointerCapture(e.pointerId)}catch(_){}}
+      apply();}});
+  const pEnd=e=>{ptrs.delete(e.pointerId);
+    if(ptrs.size===0){pinched=false;
+      if(moved)svg.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();},{capture:true,once:true});
+      moved=false;body.classList.remove('dragging');}};
+  body.addEventListener('pointerup',pEnd);
+  body.addEventListener('pointercancel',pEnd);
+  body.addEventListener('wheel',e=>{e.preventDefault();
+    if(e.ctrlKey||e.metaKey){const [px,py]=local(e);zAt(Math.pow(1.0015,-e.deltaY),px,py);
+    }else{tx-=e.deltaX;ty-=e.deltaY;apply();}},{passive:false});
+  fit();
+  enter(d.start);
+}
+SC_FONT_OK.then(()=>{
+  document.querySelectorAll('.scenario').forEach((dv,i)=>{
+    const data=JSON.parse(dv.querySelector('.sc-json').textContent);
+    mountScenario(dv,data,i);
+  });
+});
+// glossary term popups
+function closeTerm(){document.querySelectorAll('.term-pop').forEach(p=>p.remove())}
+function showTerm(el){
+  closeTerm();
+  const t=el.dataset.term, d=(window.STUDY_TERMS||{})[t]; if(!d) return;
+  const p=document.createElement('div'); p.className='term-pop';
+  const secs=(window.STUDY_TERMREFS||{})[t]||[];
+  p.innerHTML=`<b>${t}</b><p>${d}</p>`+(secs.length>1?`<div class="tp-links">Seen in: ${secs.map(s=>`<a href="s${String(s).padStart(2,'0')}.html">${s}</a>`).join(' · ')}</div>`:'');
+  document.body.appendChild(p);
+  const r=el.getBoundingClientRect(), w=Math.min(340,innerWidth-24);
+  p.style.width=w+'px';
+  p.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+scrollX+'px';
+  p.style.top=(r.bottom+8+scrollY)+'px';
+}
+document.addEventListener('click',e=>{const t=e.target.closest('.term'); t?showTerm(t):closeTerm()});
+if(matchMedia('(hover:hover)').matches){
+  document.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(t)showTerm(t)});
+}
+
+// ---- study scheduler (SM-2 lite) ----
+const SCHED_KEY='study-sched';
+function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){try{localStorage.setItem(SCHED_KEY,'{}')}catch(_){}return{}}}
+function schedSave(o){localStorage.setItem(SCHED_KEY,JSON.stringify(o))}
+function schedGrade(id,g){
+  const o=schedAll(),c=o[id]||{e:2.3,iv:0};
+  if(g==='again'){c.e=Math.max(1.3,c.e-0.15);c.iv=10/1440;}
+  else if(g==='hard'){c.e=Math.max(1.3,c.e-0.05);c.iv=1;}
+  else if(g==='easy'){c.e=Math.min(2.8,c.e+0.1);c.iv=Math.max(c.iv*c.e,1)*1.3;}
+  else{c.iv=c.iv<1?1:c.iv*c.e;}
+  c.due=Date.now()+c.iv*864e5;
+  o[id]=c;schedSave(o);return c;
+}
+function dueList(all){const o=schedAll(),now=Date.now();return all.filter(c=>!(c.id in o)||o[c.id].due<=now);}
+function mastery(sec){const all=window.STUDY_ALL_CARDS||[],o=schedAll();
+  const mine=all.filter(c=>c.sec===sec),st=mine.filter(c=>c.id in o);
+  const mat=st.filter(c=>o[c.id].iv>=4);
+  return {studied:st.length,total:mine.length,mature:mat.length,pct:mine.length?Math.round(100*mat.length/mine.length):0};}
+// ---- flipcards ----
+function initFlipcards(root){
+  root.querySelectorAll('.flipcard').forEach(fc=>{
+    fc.addEventListener('click',e=>{if(e.target.closest('.grade-btn'))return;fc.classList.toggle('flipped');});
+    fc.addEventListener('graded',e=>schedGrade(fc.dataset.id,e.detail));
+  });
+  root.querySelectorAll('.grade-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const fc=b.closest('.flipcard');if(!fc)return;
+    fc.dispatchEvent(new CustomEvent('graded',{detail:b.dataset.g,bubbles:true}));
+    fc.classList.add('gone');setTimeout(()=>fc.remove(),200);
+  }));
+}
+document.addEventListener('keydown',e=>{
+  if(!/^[1-4]$/.test(e.key)&&e.key!==' ')return;
+  const fc=document.querySelector('.flipcard.flipped');if(!fc)return;
+  e.preventDefault();
+  if(e.key===' ')fc.classList.remove('flipped');
+  else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
+});
+initFlipcards(document);
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const isDark=document.documentElement.classList.contains('dark');
+mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
+const els=document.querySelectorAll('.mermaid');
+for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+</script>
+<script>window.STUDY_ALL_CARDS=[{"id":"s01-1","sec":1,"q":"What replaces coding puzzles in the internal A3 assessment?","a":"A committee defense of your real project work, scored against the competency matrix."},{"id":"s01-2","sec":1,"q":"Name the 5-part structure for presenting your project.","a":"Problem, constraints, 2–3 design options with tradeoffs, chosen design rationale, measured outcome."},{"id":"s01-3","sec":1,"q":"Who gates the assessment attempt?","a":"Your manager (sponsorship) plus a readiness review."},{"id":"s01-4","sec":1,"q":"What is the single biggest defense mistake?","a":"Describing team achievements with \"we\" and never owning a decision with \"I\"."},{"id":"s02-1","sec":2,"q":"What do window functions do that GROUP BY cannot?","a":"Keep every row while computing a value over a related frame — no collapse."},{"id":"s02-2","sec":2,"q":"Name the canonical dedup pattern for latest record per key.","a":"`ROW_NUMBER() OVER (PARTITION BY key ORDER BY ts DESC, id DESC)`, keep rn=1."},{"id":"s02-3","sec":2,"q":"RANK vs DENSE_RANK on scores 100, 100, 90?","a":"RANK: 1,1,3 with gaps; DENSE_RANK: 1,1,2 without."},{"id":"s02-4","sec":2,"q":"Why are aggregates illegal in WHERE?","a":"WHERE filters rows before grouping; group-level filters belong in HAVING."},{"id":"s02-5","sec":2,"q":"What silently turns a LEFT JOIN into an INNER JOIN?","a":"A WHERE predicate on the right table's column — move it into ON."},{"id":"s02-6","sec":2,"q":"What does a 1.1x duplicate join key do to a revenue SUM?","a":"Fans out rows and silently doubles the total."},{"id":"s02-7","sec":2,"q":"How do you stop CTE recomputation?","a":"Snowflake: `WITH t AS MATERIALIZED`; Spark: `CACHE TABLE` to pin intermediates."},{"id":"s03-1","sec":3,"q":"File won't fit in memory — expected plain-Python answer?","a":"Stream it with a generator: yield, don't return."},{"id":"s03-2","sec":3,"q":"When do you choose PySpark over pandas?","a":"Over ~10 GB, multi-file/Parquet input, cross-dataset joins, or explicit distribution requirements."},{"id":"s03-3","sec":3,"q":"Name two causes of driver OOM.","a":"`collect()` and `toPandas()` pulling full results into driver RAM (also oversized `take()`)."},{"id":"s03-4","sec":3,"q":"Name three causes of executor OOM.","a":"One giant partition (skew), `repartition(1)` before a heavy stage, cache without MEMORY_AND_DISK."},{"id":"s03-5","sec":3,"q":"Relative cost of native vs pandas vs Python UDFs?","a":"Native 1×; pandas UDFs ~2–5× via Arrow batches; Python UDFs ~10×+."},{"id":"s03-6","sec":3,"q":"How do you fix a skewed groupBy?","a":"Salt the hot key into N buckets and aggregate in two stages; or let AQE split skewed partitions."},{"id":"s03-7","sec":3,"q":"When is cache() justified?","a":"Only when a DataFrame is reused ≥2× — persist MEMORY_AND_DISK, then unpersist."},{"id":"s04-1","sec":4,"q":"When does CAP actually force a choice?","a":"Only during a network partition — before that you get both consistency and availability."},{"id":"s04-2","sec":4,"q":"State the quorum rule and what it guarantees.","a":"R + W \u003e N forces read/write overlap so reads see the newest write; W \u003e N/2 prevents split-brain."},{"id":"s04-3","sec":4,"q":"Availability of W=3/R=3 vs W=1/R=5 on N=5?","a":"99.1% on both paths vs ~99.999% writes and 59.0% reads."},{"id":"s04-4","sec":4,"q":"Why are duplicate deliveries guaranteed?","a":"Retries are mandatory, so delivery is at-least-once — duplicates are normal, not exceptional."},{"id":"s04-5","sec":4,"q":"What does \"exactly-once\" actually mean?","a":"Effectively-once end-to-end: idempotent producer, transactional offsets, and a sink participating in commit."},{"id":"s04-6","sec":4,"q":"Why do windows close on event time + watermarks?","a":"Wall clocks lie across machines; event time plus watermarks make closes deterministic despite disorder."},{"id":"s04-7","sec":4,"q":"Why is 2PC a poor fit across services?","a":"It blocks — a crashed coordinator leaves locks held; use sagas with compensating transactions."},{"id":"s05-1","sec":5,"q":"What does the ingestion layer do?","a":"Only transport — no business logic; the choices are pull vs push and full vs incremental."},{"id":"s05-2","sec":5,"q":"Why is log-based CDC the OLTP default?","a":"Captures hard deletes at minimal source overhead with seconds latency; polling misses deletes, triggers slow every write."},{"id":"s05-3","sec":5,"q":"What belongs in bronze?","a":"An immutable, append-only raw copy plus ingest metadata — replay insurance, never edited downstream."},{"id":"s05-4","sec":5,"q":"What happens to rows failing the silver quality gate?","a":"Quarantined with reason and lineage — gold stays clean; fix upstream and replay."},{"id":"s05-5","sec":5,"q":"Name the #1 data-modeling question.","a":"Declare the grain — e.g. \"one row per order line.\""},{"id":"s05-6","sec":5,"q":"Why does SCD2 preserve as-of analytics?","a":"The fact's surrogate FK pins it to the dimension version true at event time — expire + insert in one transaction."},{"id":"s05-7","sec":5,"q":"Name the data-observability pillars.","a":"Freshness, volume, schema, distribution, lineage."},{"id":"s06-1","sec":6,"q":"What is the real batch-vs-streaming tradeoff?","a":"Latency vs reprocessing/state cost — never throughput."},{"id":"s06-2","sec":6,"q":"Latency floors of micro-batch vs true streaming?","a":"Spark Structured Streaming ~500 ms; Flink/Kafka Streams 10–100 ms."},{"id":"s06-3","sec":6,"q":"Define the watermark.","a":"W = maxObservedEventTime − allowedLateness — a monotonic promise; the window emits when W passes its end."},{"id":"s06-4","sec":6,"q":"Why can one idle partition freeze all windows?","a":"W is the min across partitions, so a stalled source stalls watermark progress everywhere."},{"id":"s06-5","sec":6,"q":"What happens to an event later than allowed lateness?","a":"Side output or dead-letter queue; within lateness, re-accumulate and re-fire as a retraction."},{"id":"s06-6","sec":6,"q":"Fraud SLA under 5 s — batch or streaming?","a":"True streaming; an hourly dashboard gets cheap batch, in between micro-batch."},{"id":"s06-7","sec":6,"q":"Name the three layers that must align for exactly-once.","a":"Replayable source, exactly-once checkpointed state, transactional or idempotent sink."},{"id":"s07-1","sec":7,"q":"Why did data lakes fail?","a":"Structurally — no atomic commits, schema enforcement, compaction, or governance; the swamp, not bad engineers."},{"id":"s07-2","sec":7,"q":"Name the layers that compose a lakehouse.","a":"Open Parquet files + transactional table format + object storage + catalog — any engine on top."},{"id":"s07-3","sec":7,"q":"How does Snowflake prune without user partition keys?","a":"~16 MB micro-partitions carry automatic min/max metadata for pruning."},{"id":"s07-4","sec":7,"q":"What did cloud DWs trade away?","a":"Openness — proprietary formats, and lake + warehouse means two copies of data plus lock-in."},{"id":"s07-5","sec":7,"q":"When does ETL still beat ELT?","a":"At trust boundaries: PII masking before load and cross-region compliance."},{"id":"s07-6","sec":7,"q":"Auto-suspend or always-on — the utilization rule?","a":"Under 30% → per-second auto-suspend; over 60% sustained → always-on or reserved."},{"id":"s07-7","sec":7,"q":"What is data mesh, honestly?","a":"An org model for ownership — centralize the substrate, decentralize product ownership."},{"id":"s08-1","sec":8,"q":"Deepest architectural difference between the platforms?","a":"Storage ownership: Snowflake bundles it; Databricks keeps your lake as source of truth in your bucket."},{"id":"s08-2","sec":8,"q":"Why did Databricks SQL become competitive?","a":"Photon — C++ vectorized execution over Delta."},{"id":"s08-3","sec":8,"q":"How do the billing models differ?","a":"Credits bundle IaaS with 60 s minimum; DBUs stack on top of the underlying VM bill."},{"id":"s08-4","sec":8,"q":"Cost of all-purpose vs jobs DBU misclassification?","a":"About 3× — $0.55 vs $0.15 per DBU."},{"id":"s08-5","sec":8,"q":"Contrast the lock-in shapes.","a":"Snowflake locks data gravity; Databricks locks workflows — the data stays in your bucket."},{"id":"s08-6","sec":8,"q":"How should you treat vendor benchmarks?","a":"They contradict by workload shape — run a 2-week PoC on your schemas and query mix."},{"id":"s08-7","sec":8,"q":"Neutral layer for sharing data between both engines?","a":"Iceberg tables plus one REST catalog — Open Catalog/Polaris or Unity."},{"id":"s09-1","sec":9,"q":"What does a table format add over bare Parquet?","a":"Atomic commits, updates/deletes, schema/partition evolution, and pruning metadata over immutable files."},{"id":"s09-2","sec":9,"q":"Describe Delta's metadata structure.","a":"One `_delta_log` of JSON commits with a Parquet checkpoint every 10th commit."},{"id":"s09-3","sec":9,"q":"Walk the Iceberg metadata tree.","a":"Catalog CAS pointer → metadata.json → manifest list → manifests → data files, pruned at each level."},{"id":"s09-4","sec":9,"q":"What is Iceberg hidden partitioning?","a":"Transforms like `days(ts)` live in the spec — engines never hand-write partition filters; evolution is metadata-only."},{"id":"s09-5","sec":9,"q":"Name the four delete strategies by cost ladder.","a":"CoW rewrites, position deletes, deletion-vector bitmaps, MoR log records — write cost falls, read cost rises."},{"id":"s09-6","sec":9,"q":"When is data actually deleted?","a":"Only by VACUUM/expire_snapshots/clean — time travel is replay, not deletion."},{"id":"s09-7","sec":9,"q":"Commit size of one 400-row UPDATE across formats?","a":"Delta/Iceberg ~KBs via DVs; Hudi CoW ~100 MB rewritten; Hudi MoR ~50 KB log append."},{"id":"s10-1","sec":10,"q":"Fundamental model difference between Spark and Flink?","a":"Spark runs incremental micro-batches; Flink processes record-at-a-time, with batch as a bounded stream."},{"id":"s10-2","sec":10,"q":"Latency floor of each engine?","a":"Spark ~the batch interval (0.5–10 s); Flink ~10 ms."},{"id":"s10-3","sec":10,"q":"What is a Flink checkpoint?","a":"An asynchronous Chandy–Lamport barrier snapshot — barriers ride the data, processing never pauses."},{"id":"s10-4","sec":10,"q":"When do you enable unaligned checkpoints?","a":"Under backpressure — barriers overtake in-flight buffers and snapshot them too; bigger but steady duration."},{"id":"s10-5","sec":10,"q":"Name Flink's exactly-once assembly.","a":"Rewindable source + barrier-aligned snapshot + TwoPhaseCommittingSink committing on notifyCheckpointComplete."},{"id":"s10-6","sec":10,"q":"When does AQE split a skewed partition?","a":"Above 256 MB and 5× the median — into ~64 MB subtasks, no code needed."},{"id":"s10-7","sec":10,"q":"Why TTL on every keyed Flink operator?","a":"Unbounded keyed state is the #1 production killer."},{"id":"s11-1","sec":11,"q":"What does AQE re-plan with, and since which release?","a":"Actual shuffle stats at each Exchange boundary — default since Spark 3.2."},{"id":"s11-2","sec":11,"q":"State both AQE skew-join split triggers.","a":"Partition above 5× the median AND above 256 MB — split toward ~64 MB subtasks."},{"id":"s11-3","sec":11,"q":"Why doesn't AQE fix skewed groupBy?","a":"Skew split covers joins only (SMJ/SHJ) — aggregate skew needs salting."},{"id":"s11-4","sec":11,"q":"Broadcast join condition and its failure mode?","a":"One side ≤ 10 MB per honest stats; stale/underestimated stats make the driver OOM collecting it."},{"id":"s11-5","sec":11,"q":"How do you size shuffle partitions?","a":"≈ shuffle bytes ÷ 128–256 MB — over-provision, AQE coalesces; the 200 default is wrong both ways."},{"id":"s11-6","sec":11,"q":"Storage vs execution memory under pressure?","a":"Storage evicts blocks; execution never evicts — it spills to disk."},{"id":"s11-7","sec":11,"q":"What does max task time ≫ p50 in the UI mean?","a":"Skew; uniformly slow tasks point to sizing, spill, or GC instead."},{"id":"s12-1","sec":12,"q":"What third model does Kafka add beyond queue and pub/sub?","a":"A partitioned, replayable append-only log with consumer-owned offsets."},{"id":"s12-2","sec":12,"q":"What ordering does Kafka guarantee?","a":"Strict order only within a partition — key hashing fixes per-entity order."},{"id":"s12-3","sec":12,"q":"State the canonical Kafka durability recipe.","a":"acks=all + RF=3 + min.insync.replicas=2 + unclean.leader.election disabled."},{"id":"s12-4","sec":12,"q":"Define the high watermark.","a":"The highest offset replicated to all ISR — consumers read only up to it."},{"id":"s12-5","sec":12,"q":"Why is dual-writing DB + Kafka wrong?","a":"A crash in between loses the event with no record — use the outbox pattern with CDC."},{"id":"s12-6","sec":12,"q":"Where is exactly-once real in Kafka?","a":"Inside Kafka — idempotent producer + transactions + read_committed; across boundaries, at-least-once + idempotent sinks."},{"id":"s12-7","sec":12,"q":"Name two rebalance-storm fixes.","a":"Cooperative-sticky assignor and static membership (group.instance.id)."},{"id":"s13-1","sec":13,"q":"Name the six data-quality dimensions.","a":"Accuracy, completeness, freshness, validity, uniqueness, consistency."},{"id":"s13-2","sec":13,"q":"What runs at each data-test-pyramid layer?","a":"Unit tests every PR, data tests every run, reconciliation daily, production monitoring continuous."},{"id":"s13-3","sec":13,"q":"What happens when a quality gate fails?","a":"Circuit breaker — publish to staging, promote atomically so consumers keep last-known-good."},{"id":"s13-4","sec":13,"q":"When should quarantine alerts fire?","a":"When the quarantine rate exceeds ~1% — never drop records silently."},{"id":"s13-5","sec":13,"q":"Error budget for 99% freshness over 30 daily runs?","a":"0.3 runs — so page on the very first miss."},{"id":"s13-6","sec":13,"q":"What makes a backfill idempotent?","a":"DELETE + INSERT per partition or MERGE — same input, same output, never blind append."},{"id":"s13-7","sec":13,"q":"Name the incident loop stages.","a":"Alert, classify, contain, fix, backfill, verify, blameless postmortem — each incident adds a check."},{"id":"s14-1","sec":14,"q":"What job does each of the five sources do?","a":"Wiki explains, handbook curates, SDE builds, DET community, DEC practitioner benchmarks."},{"id":"s14-2","sec":14,"q":"How big is the canonical reading list?","a":"Four books plus two papers, each tied to a course section — not the 25-book firehose."},{"id":"s14-3","sec":14,"q":"Required read-to-build ratio, and the failure it prevents?","a":"1:2 — prevents tutorial hell, where the 40th Spark video compounds to zero."},{"id":"s14-4","sec":14,"q":"What is the build spine?","a":"API → ingest → lake → transform+DQ → serve → ops — one repo, layers added weekly."},{"id":"s14-5","sec":14,"q":"How many portfolio projects should you finish?","a":"One archetype — a small finished repo with a README of tradeoffs."},{"id":"s14-6","sec":14,"q":"What is drill 15 and why does it matter?","a":"A 5-minute walkthrough of your design doc — it IS the A3 architecture screen."},{"id":"s15-1","sec":15,"q":"What does the internal design round probe?","a":"Your own project (Scenario 0) plus hypothetical extensions — scored on narrative + evidence."},{"id":"s15-2","sec":15,"q":"Name the six answer-framework steps.","a":"Clarify, estimate, high-level design, tradeoffs, ops and failure, evolution."},{"id":"s15-3","sec":15,"q":"Why state the freshness SLA first?","a":"It decides the architecture — sub-second means Kafka+Flink; sub-minute allows a committing lakehouse sink."},{"id":"s15-4","sec":15,"q":"What replaces STAR in defense prep?","a":"The evidence ledger: claim → story → artifact → metric → matrix line — 4–5 stories, 90 seconds each."},{"id":"s15-5","sec":15,"q":"Storage math for 100k ev/s at 500 B with RF=3?","a":"4.32 TB/day raw → ~13 TB replicated → 6 brokers × 4 TB, 48 partitions at ~1 MB/s."},{"id":"s15-6","sec":15,"q":"Why is exactly-once not correctness?","a":"Checkpoints/2PC are processing semantics only — dedup windows and reconciliation handle late, wrong, or fraudulent data."},{"id":"s15-7","sec":15,"q":"Golden invariant of a warehouse-to-lakehouse migration?","a":"No consumer ever sees wrong data — waves ordered by consumer, gated on 7 days under 0.01% delta."},{"id":"s16-1","sec":16,"q":"What is the repeating framework across all 11 GenAI design chapters?","a":"Clarify requirements → frame as ML task → data preparation → model development → evaluation → overall system design, with deployment + monitoring on top."},{"id":"s16-2","sec":16,"q":"How do you pick the generative model family?","a":"Requirements arithmetic: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → autoregressive tokens, video economics → latent diffusion."},{"id":"s16-3","sec":16,"q":"Why retrieval (RAG) before finetuning for knowledge injection?","a":"Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness — RAFT finetuning only after retrieval is fixed."},{"id":"s16-4","sec":16,"q":"What must accompany offline metrics in a GenAI evaluation answer?","a":"Online business metrics — CTR, adoption, cost per user per month — because users re-roll failed generations and burn GPU money; name both unprompted."},{"id":"s17-1","sec":17,"q":"Name the 7-step ML design framework.","a":"Clarify, frame as ML task, data prep, model development, evaluation, deployment/serving, monitoring."},{"id":"s17-2","sec":17,"q":"Why not optimize raw clicks?","a":"Clicks reward clickbait and completions bias short videos — name failure modes, choose relevance-aware objectives."},{"id":"s17-3","sec":17,"q":"Why reject GBDT in continual-learning systems?","a":"It cannot be fine-tuned — every refresh means retraining from scratch."},{"id":"s17-4","sec":17,"q":"Walk the ranking-metric elimination chain.","a":"MRR ignores post-first hits, recall@k drowns in millions, precision@k is rank-blind — use nDCG or mAP."},{"id":"s17-5","sec":17,"q":"Where do business rules belong in serving?","a":"In re-ranking — never baked into the model."},{"id":"s17-6","sec":17,"q":"Why weight unobserved pairs in matrix factorization?","a":"Observed-only loss reaches zero with degenerate all-ones embeddings — WALS forces real separation."},{"id":"s17-7","sec":17,"q":"What does NCE below 1 indicate?","a":"The model's cross-entropy beats the background-CTR baseline — calibration before serving to auctions."},{"id":"s18-1","sec":18,"q":"Why encoder-decoder for translation?","a":"Bidirectional source understanding, natural variable-length I/O, cross-attention into encoder output."},{"id":"s18-2","sec":18,"q":"Why masked LM, not next-token, in pretraining?","a":"Full-sentence input with next-token prediction lets the encoder leak the answer."},{"id":"s18-3","sec":18,"q":"How does BPE handle unseen words?","a":"Rare words decompose into known subword pieces; `\u003c/w\u003e` marks word boundaries."},{"id":"s18-4","sec":18,"q":"How are named entities handled?","a":"Replaced with ENTITY_1-style placeholders before training, restored after decoding."},{"id":"s18-5","sec":18,"q":"Why beam search over top-k/top-p?","a":"Deterministic same-input-same-output and higher accuracy — diversity is a defect in translation."},{"id":"s18-6","sec":18,"q":"Which metric matches synonyms via WordNet?","a":"METEOR — harmonic mean of precision and recall, best human-judgment correlation."},{"id":"s18-7","sec":18,"q":"What routes input when language is unknown?","a":"An encoder-only language-detection classifier routes to the per-pair model."},{"id":"s19-1","sec":19,"q":"Name the three training stages.","a":"Pretraining, supervised finetuning, RLHF — knowledge, response behavior, human alignment respectively."},{"id":"s19-2","sec":19,"q":"Why rank instead of score responses?","a":"Absolute numeric scores drift between annotators; rankings become (prompt, winning, losing) preference pairs."},{"id":"s19-3","sec":19,"q":"Why RoPE over absolute positional encoding?","a":"Absolute encodings trained at 512 break at 4096; RoPE captures relative position geometrically."},{"id":"s19-4","sec":19,"q":"Default decoding for open-ended chat?","a":"Top-p (nucleus) sampling with tuned temperature — deterministic search loops in dialogue."},{"id":"s19-5","sec":19,"q":"Why does top-k fail?","a":"Fixed k misfits the distribution — sharp loses the obvious token, flat caps diversity."},{"id":"s19-6","sec":19,"q":"Name the evaluation layers.","a":"Perplexity, task benchmarks, safety benchmarks, human plus online signals (LMSYS Arena)."},{"id":"s19-7","sec":19,"q":"How do follow-ups work?","a":"Session management feeds chat history into the prompt enhancer's context."},{"id":"s20-1","sec":20,"q":"Frame image captioning as an ML task.","a":"Translation with pixels as the source language — image encoder, decoder-only Transformer emits the caption."},{"id":"s20-2","sec":20,"q":"Per-patch tokens or one global vector?","a":"Per-patch sequence — attention needs sequences and a global vector discards local detail."},{"id":"s20-3","sec":20,"q":"Name three cleaning steps for the 400M pairs.","a":"Dedup via perceptual hash/CLIP, CLIP relevance filter below ~0.25, LLM summarization of long captions."},{"id":"s20-4","sec":20,"q":"Why summarize long captions before training?","a":"The model imitates caption length — long training captions produce long, unusable suggestions."},{"id":"s20-5","sec":20,"q":"Why beam search over sampling?","a":"Higher quality, deterministic same-image-same-caption, coherent — diversity is unwanted."},{"id":"s20-6","sec":20,"q":"How are ambiguous images handled?","a":"Beam-search cumulative probability below a confidence threshold disables the suggestion."},{"id":"s20-7","sec":20,"q":"What is CIDEr and its blind spots?","a":"TF-IDF vectors, cosine similarity vs references, averaged; blind to novel phrasing and word-order semantics."},{"id":"s21-1","sec":21,"q":"Why RAG over finetuning for document QA?","a":"Knowledge changes often and citations are required — finetuning can't stay current or provide references."},{"id":"s21-2","sec":21,"q":"Why AI-based over rule-based parsing?","a":"Varied single/double-column layouts break fixed templates — layout detection plus OCR reads boxes in order."},{"id":"s21-3","sec":21,"q":"Compute chunks for 5M pages.","a":"1,500-char pages, 500-char chunks with 200 overlap → 5 text + 3 image chunks/page ≈ 40M chunks."},{"id":"s21-4","sec":21,"q":"What is the shared embedding space contract?","a":"The same encoder embeds chunks and queries; CLIP or captioning aligns images."},{"id":"s21-5","sec":21,"q":"Why is exact nearest-neighbor search infeasible?","a":"O(N×D) — 40M comparisons per query; ANN is ~O(log N×D)."},{"id":"s21-6","sec":21,"q":"Name the RAG triad.","a":"Context relevance, faithfulness, answer relevance."},{"id":"s21-7","sec":21,"q":"When do you RAFT-finetune?","a":"Only after retrieval is fixed — golden plus distractor docs teach the LLM to ignore noise."},{"id":"s22-1","sec":22,"q":"Why GAN over diffusion here?","a":"One forward pass meets the \u003c1s SLA, and the structured latent space enables facial attribute manipulation."},{"id":"s22-2","sec":22,"q":"Why normalize pixels to −1..1?","a":"It matches the generator's final Tanh activation — a ReLU output would mismatch the range."},{"id":"s22-3","sec":22,"q":"Name the three GAN training failures.","a":"Vanishing gradients, mode collapse, failure to converge."},{"id":"s22-4","sec":22,"q":"Fix for mode collapse?","a":"Wasserstein loss or an unrolled GAN."},{"id":"s22-5","sec":22,"q":"When does GAN training stop?","a":"When discriminator accuracy nears 50% — past it, feedback becomes coin flips and quality degrades."},{"id":"s22-6","sec":22,"q":"Why random over truncated latent sampling?","a":"Diversity matters for faces; truncation buys realism at diversity's cost."},{"id":"s22-7","sec":22,"q":"Which metric is lower-is-better?","a":"FID — Fréchet distance between real and generated feature distributions."},{"id":"s23-1","sec":23,"q":"Why autoregressive over diffusion here?","a":"Chunked AR is 256 token steps (seconds); diffusion is O(T·N²) with more steps at high res — minutes."},{"id":"s23-2","sec":23,"q":"What is posterior collapse and the fix?","a":"A powerful decoder ignores its latents at high res; discrete codebook tokens force it to use them."},{"id":"s23-3","sec":23,"q":"Name the four Stage I tokenizer losses.","a":"Reconstruction, quantization, perceptual, adversarial — pixel fidelity, codebook commitment, features, realism."},{"id":"s23-4","sec":23,"q":"How do gradients flow through the quantizer?","a":"Straight-through — nearest-neighbor has no gradient, so decoder gradients copy to the encoder."},{"id":"s23-5","sec":23,"q":"Token math for 1024×1024?","a":"64×64 px per token → 256 sequential generation steps."},{"id":"s23-6","sec":23,"q":"Why split generation and decoding services?","a":"Distinct computational profiles and latencies — each scales independently."},{"id":"s23-7","sec":23,"q":"How is 2048² served?","a":"Generate at 1024², then a pretrained 2× super-resolution upscaler (RCAN/ESRGAN)."},{"id":"s24-1","sec":24,"q":"Why diffusion over autoregressive for text-to-image?","a":"Superior fine detail plus a tunable sampling-steps dial — complexity traded for quality."},{"id":"s24-2","sec":24,"q":"What does the model predict during training?","a":"The noise ε, not the clean image x₀ — predicting x₀ underperforms."},{"id":"s24-3","sec":24,"q":"How does the prompt steer denoising?","a":"Cross-attention — queries from image features, keys/values from text-encoder embeddings."},{"id":"s24-4","sec":24,"q":"Name the two sampling fixes.","a":"Classifier-free guidance for prompt adherence; DDIM cuts steps from 1,000 to ~20."},{"id":"s24-5","sec":24,"q":"Why cascade super-resolution?","a":"Diffusion can't generate high resolution directly — train low, upscale 64→256→1024."},{"id":"s24-6","sec":24,"q":"Why two safety gates?","a":"Prompt filtering before compute misses model-generated harm — output harm detection catches it after generation."},{"id":"s24-7","sec":24,"q":"Which online metric reveals hidden dissatisfaction?","a":"Average cost per user per month — unhappy users re-roll seeds, compounding compute spend."},{"id":"s25-1","sec":25,"q":"Why tuning-based over tuning-free?","a":"Identity preservation is the product — 10–20 images give richer identity than one reference image."},{"id":"s25-2","sec":25,"q":"Rank the three methods by identity fidelity.","a":"DreamBooth (full finetune) \u003e LoRA (low-rank delta) \u003e textual inversion (one token embedding)."},{"id":"s25-3","sec":25,"q":"Why DreamBooth despite GB-per-subject storage?","a":"15-min finetune fits the \u003c1h async SLA and models are discarded after the 50 headshots."},{"id":"s25-4","sec":25,"q":"Why a rare token instead of a common word?","a":"Common words carry meanings the model must overwrite; rare tokens are distinct yet tokenizer-cohesive."},{"id":"s25-5","sec":25,"q":"Name the two DreamBooth losses.","a":"Reconstruction on \"[V] person\" plus class-specific prior preservation on \"a person\"."},{"id":"s25-6","sec":25,"q":"Why add generic face images to training?","a":"Prevents overfitting to one identity and forgetting the generic face class."},{"id":"s25-7","sec":25,"q":"Why isn't CLIP enough for identity?","a":"CLIP/DINO score semantics and detail, not identity — a face recognition model closes the gap."},{"id":"s26-1","sec":26,"q":"Why latent diffusion for video?","a":"VAE compresses 8× spatial and 8× temporal — 512× smaller, making training and inference affordable."},{"id":"s26-2","sec":26,"q":"Pixel-space cost of a 5s 720p video?","a":"~7 minutes per video on an H100 — 120 frames at 3.6× image pixels."},{"id":"s26-3","sec":26,"q":"Why precompute and cache latents?","a":"Per-step VAE encoding stalls training — ~200 TB cache for 100M videos buys it back."},{"id":"s26-4","sec":26,"q":"Why DiT over U-Net for video?","a":"3D patchify with Transformer scaling and modality flexibility — Sora and Movie Gen chose it."},{"id":"s26-5","sec":26,"q":"How do you handle scarce video–text pairs?","a":"Fold images in as single-frame videos — one joint training stage."},{"id":"s26-6","sec":26,"q":"Which metric catches flicker?","a":"FVD — Fréchet distance over I3D features; FID/IS score frames and miss motion."},{"id":"s26-7","sec":26,"q":"Name the two super-resolution stages.","a":"Spatial SR restores 720p; temporal SR interpolates 12 FPS to 24 FPS."}]</script><style>
+/* cram page */
+.cram-sub{color:var(--vp-c-text-2);font-size:15px;margin:4px 0 0}
+.cram-mod h2{font-family:var(--font-head);font-size:26px;font-weight:600;margin:36px 0 8px}
+.cram-sec{border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);margin:10px 0;overflow:hidden}
+.cram-sec summary{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font-weight:600;font-size:15px;list-style:none}
+.cram-sec summary::-webkit-details-marker{display:none}
+.cram-sec summary::before{content:'▸';color:var(--vp-c-text-3);display:inline-block;transition:transform .15s}
+.cram-sec[open] summary::before{transform:rotate(90deg)}
+.cs-num{font-family:var(--font-mono);font-size:12px;color:var(--vp-c-text-3)}
+.cram-stat{margin-left:auto;font-size:12px;color:var(--vp-c-text-3);font-weight:400;white-space:nowrap}
+.cram-check{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:400;color:var(--vp-c-text-2);cursor:pointer;white-space:nowrap}
+.cram-body{padding:0 16px 14px;border-top:1px solid var(--vp-c-divider)}
+.cram-tldr{margin:12px 0;padding-left:1.25rem;font-size:14.5px}
+.cram-cards{display:grid;gap:10px;margin:0 0 12px}
+.cram-card{border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-alt)}
+.cram-card.known{border-color:#1d914e}
+html.dark .cram-card.known{border-color:#4ccb7f}
+.cram-q{display:block;width:100%;text-align:left;border:none;background:none;font:inherit;color:var(--vp-c-text-1);padding:10px 14px;cursor:pointer;line-height:1.55}
+.cram-q::before{content:'▸ ';color:var(--vp-c-brand-2)}
+.cram-card.open .cram-q::before{content:'▾ '}
+.cram-card:not(.open) .cram-a{display:none}
+.cram-a{padding:0 14px 12px}
+.cram-a p{margin:0 0 10px;font-size:14.5px;color:var(--vp-c-text-2);line-height:1.6}
+.cram-know{flex:none;padding:6px 14px}
+.cram-know:disabled{opacity:.55;cursor:default}
+.cram-know:disabled:hover{background:none;color:#047857}
+html.dark .cram-know:disabled:hover{background:none;color:#30a46c}
+.cram-open{display:inline-block;font-size:13px;margin:2px 0 12px}
+@media(max-width:768px){
+  .cram-sec summary{flex-wrap:wrap;gap:6px 10px}
+  .cram-stat{margin-left:22px;order:3;width:100%}
+}
+</style><script>
+(function(){
+  const KEY='cram-reviewed',pad=n=>'s'+String(n).padStart(2,'0');
+  const rev=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+  document.querySelectorAll('.cram-check').forEach(l=>l.addEventListener('click',e=>e.stopPropagation()));
+  document.querySelectorAll('input[data-review]').forEach(cb=>{
+    cb.checked=!!rev()[pad(cb.dataset.review)];
+    cb.addEventListener('change',()=>{const o=rev();o[pad(cb.dataset.review)]=cb.checked;
+      localStorage.setItem(KEY,JSON.stringify(o));});
+  });
+  document.getElementById('cramReset').addEventListener('click',()=>{
+    localStorage.removeItem(KEY);
+    document.querySelectorAll('input[data-review]').forEach(cb=>cb.checked=false);
+  });
+  document.querySelectorAll('.cram-q').forEach(b=>b.addEventListener('click',()=>b.closest('.cram-card').classList.toggle('open')));
+  const stat=sec=>{
+    const ids=[...document.querySelectorAll('.cram-sec[data-sec="'+sec+'"] .cram-card')].map(c=>c.dataset.id);
+    const o=schedAll();
+    return ids.filter(id=>o[id]&&o[id].iv>=1).length+'/'+ids.length;
+  };
+  const paintStats=()=>document.querySelectorAll('.cram-sec').forEach(d=>{
+    d.querySelector('.cram-stat').textContent=stat(d.dataset.sec)+' known';});
+  const markKnown=c=>{const b=c.querySelector('.cram-know');c.classList.add('known');b.disabled=true;};
+  const o=schedAll();
+  document.querySelectorAll('.cram-card').forEach(c=>{
+    if(o[c.dataset.id]&&o[c.dataset.id].iv>=1)markKnown(c);});
+  document.querySelectorAll('.cram-know').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const c=b.closest('.cram-card');schedGrade(c.dataset.id,'good');markKnown(c);paintStats();
+    if(window.__ringRefresh)window.__ringRefresh();
+  }));
+  paintStats();
+  const mq=matchMedia('(max-width:768px)');
+  if(mq.matches){let first=true;
+    document.querySelectorAll('.cram-sec').forEach(d=>{if(d.open&&!first)d.open=false;first=false;});}
+  document.querySelectorAll('.cram-sec').forEach(d=>d.addEventListener('toggle',()=>{
+    if(!mq.matches||!d.open)return;
+    document.querySelectorAll('.cram-sec[open]').forEach(o2=>{if(o2!==d)o2.open=false;});
+  }));
+})();
+</script>
+</body>
+</html>
