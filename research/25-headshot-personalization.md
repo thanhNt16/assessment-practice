@@ -45,6 +45,28 @@ flowchart TD
     DB --> T3[Costs: GB storage per subject, GPU-heavy]
 ```
 
+:::scenario Deliver 50 headshots per user in under an hour
+@uploads Gate the 10-20 uploads :: Face detection + blur/expression heuristics reject bad images and ask the user — never train on dark, face-less shots
+-> fewer than 15 usable => @uploads | fail
+-> enough => @method | success
+@method Pick the personalization method :: Textual inversion too weak, LoRA lighter on identity; DreamBooth finetunes everything — identity is the product
+-> 15-min finetune fits the async SLA => @data | success
+@data Prep + generic data :: Resize, mirror/rotate augmentations, mix in pretrained-model "a person" faces to protect the class
+-> @token
+@token Choose the rare-token identifier :: Common words carry meanings the model must overwrite; random strings fragment — rare tokens are distinct yet cohesive
+-> @train
+@train DreamBooth with two losses :: alpha x reconstruction on "[V] person" + beta x class-specific prior preservation keeps "a person" renderable
+-> identity overfits, class forgotten => @data | fail
+-> both losses balanced => @generate | success
+@generate One image per hand-engineered prompt :: 50 professional templates, classifier-free guidance, 1024x1024
+-> @qa
+@qa Face-recognition quality gate :: CLIP/DINO score semantics and detail but not identity — a face model compares against the user's real photos
+-> identity fails => @generate | fail
+-> pass => @deliver | success
+@deliver Retry with a new seed, then ship :: Regenerate failed identities with different initial noise; upload to cloud storage, email the user
+-> models discarded after delivery — GB-per-subject storage never accrues => @uploads | success
+:::
+
 - **Textual inversion**: add a special token `S*`, train **only its embedding**; diffusion model, text encoder, and other embeddings stay frozen. Generation: prompt "A photo of S* ..." (ch10 §Textual inversion, [4](https://textual-inversion.github.io/)). Lightweight, preserves model capabilities, minimal storage — but a single token embedding lacks capacity for subject detail.
 - **DreamBooth**: finetune **all diffusion model parameters** on the subject's images (ch10 §DreamBooth, [5](https://arxiv.org/abs/2208.12242)). Two enabling techniques:
   - **Rare-token identifier**: represent the subject as `[V]`, built from rare vocabulary tokens. A common word ("special") carries an established meaning the model must overwrite; random strings ("xxy5syt00") get tokenized into fragments, each with prior associations. Rare tokens are distinct yet cohesive — the tokenizer treats them as one unit. Recipe: find rare tokens via token frequency distribution → generate a sequence → decode to text ("XyZ", "SKS", "[V]") (ch10 §Rare-token identifier).

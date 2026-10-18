@@ -115,6 +115,30 @@ flowchart LR
     POST --> OUT[Caption / suggested name]
 ```
 
+:::scenario Caption suggestions for uploaded assets
+@clean Dedup the 400M noisy pairs :: Perceptual hash + CLIP similarity drop duplicate images and captions before anything trains
+-> pairs relevant => @summarize | success
+-> below CLIP relevance 0.25 => @clean | fail
+@summarize Shorten long captions :: An LLM summarizes — training on long captions teaches long captions, wrong for short name suggestions
+-> @encode
+@encode Patchify with ViT :: 256x256 image -> 16 patch embeddings + learnable 1D positional encoding; sequences feed attention
+-> one global vector instead => @encode | fail
+-> sequence ready => @finetune | success
+@finetune Joint two-stage finetuning :: GPT-2/Llama decoder + CLIP/ViT encoder start pretrained; next-token cross-entropy on the pairs
+-> @beam
+@beam Beam-search the caption :: Quality, determinism ("same image, same caption"), coherence — not stochastic diversity
+-> cumulative probability below threshold => @gate | fail
+-> confident => @post | success
+@gate Ambiguous image? Skip the suggestion :: Low-confidence captions never reach the user — the skip path is designed, not accidental
+-> @post
+@post Neutralize biased terms :: Biased wording replaced with neutral alternatives; offensive output disables the service entirely
+-> @eval
+@eval CIDEr over multi-reference captions :: TF-IDF-weighted consensus vs several human references; pair with human review
+-> CIDEr regression => @clean | fail
+-> quality holds => @ship | success
+@ship Serve within the latency budget :: Preprocessing matches training-time resize/normalization; beam search runs inside the 1-2 s target
+:::
+
 - **Image preprocessing**: resize to standard size, consistent format, standardized pixels — match training-time expectations (ch5 §Image preprocessing).
 - **Caption generator**: runs the trained model with beam search; if the caption's cumulative probability falls below the **confidence threshold**, the suggestion is disabled — this is how ambiguous images get skipped (ch5 §Caption generator).
 - **Post-processing**: replaces biased terms with neutral alternatives; disables the service entirely if offensive words appear (ch5 §Post-processing).

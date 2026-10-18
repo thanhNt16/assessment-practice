@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 11 of 17</div><h1>Spark Performance: Catalyst, AQE &amp; Tuning</h1>
+<div class="kicker">Section 11 of 26</div><h1>Spark Performance: Catalyst, AQE &amp; Tuning</h1>
 <p>Catalyst compiles your query into fused machine code, AQE repairs bad plans mid-flight using runtime stats, and nearly every production Spark incident reduces to one UI metric: shuffle size, skew, spill, or GC.</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Skew Diagnosis</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Skew Diagnosis", "nodes": [{"id": "start", "label": "Hot stage in the UI", "cap": "one stage's max task time dwarfs the rest — name the metric before touching any config"}, {"id": "p50", "label": "p50 vs max fork", "cap": "median healthy, max huge → skew; every task slow → sizing, not hot keys"}, {"id": "uniform", "label": "Right-size partitions", "cap": "spill and GC, not skew — 500 GB ÷ 200 = 2.5 GB tasks; size ≈ shuffle bytes ÷ 128 MB, AQE coalesces down"}, {"id": "operator", "label": "Join or groupBy?", "cap": "AQE de-skews joins only; aggregation skew needs salting — name the operator before choosing a fix"}, {"id": "bytes", "label": "Measure partition bytes", "cap": "AQE splits only above skewedPartitionFactor (5× median) AND skewedPartitionThresholdInBytes (256 MB)"}, {"id": "manual", "label": "Threshold miss", "cap": "below either knob AQE never fires — find a broadcastable side or salt the key yourself"}, {"id": "aeskew", "label": "AQE skew split", "cap": "skewJoin splits the fat side toward advisory 64 MB subtasks; SMJ/SHJ only — confirm in the AQE plan"}, {"id": "broadcast", "label": "Broadcast the dim", "cap": "honest stats ≤ autoBroadcastJoinThreshold (10 MB) remove the skew-prone shuffle; misestimate → driver OOM"}, {"id": "salt", "label": "Salt the hot key", "cap": "random prefix, partial agg, then final agg — the only fix that de-skews groupBy; AQE split does not"}, {"id": "verify", "label": "Confirm the repair", "cap": "max ≈ p50 again, no spill, plan shows split/broadcast (isFinalPlan=true) — else diagnose again"}], "edges": [{"src": "start", "label": "compare task times", "dst": "p50", "kind": null, "choice": false, "loop": false}, {"src": "p50", "label": "max far above p50", "dst": "operator", "kind": "success", "choice": true, "loop": false}, {"src": "p50", "label": "all tasks uniformly slow", "dst": "uniform", "kind": "fail", "choice": true, "loop": false}, {"src": "uniform", "label": "re-check the stage", "dst": "verify", "kind": null, "choice": false, "loop": false}, {"src": "operator", "label": "skewed join", "dst": "bytes", "kind": "success", "choice": true, "loop": false}, {"src": "operator", "label": "skewed groupBy", "dst": "salt", "kind": "fail", "choice": true, "loop": false}, {"src": "bytes", "label": "both thresholds met", "dst": "aeskew", "kind": "success", "choice": true, "loop": false}, {"src": "bytes", "label": "under one threshold", "dst": "manual", "kind": "fail", "choice": true, "loop": false}, {"src": "manual", "label": "small side ≤ 10 MB", "dst": "broadcast", "kind": "success", "choice": true, "loop": false}, {"src": "manual", "label": "big-big join", "dst": "salt", "kind": "fail", "choice": true, "loop": false}, {"src": "aeskew", "label": "re-check the stage", "dst": "verify", "kind": null, "choice": false, "loop": false}, {"src": "broadcast", "label": "re-check the stage", "dst": "verify", "kind": null, "choice": false, "loop": false}, {"src": "salt", "label": "re-check the stage", "dst": "verify", "kind": null, "choice": false, "loop": false}, {"src": "verify", "label": "diagnose again", "dst": "p50", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/skew-diagnosis.png" alt="skew-diagnosis.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/skew-diagnosis.dark.png" alt="skew-diagnosis.png diagram (dark)" loading="lazy"></div>

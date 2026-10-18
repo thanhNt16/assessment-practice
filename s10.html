@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 10 of 17</div><h1>Compute Engines: Spark vs Flink</h1>
+<div class="kicker">Section 10 of 26</div><h1>Compute Engines: Spark vs Flink</h1>
 <p>Spark is a batch engine that grew streaming (micro-batches); Flink is a streaming engine that grew batch — scheduling, state, and failure handling all follow from that one choice.</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Exactly-Once Assembly</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Exactly-Once Assembly", "nodes": [{"id": "start", "label": "Latency floor", "cap": "streaming-first: records one at a time → ~10 ms floor; batch is just a bounded stream of the same machinery"}, {"id": "spark", "label": "Spark micro-batch", "cap": "incremental batches with offset+state checkpoints; commit overhead pins p99 near the batch interval — fine ≥ 1 min"}, {"id": "flink", "label": "Watermarked topology", "cap": "native watermarks: a monotonic promise fires windows/timers when passed; late data routes to side outputs"}, {"id": "backend", "label": "Backend = capacity plan", "cap": "heap for small/low-latency, RocksDB for TBs, ForSt/disaggregated for cloud"}, {"id": "heap", "label": "Heap backend", "cap": "fastest access with full-snapshot checkpoints — comfortable under a few GB of keyed state"}, {"id": "incremental", "label": "RocksDB incremental", "cap": "snapshots upload only changed sstables, keeping duration flat as state grows to TBs"}, {"id": "barrier", "label": "Barrier snapshot", "cap": "Chandy–Lamport barriers ride the data; processing never pauses while state lands on DFS"}, {"id": "aligned", "label": "Aligned cut", "cap": "the operator waits for barriers from all inputs — cheapest consistent global cut when flow is steady"}, {"id": "unaligned", "label": "Unaligned cut", "cap": "barriers overtake in-flight buffers and snapshot those too — larger snapshots, steady duration"}, {"id": "sink", "label": "Sink two-phase commit", "cap": "TwoPhaseCommittingSink pre-commits at checkpoint, commits on notifyCheckpointComplete — Kafka exactly-once"}, {"id": "assemble", "label": "Assembly audit", "cap": "rewindable source + barrier snapshot + 2PC/idempotent sink — drop any one piece and it degrades"}, {"id": "savepoint", "label": "Savepoint surgery", "cap": "canonical version-stable manual checkpoint; plain checkpoints optimize speed, not 1.x→2.x compatibility"}], "edges": [{"src": "start", "label": "sub-second stateful event-time", "dst": "flink", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "batch ETL, SQL, ML breadth", "dst": "spark", "kind": "fail", "choice": true, "loop": false}, {"src": "flink", "label": "pick the state backend", "dst": "backend", "kind": null, "choice": false, "loop": false}, {"src": "backend", "label": "TB-scale or cloud state", "dst": "incremental", "kind": "success", "choice": true, "loop": false}, {"src": "backend", "label": "small hot state, lowest latency", "dst": "heap", "kind": "fail", "choice": true, "loop": false}, {"src": "heap", "label": "design checkpoints", "dst": "barrier", "kind": null, "choice": false, "loop": false}, {"src": "incremental", "label": "design checkpoints", "dst": "barrier", "kind": null, "choice": false, "loop": false}, {"src": "barrier", "label": "backpressure stretches duration", "dst": "unaligned", "kind": "success", "choice": true, "loop": false}, {"src": "barrier", "label": "consumption keeps up", "dst": "aligned", "kind": "fail", "choice": true, "loop": false}, {"src": "aligned", "label": "choose the sink", "dst": "sink", "kind": null, "choice": false, "loop": false}, {"src": "unaligned", "label": "choose the sink", "dst": "sink", "kind": null, "choice": false, "loop": false}, {"src": "sink", "label": "audit the guarantee", "dst": "assemble", "kind": null, "choice": false, "loop": false}, {"src": "assemble", "label": "upgrades, rescaling, migration ahead", "dst": "savepoint", "kind": "success", "choice": true, "loop": false}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/engine-runtimes.png" alt="engine-runtimes.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/engine-runtimes.dark.png" alt="engine-runtimes.png diagram (dark)" loading="lazy"></div>

@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link active" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 16 of 17</div><h1>Generative AI System Design (Aminian &amp; Sheng)</h1>
+<div class="kicker">Section 16 of 26</div><h1>Generative AI System Design (Aminian &amp; Sheng)</h1>
 <p>Your A3 defense treats your pipeline as Scenario 0 and hypothetical extensions as the follow-up round - when the committee asks &quot;where would GenAI plug into your system?&quot;, this note is the vocabulary and decision framework. One repeating skeleton across all 11 designs; density here favors the chapters that map to data-engineering work (RAG, LLM serving) over the image/video ones.</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — Where GenAI Plugs In</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — Where GenAI Plugs In", "nodes": [{"id": "requirements", "label": "Clarify before naming a model", "cap": "Pin freshness, latency, confidence thresholds first — the Scenario-0 discipline transferred to GenAI."}, {"id": "model", "label": "Choose model by arithmetic", "cap": "One-pass latency → GAN/VAE; ceiling quality → diffusion; resolution at scale → AR; video → latent diffusion."}, {"id": "approach", "label": "Exhaust retrieval + prompts first", "cap": "Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness."}, {"id": "prompt", "label": "Prompt-engineer only", "cap": "No index needed when context fits — rare at enterprise scale; monitor cost per user as prompts grow."}, {"id": "pipeline", "label": "Run the RAG pipeline", "cap": "parse → chunk (500 chars, 200 overlap) → embed → ANN-index; 5M pages → 40M chunks, +20%/yr."}, {"id": "retrieve", "label": "Interrogate retrieval quality", "cap": "Response quality is highly dependent on retrieval relevance — a better LLM cannot fix bad chunks."}, {"id": "fixretrieval", "label": "Fix retrieval before the model", "cap": "Rule-based parsers break on varied layouts — Layout-Parser + OCR; cross-modal via CLIP space or caption-then-embed."}, {"id": "ann", "label": "Swap in ANN indexing", "cap": "Linear scan is O(N x D) — 40M comparisons per query; ANN (tree / LSH / clustering / HNSW) is mandatory past millions."}, {"id": "raft", "label": "Finetune last, via RAFT", "cap": "Finetune with golden + distractor docs to ignore retrieval noise — only when retrieval is fixed and answers still bad."}, {"id": "answers", "label": "Evaluate offline + online", "cap": "Name the instrument (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) and the business metric (CTR, adoption, cost per user)."}, {"id": "metrics", "label": "Match metric to claim", "cap": "CLIP = semantics, DINO = visual detail, face models = identity — CLIP and DINO can score high on two different people."}, {"id": "serve", "label": "Deploy + monitor as a named stage", "cap": "Serving + retraining loops are their own step — re-rolling seeds with new prompts quietly multiplies GPU spend."}], "edges": [{"src": "requirements", "label": "Fresh answers over private docs", "dst": "approach", "kind": "success", "choice": true, "loop": false}, {"src": "requirements", "label": "Generate images or video", "dst": "model", "kind": "success", "choice": true, "loop": false}, {"src": "model", "label": "evaluate", "dst": "answers", "kind": null, "choice": false, "loop": false}, {"src": "approach", "label": "All docs fit the 128K context window", "dst": "prompt", "kind": "success", "choice": true, "loop": false}, {"src": "approach", "label": "size the index", "dst": "pipeline", "kind": null, "choice": false, "loop": false}, {"src": "pipeline", "label": "query", "dst": "retrieve", "kind": null, "choice": false, "loop": false}, {"src": "retrieve", "label": "Chunks are relevant", "dst": "answers", "kind": "success", "choice": true, "loop": false}, {"src": "retrieve", "label": "still irrelevant", "dst": "fixretrieval", "kind": "fail", "choice": false, "loop": false}, {"src": "fixretrieval", "label": "Index still exact nearest-neighbor", "dst": "ann", "kind": "fail", "choice": true, "loop": false}, {"src": "fixretrieval", "label": "Retrieval fixed, answers still bad", "dst": "raft", "kind": "success", "choice": true, "loop": false}, {"src": "ann", "label": "then RAFT if needed", "dst": "raft", "kind": null, "choice": false, "loop": false}, {"src": "raft", "label": "evaluate", "dst": "answers", "kind": null, "choice": false, "loop": false}, {"src": "answers", "label": "Identity claim on CLIP alone", "dst": "metrics", "kind": "fail", "choice": true, "loop": false}, {"src": "answers", "label": "deploy", "dst": "serve", "kind": null, "choice": false, "loop": false}, {"src": "metrics", "label": "deploy", "dst": "serve", "kind": null, "choice": false, "loop": false}], "start": "requirements"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/rag-pipeline.png" alt="rag-pipeline.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/rag-pipeline.dark.png" alt="rag-pipeline.png diagram (dark)" loading="lazy"></div>
@@ -399,8 +427,6 @@ flowchart LR
 </div></p>
 <ul>
 <li>Every design chapter runs the same core sections: Clarifying Requirements → Frame the Problem as an ML Task → Data Preparation → Model Development → Evaluation → Overall ML System Design - and the underlying seven-step framework adds Deployment + Monitoring on top (ch1, p13; ch2-ch11 structure). Drill the skeleton once, reuse it on any prompt.</li>
-<li><strong>Data prep shifts for GenAI</strong>: classical ML leans on feature engineering (task-specific, needs subject-matter expertise); GenAI leans on collecting vast data, ensuring quality/safety, and efficient storage + retrieval (ch1 §Data preparation, p14).</li>
-<li><strong>Scale anchors</strong>: Llama 3 pretrained on 15T tokens ≈ 50TB scraped from web/social/forums; collection, then cleaning, then data-efficiency are the three named steps (ch1 §Data collection, p15).</li>
 <li><strong>Deployment is a named stage, not an afterthought</strong>: serving services, monitoring, and retraining loops appear as their own step - e.g. the GAN system ships generator + training + evaluation + deployment services with a retraining loop on user-approved images (ch1, p13; ch7 §Overall ML System Design, p211).</li>
 </ul>
 
@@ -584,6 +610,251 @@ flowchart LR
 <li><strong>Overfitting to the subject</strong>: finetuning on 10-20 images without generic-data mixing and prior-preservation loss destroys class diversity (ch10 §Data Preparation, p270).</li>
 </ul>
 
+<h2 id="framework-foundations-ch1" tabindex="-1">Framework Foundations (ch1)<a class="header-anchor" href="#framework-foundations-ch1">&ZeroWidthSpace;</a></h2>
+<p>GenAI system design rounds are open-ended — &quot;design a chatbot&quot; has no correct answer; the committee scores your framework, trade-offs, and numbers. Answer with the 7-step framework and its vocabulary (scaling laws, parallelism, evaluation metrics) — the spine every later design (chatbot, RAG, image, video) hangs from.</p>
+<h4>Discriminative vs Generative Models</h4>
+<ul>
+<li><strong>Discriminative:</strong> learns P(Y|X) — classifies or predicts from input features (fraud detection, rating prediction).</li>
+<li><strong>Generative:</strong> learns P(X) or P(X,Y) — samples new data from the learned distribution (new faces, text, speech).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Discriminative</th>
+<th>Generative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Learns</td>
+<td>Conditional P(Y|X)</td>
+<td>P(X) or joint P(X,Y)</td>
+</tr>
+<tr>
+<td>Tasks</td>
+<td>Classification, regression, object detection, NER, recommendations</td>
+<td>Chatbots, summarization, text-to-image, TTS</td>
+</tr>
+<tr>
+<td>Algorithms</td>
+<td>Logistic regression, SVM, decision trees, KNN, neural nets</td>
+<td>Classical: Naive Bayes, GMM, HMM, Boltzmann. Modern: VAE, GAN, diffusion, autoregressive</td>
+</tr>
+<tr>
+<td>Trade-off</td>
+<td>Cheap, ground-truth-comparable eval</td>
+<td>Creates new content, but eval is subjective/human-in-the-loop (ch1 §What are AI and ML?)</td>
+</tr>
+</tbody>
+</table>
+<h4>Why GenAI Is Powerful Now: Data, Capacity, Compute</h4>
+<ul>
+<li><strong>Data:</strong> self-supervised learning unlocks internet-scale unlabeled data — no labeling bottleneck. Llama 3 trained on 15T tokens (~50 TB); Flamingo on 1.8B (image, text) pairs (ch1 §Data).</li>
+<li><strong>Model capacity</strong> measured two ways — <strong>parameters</strong> (size) and <strong>FLOP count</strong> (compute per forward pass). Worked example: fully connected 4→3 layer = 3×(4+3) = 21 FLOPs (ch1 §FLOP count).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Parameters (ch1 Table 1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google PaLM</td>
+<td>540B</td>
+</tr>
+<tr>
+<td>OpenAI GPT-3</td>
+<td>175B</td>
+</tr>
+<tr>
+<td>Meta Llama 3</td>
+<td>405B</td>
+</tr>
+<tr>
+<td>Google Flamingo</td>
+<td>80B</td>
+</tr>
+<tr>
+<td>Google Imagen</td>
+<td>2B</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Compute:</strong> PaLM-2 needed 10²² FLOPs; a single H100 (60 TFLOP/s ≈ 5.18 EFLOP/day) would take ~5.5 years — hence thousands of GPUs and GPT-4's &gt;$100M training cost (ch1 §Compute).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Scaling law</th>
+<th>Finding</th>
+<th>Design implication</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI 2020 (<a href="https://arxiv.org/abs/2001.08361">arXiv</a>)</td>
+<td>Scaling beats architecture tweaks; power-law gains with model/data/compute</td>
+<td>Spend budget on size+data, not arch search</td>
+</tr>
+<tr>
+<td>DeepMind 2022 (<a href="https://arxiv.org/abs/2203.15556">arXiv</a>)</td>
+<td>Data should scale ~linearly with params; many existing LLMs were undertrained</td>
+<td>Compute-optimal training pairs token count to model size</td>
+</tr>
+<tr>
+<td>Inference-time (speculated post-o1, <a href="https://arxiv.org/abs/2407.21787">arXiv</a>)</td>
+<td>More inference compute may improve outputs</td>
+<td>Budget test-time compute as a quality lever</td>
+</tr>
+</tbody>
+</table>
+<h4>Risks &amp; Limitations</h4>
+<ul>
+<li><strong>Ethics:</strong> bias, IP, misinformation, misuse. <strong>Environment:</strong> energy/carbon from training. <strong>Model limits:</strong> no true understanding → inaccuracies, weak complex reasoning, hallucination. <strong>Security:</strong> deepfakes, automated phishing, adversarial inputs in critical systems (ch1 §GenAI risks and limitations).</li>
+</ul>
+<h4>Step 1-2: Clarify, Then Frame the ML Task</h4>
+<ul>
+<li><strong>Functional requirements</strong> (what): business objective, features, languages supported — they shape the architecture.</li>
+<li><strong>Non-functional requirements</strong> (how): latency, throughput, fairness, security, scalability — rarely change the initial architecture, but drive later performance tuning; identify early (ch1 §Non-functional requirements).</li>
+<li><strong>Clarifying questions map to:</strong> business objective, features, data sources/size/labels, compute constraints, cloud vs device, user scale, quality-vs-speed priority (ch1 §Clarifying Requirements).</li>
+<li><strong>Framing = define input/output modality, then pick the algorithm family</strong> (ch1 §Framing the problem as an ML task):</li>
+</ul>
+<p><div class="mermaid">
+flowchart TD
+    IO[Define input/output modality] --> D{Output is a class/value?}
+    D -- yes --> DISC[Discriminative - classification or regression]
+    D -- no - new content --> M{Output modality}
+    M -- text --> T[Autoregressive, Transformers, RNNs]
+    M -- image/video/audio --> I[Diffusion, autoregressive, VAE, GAN, flow-based]
+</div></p>
+<h4>Step 3: Data Preparation — Traditional vs GenAI</h4>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Traditional ML (structured)</th>
+<th>GenAI (unstructured)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td>Categorical, numerical, ordinal tables</td>
+<td>Text, image, audio, video</td>
+</tr>
+<tr>
+<td>Core work</td>
+<td>Data engineering (ETL) + feature engineering (feature stores: Tecton, SageMaker)</td>
+<td>Collection at scale + cleaning + retrieval efficiency</td>
+</tr>
+<tr>
+<td>Trade-off</td>
+<td>Hand-crafted features need SME time; task-specific</td>
+<td>Scale replaces labeling, but noise/bias/harm must be filtered (ch1 §Data Preparation)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Synthetic training data</strong> (model-generated, ch1 §Data collection): <strong>pros</strong> — diversity when real data is limited/imbalanced, scalable; <strong>cons</strong> — inherits the source model's bias/errors, may miss real-world distribution gaps.</li>
+<li><strong>Cleaning pipeline:</strong> harm detection &amp; removal, NSFW removal, low-quality filtering, deduplication — internet-scale data is noisy (ch1 Fig. 15).</li>
+<li><strong>Efficiency:</strong> distributed storage (HDFS, S3), columnar formats (Parquet, ORC); retrieval via sharding, indexing (Lucene/Elasticsearch), caching (ch1 §Data efficiency).</li>
+</ul>
+<h4>Step 4: Model Development — Architecture, Training, Sampling</h4>
+<ul>
+<li><strong>Architecture:</strong> multiple viable options per algorithm (diffusion → U-Net or DiT); be ready to justify layers and modify for new features (style vectors, motion control). Core primitive: scaled dot-product self-attention — project embeddings to Q/K/V, score with softmax(QKᵀ/√d_K)V; multi-head attention attends in parallel subspaces (<a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>) (ch1 §Transformer's self-attention architecture).</li>
+<li><strong>Training:</strong> name methodology, data per stage, ML objective + loss, task-specific challenges. LLMs train in three stages: pretraining (e.g., Common Crawl) → supervised finetuning → alignment on curated/expert-annotated data (ch1 §Model training).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>What it does</th>
+<th>Reach for it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gradient checkpointing</td>
+<td>Save subset of activations, recompute in backward</td>
+<td>GPU memory bound</td>
+</tr>
+<tr>
+<td>Mixed precision (AMP)</td>
+<td>Most math in 16-bit, sensitive ops in 32-bit</td>
+<td>Speed + memory without accuracy loss</td>
+</tr>
+<tr>
+<td>Data parallelism</td>
+<td>Full model copy per device, data split; <strong>sync</strong> = consistent but waits for slowest device, <strong>async</strong> = faster but devices hold stale versions</td>
+<td>Dataset large, model fits one device</td>
+</tr>
+<tr>
+<td>Pipeline parallelism</td>
+<td>Layers split across devices (inter-layer)</td>
+<td>Very deep models</td>
+</tr>
+<tr>
+<td>Tensor parallelism</td>
+<td>Single layer's ops split, column/row-wise (intra-layer)</td>
+<td>One layer exceeds device memory</td>
+</tr>
+<tr>
+<td>Hybrid + ZeRO/FSDP</td>
+<td>Combine both; shard optimizer/state to cut redundancy</td>
+<td>Largest models</td>
+</tr>
+</tbody>
+</table>
+<p>(ch1 §Training efficiency, Figures 20-23)</p>
+<ul>
+<li><strong>Sampling:</strong> greedy, beam search (coherent but limits diversity), top-k/top-p — discuss pros/cons and speed-quality trade-offs (ch1 §Model sampling).</li>
+</ul>
+<h4>Step 5-7: Evaluation, System Design, Deployment</h4>
+<ul>
+<li><strong>Offline:</strong> discriminative = metrics vs ground truth (classification: precision/recall/F1/accuracy; regression: MSE/MAE/RMSE; ranking: P@k, MRR, mAP, nDCG). Generative needs multi-angle assessment — quality <em>and</em> prompt alignment (ch1 §Offline Evaluation).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Generative task</th>
+<th>Metrics (ch1 Table 3)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text generation</td>
+<td>Perplexity, BLEU, METEOR, ROUGE, CIDEr</td>
+</tr>
+<tr>
+<td>Image generation</td>
+<td>FID, IS, KID, SWD, PPL, LPIPS</td>
+</tr>
+<tr>
+<td>Text-to-video</td>
+<td>FVD, CLIPScore, FID, LPIPS, KID</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Online:</strong> business-aligned metrics — CTR, conversion, latency, engagement, revenue/user, churn, satisfaction, retention, completion rate; selection is subjective and involves stakeholders — voice your reasoning (ch1 §Online Evaluation).</li>
+<li><strong>System design beyond the model:</strong> safety filters (NSFW), post-processing/upscaling models, user-feedback loops for retraining, scalability (load balancers, distributed inference, model parallelism), privacy, bias auditing, adversarial robustness (ch1 §Overall ML system design).</li>
+<li><strong>Deployment &amp; monitoring:</strong> out of scope for GenAI-specific rounds — point to the ML System Design Interview book (<a href="https://www.aliaminian.com/books">1</a>) (ch1 §Deployment and monitoring).</li>
+</ul>
+<h4>Failure modes &amp; anti-patterns (ch1)</h4>
+<ul>
+<li><strong>Model = whole system:</strong> skipping safety, eval, monitoring components — symptom: no answer when asked &quot;how does this ship to millions safely?&quot;</li>
+<li><strong>Synthetic data without scrutiny:</strong> propagates source-model bias/errors and real-world distribution gaps — symptom: degraded output diversity (ch1 §Data collection).</li>
+<li><strong>Scaling params without data:</strong> DeepMind 2022 showed many existing LLMs were undertrained — wasted compute, symptom: bigger model, no loss improvement.</li>
+<li><strong>Confusing parameters with FLOPs:</strong> dense layers cost more compute than sparse at equal params — wrong optimization target when cost-constrained (ch1 §FLOP count).</li>
+<li><strong>Deferring non-functional requirements:</strong> latency/quality trade-offs surface late; symptom: architecture rework during tuning (ch1 §Non-functional requirements).</li>
+<li><strong>Single-metric generative evaluation:</strong> one score (e.g., FID) misses prompt alignment, safety, bias — assess multiple angles (ch1 §Offline Evaluation).</li>
+<li><strong>Sync data parallelism at scale:</strong> every step waits for the slowest device; async fixes speed but introduces stale-parameter inconsistency (ch1 §Data parallelism).</li>
+</ul>
+
 <h2 id="key-takeaways" tabindex="-1">Key Takeaways<a class="header-anchor" href="#key-takeaways">&ZeroWidthSpace;</a></h2>
 <ul>
 <li>The skeleton (requirements → ML task → data → model → eval → system design) is the transferable asset; every chapter instantiates it, so one rehearsal covers any prompt (ch2-ch11 structure).</li>
@@ -623,6 +894,7 @@ flowchart LR
 <li><a class="outline-link lvl3" href="#ch10---personalized-headshot-generation">ch10 - Personalized Headshot Generation</a></li>
 <li><a class="outline-link lvl3" href="#ch11---text-to-video-generation-latent-diffusion">ch11 - Text-to-Video Generation (latent diffusion)</a></li>
 <li><a class="outline-link lvl3" href="#failure-modes-anti-patterns">Failure modes &amp; anti-patterns</a></li>
+<li><a class="outline-link lvl3" href="#framework-foundations-ch1">Framework Foundations (ch1)</a></li>
 <li><a class="outline-link lvl3" href="#key-takeaways">Key Takeaways</a></li>
 <li><a class="outline-link lvl3" href="#interview-lens">Interview Lens</a></li>
     </ul>

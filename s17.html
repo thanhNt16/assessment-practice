@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link active" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 17 of 17</div><h1>Machine Learning System Design Interview (Aminian &amp; Xu)</h1>
+<div class="kicker">Section 17 of 26</div><h1>Machine Learning System Design Interview (Aminian &amp; Xu)</h1>
 <p>Your A3 defense is a system-design interview in committee form: the panel probes how you framed the ML objective, built the feature/data pipeline, and justified metrics — exactly this book's skeleton. All 11 chapters share one 7-step framework; the chapters mapping to data-engineering work (retrieval/ranking, feature stores, continual learning) get the most space below.</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — One Skeleton, Eleven Designs</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — One Skeleton, Eleven Designs", "nodes": [{"id": "panel", "label": "Committee: design a recommender", "cap": "Eleven chapters, one seven-step skeleton — seniority lives in data engineering; the models are the easy 20%."}, {"id": "clarify", "label": "Step 1 — Clarify", "cap": "Business objective, features, data sources/labels, constraints, scale, accuracy-vs-latency — work the panel's menu."}, {"id": "frame", "label": "Step 2 — Frame as ML task", "cap": "The load-bearing move: \"increase engagement\" → \"maximize watch time\" — name objectives with failure modes first."}, {"id": "clickbait", "label": "The clickbait trap", "cap": "Clicks reward clickbait, completions bias toward short videos — land on relevance-aware objectives."}, {"id": "data", "label": "Step 3 — Prepare data", "cap": "ETL + feature ops — imputation, scaling, encoding; labeling is a design decision: clicks free but noisy, humans scarce."}, {"id": "model", "label": "Step 4 — Develop the model", "cap": "Ladder: popularity baseline → LR → DNN → ensemble only if needed; GBDT only where retraining from scratch is acceptable."}, {"id": "loss", "label": "Weight the unobserved pairs", "cap": "Observed-only loss hits zero with degenerate all-ones embeddings — WALS forces real separation; walk the loss aloud."}, {"id": "metrics", "label": "Step 5 — Evaluate", "cap": "Reproduce the elimination chain: MRR ignores post-first hits, recall@k drowns, precision@k is rank-blind → nDCG or mAP."}, {"id": "calibrate", "label": "Calibrate before serving", "cap": "Ad pCTRs feed downstream auctions — NCE \u003c 1 vs the background-CTR baseline; uncalibrated models break the auction."}, {"id": "serve", "label": "Step 6 — Retrieve-then-rank", "cap": "Candidate generation → ranking → re-ranking; feature store = static batch + dynamic; business rules stay in re-rank."}, {"id": "monitor", "label": "Step 7 — Monitor + retrain", "cap": "Position bias inflates winners, frequent users over-represent — continual learning where freshness matters."}], "edges": [{"src": "panel", "label": "open skeleton", "dst": "clarify", "kind": null, "choice": false, "loop": false}, {"src": "clarify", "label": "frame objective", "dst": "frame", "kind": null, "choice": false, "loop": false}, {"src": "frame", "label": "Maximize clicks raw", "dst": "clickbait", "kind": "fail", "choice": true, "loop": false}, {"src": "frame", "label": "prepare data", "dst": "data", "kind": null, "choice": false, "loop": false}, {"src": "clickbait", "label": "reframe", "dst": "frame", "kind": null, "choice": false, "loop": true}, {"src": "data", "label": "pick model", "dst": "model", "kind": null, "choice": false, "loop": false}, {"src": "model", "label": "Implicit-feedback matrix factorization", "dst": "loss", "kind": "success", "choice": true, "loop": false}, {"src": "model", "label": "evaluate", "dst": "metrics", "kind": null, "choice": false, "loop": false}, {"src": "loss", "label": "evaluate", "dst": "metrics", "kind": null, "choice": false, "loop": false}, {"src": "metrics", "label": "Uncalibrated pCTR feeds bidding", "dst": "calibrate", "kind": "fail", "choice": true, "loop": false}, {"src": "metrics", "label": "serve", "dst": "serve", "kind": null, "choice": false, "loop": false}, {"src": "calibrate", "label": "serve", "dst": "serve", "kind": null, "choice": false, "loop": false}, {"src": "serve", "label": "monitor", "dst": "monitor", "kind": null, "choice": false, "loop": false}], "start": "panel"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/ml-serving-pipeline.png" alt="ml-serving-pipeline.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/ml-serving-pipeline.dark.png" alt="ml-serving-pipeline.png diagram (dark)" loading="lazy"></div>
@@ -648,6 +676,264 @@ flowchart LR
 <li><strong>Feedback-loop bias</strong>: over-recommended frequent users grow even more represented in training data (ch11, p250).</li>
 </ul>
 
+<h2 id="worked-design-gmail-smart-compose" tabindex="-1">Worked Design: Gmail Smart Compose<a class="header-anchor" href="#worked-design-gmail-smart-compose">&ZeroWidthSpace;</a></h2>
+<p>The GenAI interview opener: a decoder-only LLM doing next-token prediction behind a keystroke-triggered service with a ~100 ms budget. Every concept here — tokenization, pretrain/finetune, beam search, online metrics — is reusable vocabulary for any &quot;add LLM features to our pipeline&quot; discussion.</p>
+<h4>Requirements Framing</h4>
+<ul>
+<li><strong>Scope pinned by the interviewer dialogue:</strong> no personalization, suggest only when confident, ~1 B training emails, email body as initial context, English-only, no biased suggestions, ~1.8 B Gmail users (up to 500 emails/day each), imperceptible latency ≈ 100 ms (ch2 §Clarifying Requirements).</li>
+<li><strong>Task framing:</strong> input = sequence of typed words; output = continuation. Text generation task → sequential architecture needed (ch2 §Frame the Problem as an ML Task).</li>
+<li><strong>Transformer over RNN</strong> (ch2 §Frame the Problem as an ML Task, Table 1):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>RNN (GRU/LSTM)</th>
+<th>Transformer</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture</td>
+<td>Simple</td>
+<td>Complex</td>
+<td>Complexity buys capability</td>
+</tr>
+<tr>
+<td>Training efficiency</td>
+<td>Inefficient — sequential time steps</td>
+<td>Efficient — parallel via self-attention</td>
+<td>Faster training at higher per-step cost</td>
+</tr>
+<tr>
+<td>Long sequences</td>
+<td>Weak (vanishing gradient)</td>
+<td>Strong — attends to any distance</td>
+<td>Self-attention is O(n²) in sequence length</td>
+</tr>
+<tr>
+<td>Applications</td>
+<td>Simple tasks (time series)</td>
+<td>Language completion, translation</td>
+<td>Match architecture to task complexity</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The O(n²) attention cost motivates efficiency work — Group Attention, Flash Attention (ch2 §Frame the Problem as an ML Task).</li>
+</ul>
+<h4>Data Preparation</h4>
+<ul>
+<li><strong>Two data sources:</strong> general text (books, web, social — diverse vocabulary/syntax) + the 1 B email corpus (email style, common phrases) (ch2 §Data Preparation).</li>
+<li><strong>Text cleaning:</strong> remove non-English (language ID, e.g. FastText), replace confidential content (names, URLs, emails, phones) with placeholders — <code>john@gmail.com</code> → <code>##@gmail.com</code> — strip irrelevant symbols/emojis, deduplicate to prevent skewed learning (ch2 §Data Preparation).</li>
+<li><strong>Normalization:</strong> consistent formats, e.g. <code>(123) 456-7890</code> / <code>123-456-7890</code> → <code>1234567890</code> (ch2 §Data Preparation).</li>
+<li><strong>Tokenization levels</strong> — the interview table (ch2 §Data Preparation, Table 3):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Character-level</th>
+<th>Word-level</th>
+<th>Subword-level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vocabulary size</td>
+<td>~100</td>
+<td>~300,000+ (Transformer-XL: 267,735)</td>
+<td>~50,000–150,000</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Poor</td>
+<td>High but impractical (huge embedding table, slow training)</td>
+<td>High and practical</td>
+</tr>
+<tr>
+<td>Unseen words</td>
+<td>Decomposes to characters</td>
+<td>Cannot handle easily</td>
+<td>Decomposes into known subwords</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Choose subword</strong> (BPE, SentencePiece — GPT-4 uses a BPE variant, Gemini uses SentencePiece); use existing libraries (Tiktoken, SentencePiece), don't hand-roll (ch2 §Data Preparation).</li>
+<li><strong>Token indexing:</strong> build the vocabulary table, map tokens ↔ integer IDs (ch2 §Data Preparation).</li>
+</ul>
+<h4>Decoder-only Architecture</h4>
+<ul>
+<li><strong>Pick by generation vs understanding</strong> (ch2 §Architecture):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Variation</th>
+<th>Task type</th>
+<th>Example models</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Encoder-only</td>
+<td>Understanding: classification, NER, sentiment</td>
+<td>BERT, RoBERTa</td>
+</tr>
+<tr>
+<td>Decoder-only</td>
+<td>Generation, one token at a time</td>
+<td>GPT, LLaMA, Gemini, Claude, Grok</td>
+</tr>
+<tr>
+<td>Encoder-decoder</td>
+<td>Output transforms input (translation)</td>
+<td>T5, BART</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Smart Compose completes partial text → <strong>decoder-only</strong> (ch2 §Architecture).</li>
+<li><strong>Pipeline:</strong> text embedding → positional encoding → stacked Transformer blocks (multi-head self-attention + feed-forward) → prediction head producing a probability per vocabulary token (ch2 §Architecture, Fig. 22).</li>
+<li><strong>Embeddings fix two one-hot problems:</strong> sparsity (tens of thousands of IDs → dense low-dim vectors) and missing semantics (learned vectors place &quot;happy&quot;/&quot;joyful&quot; close, &quot;happy&quot;/&quot;sad&quot; far) (ch2 §Architecture).</li>
+<li><strong>Positional encoding</strong> is required because attention is permutation-invariant — without it &quot;initialize then use&quot; and &quot;use then initialize&quot; are indistinguishable (ch2 §Architecture):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed (sine-cosine)</td>
+<td>No extra parameters; maps any position → long-sequence generalization</td>
+<td>Possible max-position caps; may underfit task-specific position patterns</td>
+<td>Chosen for Smart Compose: efficiency + generalization</td>
+</tr>
+<tr>
+<td>Learned (trainable N×d matrix)</td>
+<td>Optimal position representation for the task</td>
+<td>Extra parameters; overfits to training sequence lengths</td>
+<td>Pay cost only when task benefits</td>
+</tr>
+</tbody>
+</table>
+<h4>Two-stage Training</h4>
+<ul>
+<li><strong>Never train from scratch on email data:</strong> small task data → weak learning, overfitting risk, expensive full-language training (ch2 §Training).</li>
+<li><strong>Stage 1 — pretraining</strong> on general data (e.g. Common Crawl, petabytes since 2008): objective = <strong>next-token prediction</strong>, loss = <strong>cross-entropy</strong> (ch2 §Training).</li>
+<li><strong>Stage 2 — finetuning</strong> on the 1 B emails: same objective and loss, email-context predictions (ch2 §Training).</li>
+<li>Loss over all token positions is computed <strong>in parallel</strong> within a sequence — one pass, per-position losses (ch2 §Training, Fig. 27).</li>
+<li><strong>Context beyond the body:</strong> body-only input cannot predict &quot;Dear John&quot; without knowing the recipient. Combine subject, recipient, sender, previous emails into one tagged sequence via a <strong>prompt template</strong>; GenAI decouples architecture from input structure (vs traditional per-type feature engineering) (ch2 §Training, Figs. 29–31).</li>
+<li>Transfer-learning benefits: one base model serves many tasks, faster finetuning, pretraining regularizes against overfitting, pretraining cost paid once (ch2 §Training).</li>
+</ul>
+<h4>Sampling: Deterministic by Design</h4>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Behavior</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deterministic (greedy, beam)</td>
+<td>Same input → same output</td>
+<td>Consistency, predictable, low inappropriate-suggestion risk</td>
+<td>Low diversity; greedy causes repetition</td>
+</tr>
+<tr>
+<td>Stochastic</td>
+<td>Samples from the predicted distribution</td>
+<td>Diversity, novelty</td>
+<td>Inconsistent outputs, unexpected/inappropriate text</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Email completion wants consistency</strong> → deterministic (ch2 §Sampling).</li>
+<li><strong>Greedy search</strong> (always pick the argmax token) is rarely used: narrow path → repetitive loops, e.g. the GPT-2 &quot;I'm not sure if I'll ever be able to...&quot; example (ch2 §Sampling, Fig. 34).</li>
+<li><strong>Beam search</strong> tracks top-k sequences (beam width k): init → expand each beam → prune by cumulative probability → stop at EOS or max length → return highest-scoring sequence. Drawbacks: similar outputs, expensive for long sequences — acceptable here because suggestions are short and diversity is unwanted (ch2 §Sampling, Figs. 36–37).</li>
+</ul>
+<h4>Evaluation</h4>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Metric</th>
+<th>Measures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Offline</td>
+<td><strong>Perplexity</strong></td>
+<td>exp of average negative log-likelihood; lower = better next-token prediction (ch2 §Evaluation)</td>
+</tr>
+<tr>
+<td>Offline</td>
+<td><strong>ExactMatch@N</strong></td>
+<td>% of generations matching the first N ground-truth words; average across lengths (ch2 §Evaluation)</td>
+</tr>
+<tr>
+<td>Online</td>
+<td>Acceptance rate / usage rate</td>
+<td>Suggestions accepted; % of emails using the feature (ch2 §Evaluation)</td>
+</tr>
+<tr>
+<td>Online</td>
+<td>Average completion time</td>
+<td>Email writing speed with vs without the feature (ch2 §Evaluation)</td>
+</tr>
+<tr>
+<td>Online</td>
+<td>System response time</td>
+<td>Suggestion latency — must stay under threshold (~100 ms requirement) (ch2 §Evaluation)</td>
+</tr>
+<tr>
+<td>Online</td>
+<td>Feedback rate, human evaluation</td>
+<td>Continuous improvement; user studies for satisfaction (ch2 §Evaluation)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>BLEU / ROUGE-N appear as newer helpful metrics (covered in ch3) (ch2 §Evaluation).</li>
+</ul>
+<p><div class="mermaid">
+flowchart LR
+    K[User keystrokes] --> T[Triggering service<br/>min context before activation]
+    T -->|trigger| P[Phrase generator<br/>beam search top-k]
+    P --> F1[Remove long suggestions]
+    F1 --> F2[Remove low-confidence scores]
+    F2 -->|highest-score completion| PP[Post-processing<br/>pronoun + sensitive-term + NSFW filters]
+    PP --> D[Display suggestion]
+</div></p>
+<ul>
+<li><strong>Triggering service:</strong> activates only with enough context (&quot;I hope&quot; yes, &quot;I&quot; no) and throttles suggestion frequency (ch2 §Overall ML System Design).</li>
+<li><strong>Phrase generator:</strong> beam-search top-k completions ending in EOS with scores; filters long and low-confidence candidates; forwards the top one (ch2 §Overall ML System Design).</li>
+<li><strong>Post-processing service:</strong> rule-based bias control — pronoun neutralization (&quot;he/she&quot;→&quot;they&quot;), gender-neutral words (&quot;chairman&quot;→&quot;chairperson&quot;), flagged-term lexical analysis (age/race/disability), NSFW keyword filtering (ch2 §Overall ML System Design).</li>
+</ul>
+<h4>Failure Modes &amp; Anti-patterns</h4>
+<ul>
+<li><strong>From-scratch training on task data:</strong> overfitting + prohibitive cost; symptom — great on training emails, poor generalization (ch2 §Training).</li>
+<li><strong>Body-only input:</strong> model can't predict recipient-dependent tokens (&quot;Dear&quot; → never suggests &quot;John&quot;); symptom — useless greetings (ch2 §Training).</li>
+<li><strong>No positional encoding:</strong> bag-of-words behavior, order-blind predictions (ch2 §Architecture).</li>
+<li><strong>Greedy search in production:</strong> repetitive degenerate text (ch2 §Sampling, Fig. 34).</li>
+<li><strong>Learned positional encoding on varied lengths:</strong> overfits training lengths, degrades on others (ch2 §Architecture).</li>
+<li><strong>Character- or word-level tokenization:</strong> performance loss or a 300 K+ vocabulary making training slow and costly (ch2 §Data Preparation).</li>
+<li><strong>Skipping confidence/length filters:</strong> users see long, specific, or half-confident guesses — trust collapses, acceptance rate drops (ch2 §Overall ML System Design).</li>
+<li><strong>No post-processing:</strong> biased or NSFW suggestions reach users — an explicitly stated hard requirement (ch2 §Clarifying Requirements, §Overall ML System Design).</li>
+</ul>
+
 <h2 id="key-takeaways" tabindex="-1">Key Takeaways<a class="header-anchor" href="#key-takeaways">&ZeroWidthSpace;</a></h2>
 <ul>
 <li>One skeleton, eleven designs — drill clarify → frame → data → model → eval → serve → monitor once, reuse on any prompt.</li>
@@ -662,7 +948,7 @@ flowchart LR
 </ul>
 
       <button class="mark-done" id="markDone">Mark section as done</button>
-<div class="pager"><a class="prev" href="s16.html"><div class="plabel">Previous</div><div class="ptitle">← Generative AI System Design (Aminian &amp; Sheng)</div></a><span></span></div>
+<div class="pager"><a class="prev" href="s16.html"><div class="plabel">Previous</div><div class="ptitle">← Generative AI System Design (Aminian &amp; Sheng)</div></a><a class="next" href="s18.html"><div class="plabel">Next</div><div class="ptitle">Machine Translation (Google Translate) →</div></a></div>
       <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
     </div>
   </main>
@@ -675,6 +961,7 @@ flowchart LR
 <li><a class="outline-link lvl3" href="#design-cards">Design Cards</a></li>
 <li><a class="outline-link lvl3" href="#the-retrieval-ranking-serving-skeleton-ch2-4-6-8-9-10-11">The Retrieval → Ranking Serving Skeleton (ch2, 4, 6, 8, 9, 10, 11)</a></li>
 <li><a class="outline-link lvl3" href="#failure-modes-anti-patterns">Failure modes &amp; anti-patterns</a></li>
+<li><a class="outline-link lvl3" href="#worked-design-gmail-smart-compose">Worked Design: Gmail Smart Compose</a></li>
 <li><a class="outline-link lvl3" href="#key-takeaways">Key Takeaways</a></li>
 <li><a class="outline-link lvl3" href="#interview-lens">Interview Lens</a></li>
     </ul>

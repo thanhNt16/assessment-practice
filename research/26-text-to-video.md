@@ -60,6 +60,28 @@ flowchart LR
     S --> T[Temporal SR 2x<br/>1280x720x120 = 5s@24FPS]
 ```
 
+:::scenario Generate 5-second 720p video from a prompt
+@frame Count the frames :: 5 s at 24 FPS = 120 frames — pixel-space diffusion is ~7 minutes per video; that multiplier drives every choice
+-> compress => @ldm
+@ldm Denoise latents, not pixels :: VAE compresses 8x spatial and 8x temporal — 512x smaller, diffusion runs entirely in latent space
+-> @arch
+@arch Pick DiT over U-Net :: 3D patchify + Transformer scales with data and compute; Sora and Movie Gen both chose it
+? Paired video-text data scarce => @cache | fail
+-> images folded in as single-frame videos => @cache | success
+@cache Precompute all latents :: 100M videos -> ~200 TB cached — per-step VAE encoding would stall every training iteration
+-> @sample
+@sample Denoise conditioned on text :: Random latent noise, text-encoder cross-attention, MSE against the true noise
+-> frame metrics only => @eval | fail
+-> FVD tracked => @eval | success
+@eval Judge motion, not just frames :: FID/IS miss flicker — FVD over I3D features catches temporal consistency; CLIP similarity checks alignment
+-> @safety
+@safety Gate both ends :: Prompt safety service before generation, harm detector on output — a single gate trusts the model to be safe
+-> safe => @sr | success
+@sr Restore resolution and frame rate :: Spatial SR to 720p and temporal SR 12 -> 24 FPS — the base model generates low-res, low-FPS
+-> @ship
+@ship Serve and monitor :: CTR, time on page, conversion — plus pairwise human votes for subjective quality
+:::
+
 (ch11 Fig. 21)
 
 ### Evaluation

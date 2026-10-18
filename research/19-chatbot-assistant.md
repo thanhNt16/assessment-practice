@@ -52,6 +52,27 @@ flowchart LR
     P --> CHAT[Chatbot model - helpful + safe]
 ```
 
+:::scenario Build a personal assistant chatbot
+@req Pin the requirements :: Text-in/text-out, English-only, strict safety, follow-up context, 4096-token window, 80K (instruction, answer) pairs
+-> framed => @data
+@data Clean the web corpus :: Strip boilerplate, filter domains, language-ID, dedup, anonymize PII
+-> corpus ready => @pretrain
+@pretrain Pretrain on trillions of tokens :: Next-token over Common Crawl/C4/GitHub/Wikipedia — 1000s of GPUs, months; the only expensive stage
+-> base model just continues text => @sft
+@sft SFT on demonstrations :: 10K-100K prompt-response pairs — same objective, turns the continuer into a responder
+-> plausible but unaligned => @rlhf | fail
+@rlhf Reward model + PPO :: 100K-1M ranked comparisons; generate → score → update toward high-reward responses
+-> @pos
+@pos RoPE for the 4096-token window :: Absolute encodings trained at 512 break at long context — rotate relative position in
+-> @decode
+@decode Sample with top-p + temperature :: Nucleus sampling adapts to sharp/flat distributions; greedy/beam loops in open-ended dialogue
+-> output unsafe => @gates | fail
+-> output safe => @gates | success
+@gates Two-sided safety :: Input filter rejects harmful prompts; output evaluator routes failures to the rejection generator
+-> @session
+@session Session management :: Chat history joins the enhanced prompt — the follow-up coherence mechanism
+:::
+
 | Stage | Data | Objective | Compute | Output |
 |---|---|---|---|---|
 | Pretraining | Named corpora: Common Crawl, C4, GitHub, Wikipedia, Books, ArXiv, Stack Exchange (Llama-1 uses all seven, ~1.4T tokens) | Next-token prediction, cross-entropy | 1000s GPUs, months, millions of $ | **Base model** |

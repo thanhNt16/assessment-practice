@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 4 of 17</div><h1>Distributed Systems Fundamentals</h1>
+<div class="kicker">Section 4 of 26</div><h1>Distributed Systems Fundamentals</h1>
 <p>Interviewers rarely say &quot;CAP theorem&quot; — they test it by asking why your Kafka topic has 3 replicas with <code>min.insync.replicas=2</code>, whether a retried Spark job double-counts, or why Snowflake loads can safely re-run.</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — The Quorum Decision</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — The Quorum Decision", "nodes": [{"id": "start", "label": "A partition occurs", "cap": "CAP only forces a choice **under partition** — before that, CA is coherent and you get both C and A."}, {"id": "cp", "label": "CP: consistency over availability", "cap": "CP blocks or rejects rather than serve stale — ZooKeeper, etcd, HBase; Kafka `min.insync.replicas=2` leans here."}, {"id": "ap", "label": "AP: availability over consistency", "cap": "AP answers with possibly stale data — Cassandra, DynamoDB, DNS; staleness is handled at the app level."}, {"id": "quorum", "label": "Apply the quorum rule", "cap": "`R + W > N` forces read/write overlap so reads see the newest value; `W > N/2` prevents split-brain."}, {"id": "w1", "label": "W=1/R=5 on N=5", "cap": "any node accepts writes (~99.999% availability, lowest latency) but reads need all 5 — only ~59.0% read availability."}, {"id": "w3", "label": "W=3/R=3 on N=5", "cap": "99.1% availability on both paths; `acks=all` + `min.insync.replicas=2` is this posture, CP-leaning over the ISR."}, {"id": "retries", "label": "Accept retries", "cap": "retries are mandatory, so delivery is **at-least-once** and duplicates are guaranteed, not exceptional."}, {"id": "idempotent", "label": "Make replays harmless", "cap": "idempotency keys, dedup tables, upserts and transactional offsets turn duplicate delivery into no-ops."}, {"id": "lww", "label": "Quorums don't stop LWW loss", "cap": "last-write-wins silently discards concurrent updates — causal ordering (vector clocks) and event time matter too."}, {"id": "eventtime", "label": "Order with event time", "cap": "wall clocks lie across machines — windows close deterministically only via **event time + watermarks**."}], "edges": [{"src": "start", "label": "CP — refuse stale answers", "dst": "cp", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "AP — serve possibly stale", "dst": "ap", "kind": "fail", "choice": true, "loop": false}, {"src": "cp", "label": "enforce the write quorum", "dst": "quorum", "kind": null, "choice": false, "loop": false}, {"src": "ap", "label": "still size the overlap", "dst": "quorum", "kind": null, "choice": false, "loop": false}, {"src": "quorum", "label": "Size for writes", "dst": "w1", "kind": "success", "choice": true, "loop": false}, {"src": "quorum", "label": "Balanced quorum", "dst": "w3", "kind": "fail", "choice": true, "loop": false}, {"src": "w1", "label": "rarely-read telemetry only", "dst": "retries", "kind": null, "choice": false, "loop": false}, {"src": "w3", "label": "duplicates still coming", "dst": "retries", "kind": null, "choice": false, "loop": false}, {"src": "retries", "label": "make replays no-ops", "dst": "idempotent", "kind": null, "choice": false, "loop": false}, {"src": "idempotent", "label": "Concurrent updates in flight", "dst": "lww", "kind": "success", "choice": true, "loop": false}, {"src": "idempotent", "label": "otherwise", "dst": "eventtime", "kind": null, "choice": false, "loop": false}, {"src": "lww", "label": "keep causal order", "dst": "eventtime", "kind": null, "choice": false, "loop": false}, {"src": "eventtime", "label": "next partition hits", "dst": "start", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/quorum-replication.png" alt="quorum-replication.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/quorum-replication.dark.png" alt="quorum-replication.png diagram (dark)" loading="lazy"></div>

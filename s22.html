@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Realistic Face Generation — EPAM A3 Senior Data Engineer assessment prep.">
+<title>Realistic Face Generation | Learn Data Platform Engineering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --vp-c-brand-1:#D95C41;--vp-c-brand-2:#C14E36;--vp-c-brand-3:#A8412B;
+  --vp-c-brand-soft:rgba(217,92,65,.1);
+  --vp-c-bg:#FAF9F5;--vp-c-bg-alt:#F4F3EE;--vp-c-bg-elv:#FFFFFF;
+  --vp-c-divider:rgba(0,0,0,.08);--vp-c-text-1:#1A1A1A;--vp-c-text-2:#4A4A4A;
+  --vp-c-text-3:#757575;
+  --vp-code-bg:rgba(142,150,170,.14);--vp-code-color:#1A1A1A;
+  --vp-c-tip-1:#D95C41;
+  --nav-h:64px;--sidebar-w:272px;--outline-w:256px;
+  --font-body:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Newsreader",serif;
+  --font-mono:"JetBrains Mono","Fira Code",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html.dark{
+  --vp-c-brand-1:#E07A64;--vp-c-brand-2:#E07A64;--vp-c-brand-3:#D95C41;
+  --vp-c-brand-soft:rgba(224,122,100,.15);
+  --vp-c-bg:#1A1A1A;--vp-c-bg-alt:#242424;--vp-c-bg-elv:#242424;
+  --vp-c-divider:rgba(255,255,255,.1);--vp-c-text-1:#E5E5E5;--vp-c-text-2:#B3B3B3;
+  --vp-c-text-3:#808080;
+  --vp-code-bg:rgba(101,117,133,.16);--vp-code-color:#E5E5E5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 24px)}
+body{margin:0;font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--vp-c-text-1);background:var(--vp-c-bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--vp-c-brand-2);text-decoration:none}
+a:hover{color:var(--vp-c-brand-1)}
+
+/* ---------- navbar ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--vp-c-divider);background:var(--vp-c-bg);z-index:100}
+.nav .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--vp-c-text-1);text-decoration:none}
+.nav .logo svg{flex:none}
+.nav .spacer{flex:1}
+.nav .search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--vp-c-divider);border-radius:8px;padding:6px 12px;color:var(--vp-c-text-3);font-size:13px;background:var(--vp-c-bg-alt);min-width:180px;cursor:text}
+.nav .search-box kbd{margin-left:auto;border:1px solid var(--vp-c-divider);border-radius:4px;padding:0 5px;font-size:11px;font-family:var(--font-mono);background:var(--vp-c-bg)}
+.nav .theme-btn{border:none;background:none;cursor:pointer;color:var(--vp-c-text-2);padding:8px;display:flex;border-radius:50%}
+.nav .theme-btn:hover{background:var(--vp-c-brand-soft);color:var(--vp-c-text-1)}
+.menu-toggle{display:none;border:none;background:none;color:var(--vp-c-text-2);cursor:pointer;padding:8px}
+.nav .home-link{color:var(--vp-c-text-2);font-size:14px;padding:8px;border-radius:8px;text-decoration:none}
+.nav .home-link:hover{color:var(--vp-c-text-1);background:var(--vp-c-brand-soft)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;padding-top:var(--nav-h);overflow-x:clip}
+.sidebar{position:fixed;top:var(--nav-h);bottom:0;left:0;width:var(--sidebar-w);overflow-y:auto;padding:24px 8px 96px 32px;border-right:1px solid var(--vp-c-divider);background:var(--vp-c-bg)}
+.sidebar .group-title{font-weight:700;font-size:14px;padding:8px 12px 4px;display:flex;justify-content:space-between;align-items:center}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar-link{display:flex;gap:8px;align-items:baseline;padding:5px 12px;font-size:14px;color:var(--vp-c-text-2);border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.4;text-decoration:none}
+.sidebar-link:hover{color:var(--vp-c-text-1)}
+.sidebar-link.active{color:var(--vp-c-brand-2);font-weight:600;border-left-color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft)}
+.sl-num{font-size:11px;color:var(--vp-c-text-3);font-family:var(--font-mono);flex:none}
+.sidebar-link.active .sl-num{color:var(--vp-c-brand-2)}
+.main{flex:1;min-width:0;margin-left:var(--sidebar-w)}
+@media(min-width:1440px){.main{margin-right:var(--outline-w)}}
+.vp-doc{max-width:784px;margin:0 auto;padding:32px 24px 96px}
+
+/* ---------- outline ---------- */
+.outline{position:fixed;top:var(--nav-h);right:0;bottom:0;width:var(--outline-w);overflow-y:auto;padding:24px 16px 96px;border-left:1px solid var(--vp-c-divider);display:none}
+@media(min-width:1440px){.outline{display:block}}
+.outline .outline-title{font-weight:600;font-size:14px;padding:0 12px 8px}
+.outline ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--vp-c-divider)}
+.outline-link{display:block;padding:4px 12px;font-size:13px;color:var(--vp-c-text-3);border-left:2px solid transparent;margin-left:-1px;line-height:1.4;text-decoration:none}
+.outline-link.lvl3{padding-left:26px}
+.outline-link:hover{color:var(--vp-c-text-1)}
+.outline-link.active{color:var(--vp-c-brand-2);border-left-color:var(--vp-c-brand-2)}
+
+/* ---------- typography ---------- */
+.vp-doc .kicker{font-size:13px;font-weight:700;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
+.vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
+.vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
+.vp-doc p{margin:16px 0}
+.header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
+.vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
+.header-anchor::before{content:"#"}
+.vp-doc strong{font-weight:600}
+.vp-doc code{font-family:var(--font-mono);font-size:.875em;background:var(--vp-code-bg);color:var(--vp-code-color);padding:.15em .35em;border-radius:4px}
+.vp-doc pre{position:relative;margin:16px 0;padding:20px 24px;border-radius:8px;background:var(--vp-code-bg);overflow-x:auto;font-size:14px;line-height:1.7}
+.vp-doc pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.vp-doc pre .copy-btn{position:absolute;top:8px;right:8px;border:1px solid var(--vp-c-divider);border-radius:4px;background:var(--vp-c-bg);color:var(--vp-c-text-3);font-size:11px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .2s;font-family:var(--font-body)}
+.vp-doc pre:hover .copy-btn{opacity:1}
+.vp-doc blockquote{margin:16px 0;padding:8px 16px;border-left:4px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.vp-doc blockquote p{margin:4px 0}
+.vp-doc ul,.vp-doc ol{padding-left:1.25rem;margin:16px 0}
+.vp-doc li{margin:4px 0}
+.vp-doc li::marker{color:var(--vp-c-text-3)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0}
+.vp-doc table{border-collapse:collapse;width:100%;margin:0;font-size:14px}
+.vp-doc th,.vp-doc td{border:1px solid var(--vp-c-divider);padding:8px 16px;text-align:left;line-height:1.6}
+.vp-doc th{background:var(--vp-c-bg-alt);font-weight:600}
+.vp-doc tr:nth-child(2n) td{background:var(--vp-c-bg-alt)}
+
+/* tables: stacked cards on small screens */
+@media (max-width:768px){
+.table-wrap{overflow:visible;margin:16px 0}
+.vp-doc table{display:block;border-collapse:separate;font-size:13.5px}
+.vp-doc thead{display:none}
+.vp-doc tbody{display:block}
+.vp-doc tr{display:block;border:1px solid var(--vp-c-divider);border-radius:10px;
+  background:var(--vp-c-bg-elv);margin:0 0 10px;overflow:hidden}
+.vp-doc tr:nth-child(2n) td{background:transparent}
+.vp-doc td{display:flex;gap:10px;border:none;border-bottom:1px solid var(--vp-c-divider);
+  padding:8px 12px;align-items:baseline}
+.vp-doc td:last-child{border-bottom:none}
+.vp-doc td::before{content:attr(data-th);flex:0 0 38%;font-weight:600;font-size:11.5px;
+  color:var(--vp-c-text-3);text-transform:uppercase;letter-spacing:.4px;line-height:1.5}
+.vp-doc td>a,.vp-doc td code{font-size:inherit}
+}
+@media (min-width:769px){
+.vp-doc table{min-width:520px}
+}
+.vp-doc hr{border:none;border-top:1px solid var(--vp-c-divider);margin:40px 0}
+.vp-doc a{text-decoration:underline;text-underline-offset:2px}
+.vp-doc a:hover{text-decoration:none}
+.vp-doc a.vm-btn,.vp-doc a.pw-link,.vp-doc .pager a,.vp-doc .feature a,.vp-doc .btn,.vp-doc a.vm-go{text-decoration:none}
+.vp-doc pre.ascii{font-size:12.5px;line-height:1.5}
+
+/* hero */
+.hero{padding:24px 0 8px}
+.hero .kicker{font-size:14px;font-weight:600;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:var(--font-head);font-size:56px;font-weight:600;margin:8px 0 12px;line-height:1.1;color:var(--vp-c-brand-1)}
+.hero .tagline{font-size:18px;color:var(--vp-c-text-2);max-width:640px}
+.hero .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid var(--vp-c-divider)}
+.btn.brand{background:#A8412B;color:#fff!important;border-color:#A8412B}
+.btn.brand:hover{background:#C14E36}
+.btn.alt{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)!important}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 8px}
+.feature{border:1px solid var(--vp-c-divider);border-radius:12px;padding:20px;background:var(--vp-c-bg-elv);transition:border-color .2s}
+.feature:hover{border-color:var(--vp-c-brand-3)}
+.feature .icon{font-size:22px}
+.feature h3{margin:8px 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:var(--vp-c-text-2);line-height:1.55}
+.feature a{font-size:13px;font-weight:600}
+
+/* mermaid */
+.mermaid{display:flex;justify-content:center;margin:24px 0;padding:16px;background:var(--vp-c-bg-alt);border:1px solid var(--vp-c-divider);border-radius:12px;overflow-x:auto}
+.mermaid svg{max-width:100%;height:auto}
+
+/* custom containers */
+.ct{margin:18px 0;padding:14px 18px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-elv);font-size:14.5px;line-height:1.65}
+.ct p{margin:6px 0}
+.ct .ct-title{font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.ct-info{border-left:4px solid var(--vp-c-brand-3)}
+.ct-info .ct-title{color:var(--vp-c-brand-2)}
+.ct-tip{border-left:4px solid #22a55b;background:rgba(34,165,91,.07)}
+.ct-tip .ct-title{color:#1d914e}
+.ct-warning{border-left:4px solid #e38407;background:rgba(227,132,7,.08)}
+.ct-warning .ct-title{color:#b4690e}
+html.dark .ct-tip{background:rgba(34,165,91,.12)}
+html.dark .ct-tip .ct-title{color:#4ccb7f}
+html.dark .ct-warning{background:rgba(227,132,7,.12)}
+html.dark .ct-warning .ct-title{color:#f0b45c}
+
+/* ---------- Duolingo path map ---------- */
+.vmap{margin:28px 0 8px;border:1px solid var(--vp-c-divider);border-radius:16px;background:var(--vp-c-bg-elv);overflow:hidden}
+.vmap-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--vp-c-divider);font-weight:700;font-size:14px}
+.vm-progress{color:var(--vp-c-text-3);font-weight:600;font-size:13px}
+.vmap-body{position:relative;padding:8px 0 24px}
+.vm-svg{display:block;margin:0 auto;width:340px;height:auto}
+.nav-mod{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--vp-c-text-3);padding:14px 12px 3px}
+.vm-mod{position:absolute;left:12px;right:12px;border:1px dashed var(--vp-c-divider);border-radius:12px;pointer-events:none}
+.vm-mod span{position:absolute;top:-9px;left:14px;background:var(--vp-c-bg-elv);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--vp-c-text-3)}
+.vm-path{stroke:var(--vp-c-divider);stroke-width:14;stroke-linecap:round;stroke-dasharray:0 18}
+.vm-node{position:absolute;width:72px;height:64px}
+.vm-btn{position:relative;width:64px;height:60px;border:none;border-radius:50%;background:var(--vp-c-bg-alt);border-bottom:5px solid var(--vp-c-divider);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .2s;padding:0;color:var(--vp-c-text-1)}
+.vm-btn:hover{transform:scale(1.08);filter:brightness(1.05)}
+.vm-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.vm-check{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:#22a55b;color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;border:2px solid var(--vp-c-bg-elv)}
+.vm-node.done .vm-btn{background:#e3f5e9;border-bottom-color:#1d914e}
+.vm-node.done .vm-check{display:flex}
+html.dark .vm-node.done .vm-btn{background:#12351f}
+.vm-node.current .vm-btn{background:var(--vp-c-brand-soft);border-bottom-color:var(--vp-c-brand-2);animation:vm-pulse 2s infinite}
+@keyframes vm-pulse{0%,100%{box-shadow:0 0 0 6px var(--vp-c-brand-soft)}50%{box-shadow:0 0 0 12px var(--vp-c-brand-soft)}}
+.vm-num{position:absolute;left:-26px;top:16px;font-size:12px;font-weight:700;color:var(--vp-c-text-3);width:20px;text-align:center}
+.vm-card{position:absolute;min-width:180px;max-width:230px;background:var(--vp-c-bg);border:1px solid var(--vp-c-divider);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;top:-18px;left:auto;right:calc(100% + 14px)}
+.vm-node:hover .vm-card,.vm-node.open .vm-card{opacity:1;pointer-events:auto}
+.vm-card-title{font-weight:700;font-size:14px}
+.vm-card-blurb{font-size:12.5px;color:var(--vp-c-text-2);line-height:1.5;margin:4px 0 8px}
+.vm-go{font-size:13px;font-weight:700}
+.vm-node[data-side="r"] .vm-card{right:auto;left:calc(100% + 14px)}
+
+/* compact path list (section pages) */
+.pathlist{list-style:none;margin:0 0 8px;padding:0}
+.pw-link{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:13px;color:var(--vp-c-text-2);border-radius:6px;text-decoration:none}
+.pw-link:hover{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)}
+.pw-ic{width:20px;flex:none}
+.pw-name{flex:1}
+.pw-check{color:#22a55b;font-weight:700;opacity:0}
+.pw-item.done .pw-check{opacity:1}
+.pw-item.done .pw-name{color:var(--vp-c-text-3);text-decoration:line-through}
+.pw-item.current .pw-link{color:var(--vp-c-brand-2);font-weight:600;background:var(--vp-c-brand-soft)}
+
+/* mark-as-read + pager */
+.mark-done{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 18px;border-radius:20px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.mark-done:hover{border-color:#22a55b}
+.mark-done.done{background:#e3f5e9;border-color:#1d914e;color:#1d914e}
+html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--vp-c-divider)}
+.pager a{flex:1;max-width:48%;border:1px solid var(--vp-c-divider);border-radius:8px;padding:12px 16px;font-size:14px}
+.pager a .plabel{font-size:12px;color:var(--vp-c-text-3)}
+.pager a .ptitle{font-weight:600;color:var(--vp-c-brand-2)}
+.pager a.next{text-align:right;margin-left:auto}
+.footer-note{text-align:center;color:var(--vp-c-text-3);font-size:13px;margin-top:48px}
+
+@media(max-width:960px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;z-index:99;top:var(--nav-h);left:0;bottom:0;background:var(--vp-c-bg);width:min(320px,85vw);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .nav{padding:0 16px}
+  .nav .search-box{display:none}
+  .vp-doc{padding:24px 16px 96px}
+  .hero h1{font-size:30px}
+  .vp-doc table{table-layout:fixed}
+  .vp-doc th{white-space:normal}
+  .vp-doc td,.vp-doc th{overflow-wrap:anywhere}
+  .vp-doc code{overflow-wrap:anywhere;word-break:break-word}
+  .vp-doc pre{font-size:12.5px;padding:14px 16px}
+  .vp-doc pre code{overflow-wrap:normal;word-break:normal}
+  .mermaid{padding:8px}
+  .vm-num{display:none}
+}
+@media(max-width:760px){
+  .vm-card{position:fixed;top:auto;bottom:16px;left:16px!important;right:16px!important;max-width:none;z-index:200}
+  .vm-node.open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;pointer-events:none}
+  .vm-node.open .vm-btn{position:relative;z-index:160}
+  .vm-svg{width:min(340px,90vw)}
+}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .hero .tagline{font-size:16px}
+  .btn{padding:9px 14px;font-size:13px}
+  .features{grid-template-columns:1fr 1fr}
+  .vp-doc h1{font-size:26px}
+  .vp-doc h2{font-size:20px}
+  .vm-svg{width:min(300px,85vw)}
+}
+@media(max-width:420px){.features{grid-template-columns:1fr}}
+.dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
+.dg-frame iframe{display:block;width:100%;height:640px;border:0}
+.dg-png img{display:block;width:100%;height:auto}
+.dg-dark{display:none}
+html.dark .dg-light{display:none}
+html.dark .dg-dark{display:block}
+.dg-png img{cursor:zoom-in}
+@font-face{font-family:Excalifont;src:url(fonts/Excalifont.woff2) format('woff2');font-display:swap}
+.scenario{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);overflow:hidden}
+.sc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--vp-c-divider);font-weight:600;font-size:14px}
+.sc-head .sc-ic{margin-right:6px}
+.sc-body{position:relative;height:420px;overflow:hidden;padding:0;cursor:grab;overscroll-behavior:contain;touch-action:none}
+.sc-body.dragging{cursor:grabbing;user-select:none}
+.sc-svg{display:block;position:absolute;top:0;left:0;transform-origin:0 0;font-family:Excalifont,cursive}
+.sc-svg .sc-node{cursor:pointer}
+.sc-svg text{font-family:Excalifont,cursive}
+.sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
+.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:3.5px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-node text{stroke:#e5e7eb;stroke-width:.55px}
+html.dark .sc-node.hl text{stroke:#ffffff}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
+.sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
+.sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
+.sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sc-btn{border:1.5px solid var(--vp-c-divider);border-radius:9px;background:var(--vp-c-bg);color:var(--vp-c-text-1);font-family:Excalifont,cursive;font-size:15px;padding:6px 14px;cursor:pointer}
+.sc-btn:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.sc-btn.ok{border-color:#047857;color:#047857}
+.sc-btn.bad{border-color:#dc2626;color:#dc2626}
+.sc-bar{position:absolute;top:8px;right:8px;left:auto;display:flex;gap:4px;justify-content:flex-end;width:auto;padding:0;z-index:5;pointer-events:none}
+.sc-bar>*{pointer-events:auto}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);font-size:13px;padding:4px 10px;cursor:pointer;font-family:var(--font-body);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+html.dark .sc-btn{background:var(--vp-c-bg)}
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
+.lb.open{display:block}
+.lb-vp{position:absolute;inset:0;overflow:auto;padding:64px 20px 20px;cursor:zoom-out}
+.lb-img{display:block;margin:0 auto;max-width:none;background:var(--vp-c-bg-elv);border-radius:10px}
+.lb-bar{position:fixed;top:12px;right:16px;display:flex;gap:8px;z-index:201;align-items:center}
+.lb-bar button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-size:15px;padding:5px 12px;cursor:pointer;font-family:var(--font-body)}
+.lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
+@media (max-width:640px){.dg-frame iframe{height:480px}}
+</style>
+<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
+</head>
+<body data-section="21">
+<nav class="nav">
+  <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <a class="logo" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D95C41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Learn Data Platform Engineering</span></a>
+  <div class="spacer"></div>
+  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="group-title">Course Sections</div>
+    <ul>
+<li class="nav-mod">🎯 Goal &amp; Foundations</li>
+<li><a class="sidebar-link" href="s01.html"><span class="sl-num">01</span>The EPAM A3 Senior Data Engineer Assessment</a></li>
+<li><a class="sidebar-link" href="s02.html"><span class="sl-num">02</span>SQL Deep Dive: The Problems EPAM Actually Asks</a></li>
+<li><a class="sidebar-link" href="s03.html"><span class="sl-num">03</span>Python &amp; PySpark: Coding Patterns</a></li>
+<li><a class="sidebar-link" href="s04.html"><span class="sl-num">04</span>Distributed Systems Fundamentals</a></li>
+<li class="nav-mod">🏗️ Platform Design</li>
+<li><a class="sidebar-link" href="s05.html"><span class="sl-num">05</span>Data Platform Architecture</a></li>
+<li><a class="sidebar-link" href="s06.html"><span class="sl-num">06</span>Batch vs Streaming</a></li>
+<li><a class="sidebar-link" href="s07.html"><span class="sl-num">07</span>Data Warehouse vs Data Lake vs Lakehouse</a></li>
+<li><a class="sidebar-link" href="s08.html"><span class="sl-num">08</span>Snowflake vs Databricks</a></li>
+<li class="nav-mod">⚙️ Technology Deep-Dive</li>
+<li><a class="sidebar-link" href="s09.html"><span class="sl-num">09</span>Table Formats: Delta Lake vs Iceberg vs Hudi</a></li>
+<li><a class="sidebar-link" href="s10.html"><span class="sl-num">10</span>Compute Engines: Spark vs Flink</a></li>
+<li><a class="sidebar-link" href="s11.html"><span class="sl-num">11</span>Spark Performance: Catalyst, AQE &amp; Tuning</a></li>
+<li><a class="sidebar-link" href="s12.html"><span class="sl-num">12</span>Messaging &amp; Streaming Backbones: Kafka and Friends</a></li>
+<li class="nav-mod">🏁 Production &amp; Defense</li>
+<li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
+<li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
+<li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
+<li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
+<li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link active" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
+    </ul>
+<div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
+  <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="1"><a class="pw-link" href="s02.html">
+  <span class="pw-ic">🧮</span><span class="pw-name">2. SQL</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="2"><a class="pw-link" href="s03.html">
+  <span class="pw-ic">🐍</span><span class="pw-name">3. PySpark</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="3"><a class="pw-link" href="s04.html">
+  <span class="pw-ic">🌐</span><span class="pw-name">4. Distributed</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="4"><a class="pw-link" href="s05.html">
+  <span class="pw-ic">🏗️</span><span class="pw-name">5. Architecture</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="5"><a class="pw-link" href="s06.html">
+  <span class="pw-ic">🌊</span><span class="pw-name">6. Streaming</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="6"><a class="pw-link" href="s07.html">
+  <span class="pw-ic">🏬</span><span class="pw-name">7. Lakehouse</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="7"><a class="pw-link" href="s08.html">
+  <span class="pw-ic">❄️</span><span class="pw-name">8. Snow v DBX</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="8"><a class="pw-link" href="s09.html">
+  <span class="pw-ic">🧊</span><span class="pw-name">9. Formats</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="9"><a class="pw-link" href="s10.html">
+  <span class="pw-ic">⚡</span><span class="pw-name">10. Engines</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="10"><a class="pw-link" href="s11.html">
+  <span class="pw-ic">🔧</span><span class="pw-name">11. Spark Tuning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="11"><a class="pw-link" href="s12.html">
+  <span class="pw-ic">📨</span><span class="pw-name">12. Kafka</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="12"><a class="pw-link" href="s13.html">
+  <span class="pw-ic">🛡️</span><span class="pw-name">13. Reliability</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="13"><a class="pw-link" href="s14.html">
+  <span class="pw-ic">📚</span><span class="pw-name">14. Practice</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="14"><a class="pw-link" href="s15.html">
+  <span class="pw-ic">🎯</span><span class="pw-name">15. Playbook</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="15"><a class="pw-link" href="s16.html">
+  <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
+  <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
+</a></li></ul>
+  </aside>
+  <main class="main">
+    <div class="vp-doc">
+
+<div class="kicker">Section 22 of 26</div><h1>Realistic Face Generation</h1>
+<p>The classic GAN interview: near-real-time (&lt;1s) unconditioned synthesis at 1024×1024 over 70k licensed images — the one design where &quot;pick GAN over diffusion&quot; is defensible: facial attribute manipulation needs a structured latent space (ch7 §Clarifying Requirements, §Choosing a suitable ML approach).</p>
+
+<h2 id="requirements-snapshot" tabindex="-1">Requirements Snapshot<a class="header-anchor" href="#requirements-snapshot">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Locked answer</th>
+<th>Design consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scope</td>
+<td>Faces only, entertainment/content-creation first, data collection later</td>
+<td>Domain-specific model, not general text-to-image</td>
+</tr>
+<tr>
+<td>Diversity</td>
+<td>Ethnicities, ages, genders balanced</td>
+<td>Dataset rebalancing becomes a first-class pipeline step</td>
+</tr>
+<tr>
+<td>Attribute control</td>
+<td>Not now; stretch goal</td>
+<td>Keeps GAN in play; latent manipulation is the stretch</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>70,000 licensed public images</td>
+<td>Augmentation + quality filtering mandatory</td>
+</tr>
+<tr>
+<td>Resolution / latency</td>
+<td>1024×1024, &lt;1s</td>
+<td>Kills autoregressive + diffusion; favors one-pass GAN (ch7 §Clarifying Requirements)</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="choosing-the-generative-approach" tabindex="-1">Choosing the Generative Approach<a class="header-anchor" href="#choosing-the-generative-approach">&ZeroWidthSpace;</a></h2>
+<p>Users provide no input; all four approaches map a random noise vector → image (ch7 §Specifying the system's input and output).</p>
+<table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>VAE</th>
+<th>GAN</th>
+<th>Autoregressive</th>
+<th>Diffusion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quality</td>
+<td>Low</td>
+<td>Moderate</td>
+<td>High</td>
+<td>Exceptional</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Fast</td>
+<td>Fast</td>
+<td>Slow</td>
+<td>Slow</td>
+</tr>
+<tr>
+<td>Training stability</td>
+<td>Stable</td>
+<td>Unstable</td>
+<td>Stable</td>
+<td>Stable</td>
+</tr>
+<tr>
+<td>Control over generation</td>
+<td>Limited</td>
+<td>Limited</td>
+<td>Flexible</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td>Facial manipulation</td>
+<td>No</td>
+<td><strong>Yes</strong></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Novelty</td>
+<td>Limited</td>
+<td>Limited</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Resource intensity</td>
+<td>Moderate</td>
+<td>Moderate</td>
+<td>High</td>
+<td>High</td>
+</tr>
+</tbody>
+</table>
+<p>(ch7 Table 1)</p>
+<ul>
+<li><strong>VAE</strong>: encoder→latent→decoder; reparameterization trick makes the latent a multivariate Gaussian — great compression (ch11 video system), blurry output. Rejected: low realism (ch7 §Variational autoencoder).</li>
+<li><strong>Autoregressive</strong> (DALL-E, Muse): image as token sequence through a Transformer; detailed and controllable, but token-by-token is too slow for &lt;1s and there's no manipulable latent space (ch7 §Autoregressive model).</li>
+<li><strong>Diffusion</strong> (DALL·E 3): iterative denoising over fixed steps; best quality but multiple steps → slow, no structured latent space (ch7 §Diffusion model).</li>
+<li><strong>GAN, selected</strong>: single forward pass hits the latency target; structured latent space enables attribute control via StyleGAN (<a href="https://arxiv.org/abs/1812.04948">StyleGAN</a>, <a href="https://arxiv.org/abs/1912.04958">StyleGAN2</a>) — at the cost of unstable training (ch7 §Choosing a suitable ML approach).</li>
+</ul>
+<p><div class="mermaid">
+flowchart TD
+    R[Noise vector, no user input] --> REQ{Latency < 1s?}
+    REQ -- sequential generation --> NO[Reject autoregressive + diffusion]
+    REQ -- single forward pass --> F{Facial manipulation possible later?}
+    F -- needs structured latent space --> G[GAN + StyleGAN generator]
+    F -- compression is the goal --> V[VAE - ch11 video system]
+    G --> C{Attribute control?}
+    C -- stretch goal --> S[Adjust latent vector per attribute]
+    C -- v1 --> P[Sample latent, generate, serve]
+</div></p>
+<p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Generate photorealistic faces in under a second</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Generate photorealistic faces in under a second", "nodes": [{"id": "req", "label": "Lock the requirements", "cap": "Faces only, 1024x1024, \u003c 1 s, balanced demographics, attribute control as the stretch goal"}, {"id": "pick", "label": "Pick the generative approach", "cap": "Diffusion/autoregressive need many sequential steps; VAE is blurry and unmanipulable; GAN is one forward pass with a structured latent space"}, {"id": "data", "label": "Balance the 70k images", "cap": "Quality filter, flip/rotate/color augmentation, resize to 1024 with pixels normalized to -1..1, classifier-tagged demographic rebalancing"}, {"id": "arch", "label": "Build G and D", "cap": "Generator: transposed-conv upsampling, BatchNorm + ReLU, final Tanh; discriminator: stride-2 conv downsampling, sigmoid head"}, {"id": "train", "label": "Alternate freeze-train", "cap": "Train D a few iterations on real + generated, freeze, train G to fool it — imbalance is the root failure"}, {"id": "fix", "label": "Stabilize with named remedies", "cap": "WGAN critic for vanishing gradients, unrolled GAN for mode collapse, different learning rates + noise into D for convergence"}, {"id": "stop", "label": "Stop at the balance point", "cap": "Past it, D's feedback becomes coin flips and quality degrades"}, {"id": "sample", "label": "Random latent sampling", "cap": "Full Gaussian over the latent space — diversity matters for faces; truncate only if outliers hurt"}, {"id": "eval", "label": "FID + IS + pairwise human votes", "cap": "Lower FID, higher IS — but automated metrics misalign with judgment; human photorealism votes decide"}, {"id": "ship", "label": "Deploy with the retrain loop", "cap": "Generator + training + evaluation + deployment services; retrain periodically on user-approved images"}], "edges": [{"src": "req", "label": "pinned", "dst": "pick", "kind": null, "choice": false, "loop": false}, {"src": "pick", "label": "training instability accepted", "dst": "data", "kind": "success", "choice": false, "loop": false}, {"src": "data", "label": null, "dst": "arch", "kind": null, "choice": false, "loop": false}, {"src": "arch", "label": null, "dst": "train", "kind": null, "choice": false, "loop": false}, {"src": "train", "label": "vanishing gradients or mode collapse", "dst": "fix", "kind": "fail", "choice": false, "loop": false}, {"src": "train", "label": "D accuracy near 50%", "dst": "stop", "kind": "fail", "choice": false, "loop": false}, {"src": "train", "label": "balanced", "dst": "sample", "kind": "success", "choice": false, "loop": false}, {"src": "fix", "label": null, "dst": "train", "kind": null, "choice": false, "loop": true}, {"src": "stop", "label": null, "dst": "sample", "kind": null, "choice": false, "loop": false}, {"src": "sample", "label": "FID regression or humans prefer the old model", "dst": "eval", "kind": "fail", "choice": false, "loop": false}, {"src": "sample", "label": "pass", "dst": "eval", "kind": "success", "choice": false, "loop": false}, {"src": "eval", "label": null, "dst": "ship", "kind": null, "choice": false, "loop": false}], "start": "req"}</script></div></p>
+
+<h2 id="data-preparation" tabindex="-1">Data Preparation<a class="header-anchor" href="#data-preparation">&ZeroWidthSpace;</a></h2>
+<p>Four steps on the 70k images (ch7 §Data Preparation):</p>
+<ul>
+<li><strong>Quality filter</strong>: drop low-resolution images; ML models filter low-quality/blurry ones.</li>
+<li><strong>Augmentation</strong>: flips, rotation, color adjustment — more variation, better generalization.</li>
+<li><strong>Normalize + resize</strong>: standard dimension 1024×1024; pixel range normalized to <strong>-1 to 1</strong> (this drives the Tanh output choice below).</li>
+<li><strong>Diversity balancing</strong>: classifiers tag gender/age/attributes; rebalance — dataset bias becomes output bias.</li>
+</ul>
+
+<h2 id="architecture" tabindex="-1">Architecture<a class="header-anchor" href="#architecture">&ZeroWidthSpace;</a></h2>
+<p><strong>Generator</strong> — noise → image via stacked upsampling blocks (ch7 §Architecture, Fig. 8):</p>
+<pre><code class="language-text">100-dim noise -&gt; reshape 1x1x100 -&gt; ConvT 4x4x1024 -&gt; 8x8x512 -&gt; 16x16x256
+             -&gt; 32x32x128 -&gt; 64x64x3 RGB
+each block: ConvTranspose2d + BatchNorm2D + ReLU; final block swaps ReLU -&gt; Tanh
+            (Tanh matches the -1..1 pixel normalization from data prep)
+</code></pre>
+<ul>
+<li><strong>Transposed convolution</strong> (&quot;deconvolution&quot;): inserts zeros between pixels, then convolves — the inverse of standard convolution; <code>ConvTranspose2d</code> in PyTorch (ch7 §Transposed convolution, Fig. 9).</li>
+<li><strong>Normalization layer</strong>: keeps activation distributions consistent amid two competing networks, enabling higher learning rates (<a href="https://developers.google.com/machine-learning/gan/training">GAN training</a>):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Normalizes across</th>
+<th>Where it wins</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Batch (BN)</td>
+<td>Batch dimension, per feature</td>
+<td>Deep CNNs, GAN generators; also regularizes</td>
+</tr>
+<tr>
+<td>Layer (LN)</td>
+<td>Features of each sample</td>
+<td>Small/variable batches: RNNs, Transformers</td>
+</tr>
+<tr>
+<td>Instance (IN)</td>
+<td>Each feature map per sample</td>
+<td>Style transfer, image generation</td>
+</tr>
+<tr>
+<td>Group (GN)</td>
+<td>Feature groups</td>
+<td>Very small batches where BN fails</td>
+</tr>
+</tbody>
+</table>
+<p>(ch7 §Normalization layer, Fig. 10)</p>
+<ul>
+<li><strong>Non-linear activation</strong>: ReLU per block; without it the stack collapses to a linear map regardless of depth (ch7 §Non-linear activation).</li>
+</ul>
+<p><strong>Discriminator</strong> — binary classifier: real vs generated (ch7 §Architecture, Fig. 12-13):</p>
+<ul>
+<li>Downsampling blocks: Conv2D with <strong>stride 2</strong> to halve spatial dims, BatchNorm2D + ReLU between layers.</li>
+<li>Classification head: 1-2 fully connected layers → <strong>sigmoid</strong> → probability the image is real.</li>
+</ul>
+<p><div class="mermaid">
+flowchart LR
+    subgraph alternate training
+    A[1. Freeze generator<br>train discriminator a few iters<br>on real + generated images] --> B[2. Freeze discriminator<br>train generator a few iters<br>to fool it]
+    B --> A
+    end
+</div></p>
+<p>Alternating freeze-train keeps both improving; imbalance either way is empirically fatal (ch7 §Training, Fig. 14).</p>
+<ul>
+<li><strong>Losses</strong>: discriminator minimizes binary cross-entropy; generator minimizes <code>-log D(G(z))</code>; unified as the <strong>minimax loss</strong> — D maximizes, G minimizes (<a href="https://arxiv.org/abs/1406.2661">GAN paper</a>, ch7 §ML objective and loss function).</li>
+</ul>
+
+<h2 id="gan-training-challenges" tabindex="-1">GAN Training Challenges<a class="header-anchor" href="#gan-training-challenges">&ZeroWidthSpace;</a></h2>
+<p>The three interview-mandatory failures (ch7 §Common training challenges in GANs):</p>
+<table>
+<thead>
+<tr>
+<th>Challenge</th>
+<th>Mechanism</th>
+<th>Mitigations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vanishing gradients</td>
+<td>Discriminator gets too good → near-zero gradients reach the generator → learning stalls</td>
+<td>Modified minimax (generator maximizes <code>log D(G(z))</code>); <strong>Wasserstein loss</strong> (WGAN): critic outputs a &quot;realness&quot; score, loss = <code>D(x) − D(G(z))</code></td>
+</tr>
+<tr>
+<td>Mode collapse</td>
+<td>Generator finds one plausible image that fools D and keeps emitting it → limited variety</td>
+<td>Wasserstein loss; <strong>Unrolled GAN</strong> (<a href="https://arxiv.org/abs/1611.02163">paper</a>)</td>
+</tr>
+<tr>
+<td>Failure to converge</td>
+<td>Generator improves → D accuracy falls toward 50% (coin-flip) → feedback becomes noise → quality collapses</td>
+<td>Normalization; <strong>different learning rates</strong> for G/D; weight decay; <strong>noise into discriminator inputs</strong></td>
+</tr>
+</tbody>
+</table>
+<p>(ch7 §Vanishing gradients, §Mode collapse, §Failure to converge)</p>
+
+<h2 id="sampling" tabindex="-1">Sampling<a class="header-anchor" href="#sampling">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>Latent space</strong>: learned during training; each point maps to a distinct face (ch7 §Sampling, Fig. 15).</li>
+<li><strong>Random sampling</strong>: draw latent vectors from a standard Gaussian over the full space → diverse outputs.</li>
+<li><strong>Truncated sampling</strong>: restrict to the high-probability region → fewer outliers, higher realism at the cost of diversity.</li>
+<li><strong>Choice</strong>: random sampling — diversity matters for faces and &quot;usually works well in practice&quot; (ch7 §Sampling, Fig. 16).</li>
+</ul>
+
+<h2 id="evaluation" tabindex="-1">Evaluation<a class="header-anchor" href="#evaluation">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>What it measures</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Inception score</strong></td>
+<td>Quality + diversity of generated set alone</td>
+<td>Inception v3 class probabilities: per-image distribution peaked (quality), marginal near-uniform (diversity); score = exponentiated average KL divergence (<a href="https://en.wikipedia.org/wiki/Inception_score">Inception score</a>)</td>
+</tr>
+<tr>
+<td><strong>FID</strong></td>
+<td>Similarity of generated vs real feature distributions</td>
+<td>Inception v3 deep-layer features from both sets → mean + covariance each → Fréchet distance; <strong>lower = better</strong> (<a href="https://en.wikipedia.org/wiki/Fr%C3%A9chet_inception_distance">FID</a>)</td>
+</tr>
+<tr>
+<td><strong>KID</strong></td>
+<td>Kernel-based distance between generated and real distributions</td>
+<td>Named alongside IS/FID, which remain most used (ch7 §Offline evaluation metrics)</td>
+</tr>
+<tr>
+<td><strong>Human evaluation</strong></td>
+<td>Photorealism, aesthetics — what metrics miss</td>
+<td>Pairwise: users pick the more photorealistic of two faces (<a href="https://arxiv.org/abs/2204.06125">protocol</a>)</td>
+</tr>
+</tbody>
+</table>
+<p>(ch7 §Offline evaluation metrics, Figs. 17-19)</p>
+<ul>
+<li>IS/FID rely on Inception v3's ImageNet classes and can misalign with human judgment; CLIP-based metrics align better, but <strong>human evaluation remains the most reliable</strong> (ch7 §Evaluation).</li>
+<li><strong>Online</strong>: user feedback (surveys, ratings, comments) and request→image latency — latency monitoring doubles as bottleneck detection (ch7 §Online evaluation metrics).</li>
+</ul>
+
+<h2 id="overall-ml-system-design" tabindex="-1">Overall ML System Design<a class="header-anchor" href="#overall-ml-system-design">&ZeroWidthSpace;</a></h2>
+<p><div class="mermaid">
+flowchart TD
+    U[User request<br>optional attributes] --> FG[Face generator<br>GAN + StyleGAN latent adjustment]
+    TD[Training data] --> TS[Training service<br>periodic retrain on user-approved<br>generated images + new data]
+    TS --> ES[Evaluation service<br>predefined metrics gate<br>new model vs existing]
+    ES -->|passes| DS[Deployment service<br>low-downtime rollout<br>+ performance monitoring]
+    DS --> FG
+</div></p>
+<p>(ch7 §Overall ML System Design, Fig. 20)</p>
+<ul>
+<li>Attribute control lives in the face generator: adjust the latent vector per age/gender/hairstyle/expression; architecture details are out of interview scope (<a href="https://nvlabs.github.io/stylegan3/">StyleGAN3</a>) (ch7 §Face generator).</li>
+</ul>
+
+<h2 id="other-talking-points-extra-time-menu" tabindex="-1">Other Talking Points (extra-time menu)<a class="header-anchor" href="#other-talking-points-extra-time-menu">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>GAN variants (DCGAN, WGAN, StyleGAN) and stabilization (Wasserstein loss, gradient penalty) (<a href="https://arxiv.org/abs/1511.06434">DCGAN</a>, <a href="https://arxiv.org/abs/1701.07875">WGAN</a>, <a href="https://arxiv.org/abs/1910.00927">survey</a>); <strong>conditional GANs</strong> (cGAN) for condition-driven generation (<a href="https://arxiv.org/abs/1411.1784">cGAN</a>) + condition-consistency metrics (<a href="https://arxiv.org/abs/2104.08718">CLIPScore</a>); <strong>style-mixing</strong> (ch7 §Other Talking Points).</li>
+</ul>
+
+<h2 id="failure-modes-anti-patterns" tabindex="-1">Failure modes &amp; anti-patterns<a class="header-anchor" href="#failure-modes-anti-patterns">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>Discriminator dominates</strong>: vanishing gradients; generator loss flatlines early. Fix: modified minimax or WGAN critic (ch7 §Vanishing gradients).</li>
+<li><strong>Mode collapse</strong>: near-identical faces despite diverse latent samples. Fix: Wasserstein loss, unrolled GAN (ch7 §Mode collapse).</li>
+<li><strong>Training past the usefulness point</strong>: D at ~50% accuracy feeds useless feedback; quality degrades late in training. Fix: monitor D accuracy, stop at balance (ch7 §Failure to converge).</li>
+<li><strong>Skewed dataset</strong>: demographic skew in outputs. Fix: classifier-tagged rebalancing before training (ch7 §Data Preparation).</li>
+<li><strong>Pixel-range mismatch</strong>: -1..1 normalization needs a Tanh final activation, not ReLU (ch7 §Non-linear activation).</li>
+<li><strong>Trusting automated metrics alone</strong>: good FID, unhappy users — ImageNet artifacts. Fix: pairwise human evaluation (ch7 §Evaluation).</li>
+</ul>
+
+<h2 id="key-takeaways" tabindex="-1">Key Takeaways<a class="header-anchor" href="#key-takeaways">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>&lt;1s latency + future attribute control select GAN over diffusion/autoregressive — quality traded for speed and a structured latent space (ch7 Table 1).</li>
+<li>Alternating freeze-train of G and D is the core discipline; imbalance is the root of all three classic failures, each with named fixes (ch7 §Training).</li>
+<li>Sampling is the diversity-vs-realism dial; random is the default for faces (ch7 §Sampling).</li>
+<li>FID lower-is-better vs IS higher-is-better; neither replaces human pairwise evaluation. Production loop: train → auto-eval gate → deploy → monitor → retrain on user-approved images (ch7 §Overall ML System Design).</li>
+</ul>
+
+<h2 id="interview-lens" tabindex="-1">Interview Lens<a class="header-anchor" href="#interview-lens">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>&quot;Why not diffusion, it's state of the art?&quot;: requirement math — multiple denoising steps vs the &lt;1s SLA; GAN is one forward pass and the only approach with facial manipulation via latent space.</li>
+<li>Volunteer the three training failures unprompted, one mitigation each — the rubric expects them (ch7 §Common training challenges in GANs).</li>
+<li>&quot;How do we add expression control later?&quot; → StyleGAN latent adjustment; a deferred stretch requirement, not ignored (ch7 §Clarifying Requirements, §Face generator).</li>
+</ul>
+
+      <button class="mark-done" id="markDone">Mark section as done</button>
+<div class="pager"><a class="prev" href="s21.html"><div class="plabel">Previous</div><div class="ptitle">← Retrieval-Augmented Generation</div></a><a class="next" href="s23.html"><div class="plabel">Next</div><div class="ptitle">High-Resolution Image Synthesis →</div></a></div>
+      <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
+    </div>
+  </main>
+  <aside class="outline">
+    <div class="outline-title">On this page</div>
+    <ul>
+<li><a class="outline-link lvl2" href="#">Overview</a></li>
+<li><a class="outline-link lvl3" href="#requirements-snapshot">Requirements Snapshot</a></li>
+<li><a class="outline-link lvl3" href="#choosing-the-generative-approach">Choosing the Generative Approach</a></li>
+<li><a class="outline-link lvl3" href="#data-preparation">Data Preparation</a></li>
+<li><a class="outline-link lvl3" href="#architecture">Architecture</a></li>
+<li><a class="outline-link lvl3" href="#gan-training-challenges">GAN Training Challenges</a></li>
+<li><a class="outline-link lvl3" href="#sampling">Sampling</a></li>
+<li><a class="outline-link lvl3" href="#evaluation">Evaluation</a></li>
+<li><a class="outline-link lvl3" href="#overall-ml-system-design">Overall ML System Design</a></li>
+<li><a class="outline-link lvl3" href="#other-talking-points-extra-time-menu">Other Talking Points (extra-time menu)</a></li>
+<li><a class="outline-link lvl3" href="#failure-modes-anti-patterns">Failure modes &amp; anti-patterns</a></li>
+<li><a class="outline-link lvl3" href="#key-takeaways">Key Takeaways</a></li>
+<li><a class="outline-link lvl3" href="#interview-lens">Interview Lens</a></li>
+    </ul>
+  </aside>
+</div>
+<script>
+// theme
+const root=document.documentElement;
+const stored=localStorage.getItem('vp-theme');
+const prefersDark=matchMedia('(prefers-color-scheme: dark)').matches;
+if(stored==='dark'||(!stored&&prefersDark)){root.classList.add('dark')}
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  root.classList.toggle('dark');
+  localStorage.setItem('vp-theme',root.classList.contains('dark')?'dark':'light');
+  setTimeout(()=>location.reload(),60);
+});
+document.getElementById('menuBtn')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.querySelectorAll('.sidebar-link,.pw-link').forEach(a=>a.addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open')));
+// copy buttons + ascii class
+document.querySelectorAll('.vp-doc pre').forEach(pre=>{
+  const code=pre.querySelector('code');
+  const m=/language-(\w+)/.exec(code?code.className:'');
+  if(m&&m[1]==='text')pre.classList.add('ascii');
+  const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+  btn.onclick=e=>{e.stopPropagation();navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)};
+  pre.appendChild(btn);
+});
+// wrap tables for scroll
+document.querySelectorAll('.vp-doc table').forEach(t=>{
+  const heads=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());
+  t.querySelectorAll('tbody td').forEach((td,i)=>{td.dataset.th=heads[i%heads.length]||''});
+  const w=document.createElement('div');w.className='table-wrap';
+  t.parentNode.insertBefore(w,t);w.appendChild(t);
+});
+// scrollspy outline
+const heads=[...document.querySelectorAll('.vp-doc h2,.vp-doc h3')];
+const outLinks={};document.querySelectorAll('.outline-link').forEach(a=>outLinks[a.getAttribute('href')]=a);
+function spy(){
+  let cur=null;
+  for(const h of heads){if(h.getBoundingClientRect().top<=100)cur=h;else break}
+  for(const k in outLinks)outLinks[k].classList.remove('active');
+  if(cur&&outLinks['#'+cur.id])outLinks['#'+cur.id].classList.add('active');
+  else if(!cur&&outLinks['#'])outLinks['#'].classList.add('active');
+}
+addEventListener('scroll',spy,{passive:true});spy();
+// progress tracking (localStorage set of section indices)
+const PROGRESS_KEY='ldp-visited';
+const visited=new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]'));
+function saveVisited(){localStorage.setItem(PROGRESS_KEY,JSON.stringify([...visited]))}
+function paintProgress(){
+  document.querySelectorAll('.vm-node,.pw-item').forEach(n=>{
+    const i=+n.dataset.n;
+    n.classList.toggle('done',visited.has(i));
+  });
+  // current = first unvisited node (path) or explicit current page
+  const cur=document.querySelector('.pw-item.current');
+  if(!cur){
+    for(let i=0;i<document.querySelectorAll('.vm-node').length;i++){if(!visited.has(i)){const n=document.querySelector(`.vm-node[data-n="${i}"]`);if(n)n.classList.add('current');break}}
+  }
+  const pct=document.getElementById('vmProgress');if(pct)pct.textContent=visited.size+' / '+document.querySelectorAll('.vm-node').length;
+  const p2=document.getElementById('vmProgress2');if(p2)p2.textContent=visited.size+' / '+document.querySelectorAll('.pw-item').length;
+}
+// section page: auto-mark visited + mark-as-read toggle
+const secIdx=document.body.dataset.section;
+if(secIdx!==undefined){
+  visited.add(+secIdx);saveVisited();
+  const item=document.querySelector(`.pw-item[data-n="${secIdx}"]`);if(item)item.classList.add('current');
+  const btn=document.getElementById('markDone');
+  if(btn){
+    const paint=()=>{btn.classList.toggle('done',visited.has(+secIdx));btn.textContent=visited.has(+secIdx)?'✓ Section done — nice':'Mark section as done'};
+    btn.onclick=()=>{visited.has(+secIdx)?visited.delete(+secIdx):visited.add(+secIdx);saveVisited();paint();paintProgress()};
+    paint();
+  }
+}
+paintProgress();
+// vmap popovers: click toggles card; Go link navigates
+const vmNodes=[...document.querySelectorAll('.vm-node')];
+vmNodes.forEach(n=>{
+  const b=n.querySelector('.vm-btn');
+  b.addEventListener('click',e=>{
+    if(n.classList.contains('open'))return; // second tap follows link
+    e.preventDefault();
+    e.stopPropagation();
+    vmNodes.forEach(m=>{if(m!==n)m.classList.remove('open')});
+    n.classList.add('open');
+  });
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
+// diagram zoom lightbox
+const lb=document.createElement('div');lb.className='lb';
+lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
+document.body.appendChild(lb);
+const lbVp=lb.querySelector('.lb-vp'),lbImg=lb.querySelector('.lb-img'),lbPct=lb.querySelector('.lb-pct');
+let lbW=0,lbZoom=1;
+const lbSteps=[0.25,0.5,0.75,1,1.5,2,3,4];
+function lbSet(z){lbZoom=z;lbImg.style.width=(lbW*z)+'px';lbPct.textContent=Math.round(z*100)+'%'}
+lbImg.onload=()=>{lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)};
+document.querySelectorAll('.dg-png img').forEach(img=>img.addEventListener('click',e=>{
+  e.stopPropagation();
+  lbImg.src=img.src;
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(lbImg.complete&&lbImg.naturalWidth){lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)}
+}));
+function lbClose(){lb.classList.remove('open');document.body.style.overflow=''}
+lbVp.addEventListener('click',e=>{if(e.target===lbVp)lbClose()});
+lb.querySelectorAll('.lb-bar button').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();const a=b.dataset.z;
+  if(a==='close')return lbClose();
+  if(a==='reset')return lbSet(1);
+  const dz=parseFloat(a),n=lbSteps.filter(s=>dz>1?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(dz>1?(n[0]||4):(n[n.length-1]||0.25));
+}));
+lbVp.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();
+  const n=lbSteps.filter(s=>e.deltaY<0?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(e.deltaY<0?(n[0]||4):(n[n.length-1]||0.25));},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  if(e.key==='+'||e.key==='='){const n=lbSteps.find(s=>s>lbZoom+0.01);lbSet(n||4)}
+  if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
+  if(e.key==='0')lbSet(1);
+});
+// === scenario engine ===
+const SC_FONT_OK=document.fonts?document.fonts.load('16px Excalifont'):Promise.resolve();
+const SK_ID='scSketch';
+function scLayout(d,W){
+  // ranks: BFS depth from start; loop edges (dst already seen at insert) excluded
+  const adj={};d.nodes.forEach(n=>adj[n.id]=[]);
+  d.edges.forEach(e=>{if(!e.loop&&e.src)adj[e.src].push(e)});
+  const depth={};const q=[d.start];depth[d.start]=0;
+  while(q.length){const u=q.shift();(adj[u]||[]).forEach(e=>{if(depth[e.dst]===undefined){depth[e.dst]=depth[u]+1;q.push(e.dst)}})}
+  d.nodes.forEach(n=>{if(depth[n.id]===undefined)depth[n.id]=Object.keys(depth).length}); // unreachable → tail
+  const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
+  // measure
+  const cv=document.createElement('canvas').getContext('2d');
+  cv.font='18px Excalifont';
+  const pos={};
+  const ROWH=162,PAD=60;
+  Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(160,cv.measureText(d.nodes.find(n=>n.id===id).label).width+64));
+    const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
+    let x=Math.max(PAD,(W-total)/2);
+    ids.forEach((id,i)=>{pos[id]={x:x,y:64+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
+  });
+  const maxY=64+Math.max(...Object.values(depth))*ROWH+110;
+  return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
+}
+function scPath(a,b){ // cubic connector bottom->top
+  const x1=a.x+a.w/2,y1=a.y+a.h,x2=b.x+b.w/2,y2=b.y;
+  const dy=Math.max(24,(y2-y1)*0.45);
+  return `M${x1} ${y1} C${x1} ${y1+dy} ${x2} ${y2-dy} ${x2} ${y2}`;
+}
+const NS='http://www.w3.org/2000/svg';
+function mountScenario(div,d,idx){
+  if(!d.start||!d.nodes.length){console.warn('scenario: empty payload, skipping mount',idx);return;}
+  const body=div.querySelector('.sc-body'),cap=div.querySelector('.sc-cap'),
+        ch=div.querySelector('.sc-choices');
+  const W=Math.min(1100,body.clientWidth||900);
+  const L=scLayout(d,W);
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('class','sc-svg');svg.setAttribute('viewBox',`0 0 ${L.W} ${L.H}`);
+  svg.setAttribute('width',L.W);svg.setAttribute('height',L.H);
+  svg.innerHTML=`<defs>
+   <filter id="${SK_ID}${idx}"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
+   <marker id="scA${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#1e3a5f"/></marker>
+   <marker id="scAg${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#047857"/></marker>
+   <marker id="scAr${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#dc2626"/></marker>
+  </defs>`;
+  const kindOf=id=>{
+    const out=d.edges.filter(e=>e.src===id&&e.choice).length;
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
+    const inbound=d.edges.find(e=>e.dst===id&&e.kind)||d.edges.find(e=>e.dst===id);
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
+  const el={};
+  // edges first (under nodes)
+  d.edges.forEach((e,i)=>{
+    if(!e.src||!L.pos[e.src]||!L.pos[e.dst])return;
+    const p=document.createElementNS(NS,'path');
+    const a=L.pos[e.src],b=L.pos[e.dst];
+    let dstr;
+    if(e.loop||b.y<=a.y){ // back-edge: route right margin
+      const rx=L.W-24;
+      dstr=`M${a.x+a.w} ${a.y+a.h/2} C${rx} ${a.y} ${rx} ${b.y} ${b.x+b.w} ${b.y+b.h/2}`;
+      p.setAttribute('stroke-dasharray','7 5');
+    } else dstr=scPath(a,b);
+    p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
+    const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2.5');
+    p.setAttribute('data-k',ekind);
+    p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
+    p.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
+    if(e.label){const t=document.createElementNS(NS,'text');
+      const mx=a.x+a.w/2+(b.x+b.w/2-(a.x+a.w/2))*0.3,my=a.y+a.h+(b.y-a.y-a.h)*0.32-8;
+      t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
+      t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
+  });
+  d.nodes.forEach(n=>{
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
+    r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
+    r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','18');
+    t.setAttribute('fill','#1f2937');
+    // wrap label into ≤2 tspans
+    const words=n.label.split(' ');const lines=['',''];let li=0;
+    words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
+    lines.forEach((ln,i)=>{if(!ln)return;const ts=document.createElementNS(NS,'tspan');
+      ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
+      if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
+  });
+  body.appendChild(svg);
+  // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
+  let cur=null;const visited=new Set();
+  function paint(){
+    d.nodes.forEach(n=>{const c=el[n.id];
+      c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
+      c.r.setAttribute('stroke-width',n.id===cur?4:2.5);});
+    svg.querySelectorAll('.sc-edge').forEach(p=>{
+      const e=d.edges[+p.dataset.ei];
+      const on=visited.has(e.src)&&visited.has(e.dst);
+      p.style.opacity=on?1:.3;});
+    svg.querySelectorAll('.sc-edge-lbl').forEach(t=>{
+      const e=d.edges[+t.dataset.ei];
+      t.style.opacity=(visited.has(e.src)&&visited.has(e.dst))?1:.35;});
+  }
+  function enter(id){
+    cur=id;visited.add(id);
+    const n=d.nodes.find(n=>n.id===id);
+    cap.textContent=n.cap;
+    ch.innerHTML='';
+    d.edges.filter(e=>e.src===id&&e.choice).forEach(e=>{
+      const b=document.createElement('button');b.className='sc-btn'+(e.kind==='success'?' ok':e.kind==='fail'?' bad':'');
+      b.textContent='? '+e.label;b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    const nx=d.edges.filter(e=>e.src===id&&!e.choice&&!e.loop);
+    nx.forEach(e=>{const b=document.createElement('button');b.className='sc-btn';b.textContent='→ '+(e.label||'continue');b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    if(!d.edges.some(e=>e.src===id&&!e.loop)){const s=document.createElement('div');
+      s.className='sc-cap';s.style.marginTop='6px';
+      const win=n.cap;s.style.color='#047857';s.textContent='◼ outcome — '+win;ch.appendChild(s);}
+    paint();
+  }
+  div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
+  div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
+    d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.title=hlMode?'Highlight on — tap nodes':'Highlight'};
+  // zoom controls
+  // free-canvas pan/zoom (transform on svg inside clipped .sc-body)
+  const zPct=div.querySelector('[data-a="zpct"]');
+  let tx=0,ty=0,sc=1;
+  const apply=()=>{svg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+    if(zPct)zPct.textContent=Math.round(sc*100)+'%';};
+  const fit=()=>{const cw=body.clientWidth;
+    sc=Math.min(cw/L.W,1);tx=(cw-L.W*sc)/2;ty=16;apply();};
+  const zAt=(f,px,py)=>{const ns=Math.min(3,Math.max(.3,sc*f));
+    tx=px-(px-tx)*(ns/sc);ty=py-(py-ty)*(ns/sc);sc=ns;apply();};
+  const local=e=>{const r=body.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
+  if(zi)zi.onclick=()=>zAt(1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zo)zo.onclick=()=>zAt(1/1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zPct)zPct.onclick=fit;
+  // pointer pan + pinch
+  const ptrs=new Map();let pinched=false,moved=false;
+  body.addEventListener('pointerdown',e=>{
+    if(e.button!==0||hlMode)return;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    moved=false;if(ptrs.size>1)pinched=true;});
+  body.addEventListener('pointermove',e=>{
+    if(!ptrs.has(e.pointerId))return;
+    if(ptrs.size===2){const a=[...ptrs.entries()];const [id1,p1]=a[0],[id2,p2]=a[1];
+      const oldD=Math.hypot(p2.x-p1.x,p2.y-p1.y),oldM=[(p1.x+p2.x)/2,(p1.y+p2.y)/2];
+      ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const n1=ptrs.get(id1),n2=ptrs.get(id2);
+      const newD=Math.hypot(n2.x-n1.x,n2.y-n1.y),newM=[(n1.x+n2.x)/2,(n1.y+n2.y)/2];
+      const r=body.getBoundingClientRect();
+      tx+=newM[0]-oldM[0];ty+=newM[1]-oldM[1];
+      if(oldD)zAt(newD/oldD,newM[0]-r.left,newM[1]-r.top);
+      apply();return;}
+    const p=ptrs.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(Math.abs(dx)+Math.abs(dy)>0){tx+=dx;ty+=dy;
+      if(!moved){moved=true;body.classList.add('dragging');
+        try{body.setPointerCapture(e.pointerId)}catch(_){}}
+      apply();}});
+  const pEnd=e=>{ptrs.delete(e.pointerId);
+    if(ptrs.size===0){pinched=false;
+      if(moved)svg.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();},{capture:true,once:true});
+      moved=false;body.classList.remove('dragging');}};
+  body.addEventListener('pointerup',pEnd);
+  body.addEventListener('pointercancel',pEnd);
+  body.addEventListener('wheel',e=>{e.preventDefault();
+    if(e.ctrlKey||e.metaKey){const [px,py]=local(e);zAt(Math.pow(1.0015,-e.deltaY),px,py);
+    }else{tx-=e.deltaX;ty-=e.deltaY;apply();}},{passive:false});
+  fit();
+  enter(d.start);
+}
+SC_FONT_OK.then(()=>{
+  document.querySelectorAll('.scenario').forEach((dv,i)=>{
+    const data=JSON.parse(dv.querySelector('.sc-json').textContent);
+    mountScenario(dv,data,i);
+  });
+});
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const isDark=document.documentElement.classList.contains('dark');
+mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
+const els=document.querySelectorAll('.mermaid');
+for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+</script>
+
+</body>
+</html>

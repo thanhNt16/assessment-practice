@@ -45,6 +45,31 @@ flowchart TD
     C -- v1 --> P[Sample latent, generate, serve]
 ```
 
+:::scenario Generate photorealistic faces in under a second
+@req Lock the requirements :: Faces only, 1024x1024, < 1 s, balanced demographics, attribute control as the stretch goal
+-> pinned => @pick
+@pick Pick the generative approach :: Diffusion/autoregressive need many sequential steps; VAE is blurry and unmanipulable; GAN is one forward pass with a structured latent space
+-> training instability accepted => @data | success
+@data Balance the 70k images :: Quality filter, flip/rotate/color augmentation, resize to 1024 with pixels normalized to -1..1, classifier-tagged demographic rebalancing
+-> @arch
+@arch Build G and D :: Generator: transposed-conv upsampling, BatchNorm + ReLU, final Tanh; discriminator: stride-2 conv downsampling, sigmoid head
+-> @train
+@train Alternate freeze-train :: Train D a few iterations on real + generated, freeze, train G to fool it — imbalance is the root failure
+-> vanishing gradients or mode collapse => @fix | fail
+-> D accuracy near 50% => @stop | fail
+-> balanced => @sample | success
+@fix Stabilize with named remedies :: WGAN critic for vanishing gradients, unrolled GAN for mode collapse, different learning rates + noise into D for convergence
+-> @train
+@stop Stop at the balance point :: Past it, D's feedback becomes coin flips and quality degrades
+-> @sample
+@sample Random latent sampling :: Full Gaussian over the latent space — diversity matters for faces; truncate only if outliers hurt
+-> FID regression or humans prefer the old model => @eval | fail
+-> pass => @eval | success
+@eval FID + IS + pairwise human votes :: Lower FID, higher IS — but automated metrics misalign with judgment; human photorealism votes decide
+-> @ship
+@ship Deploy with the retrain loop :: Generator + training + evaluation + deployment services; retrain periodically on user-approved images
+:::
+
 ### Data Preparation
 
 Four steps on the 70k images (ch7 §Data Preparation):

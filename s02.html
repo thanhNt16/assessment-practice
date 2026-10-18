@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 2 of 17</div><h1>SQL Deep Dive: The Problems EPAM Actually Asks</h1>
+<div class="kicker">Section 2 of 26</div><h1>SQL Deep Dive: The Problems EPAM Actually Asks</h1>
 <p>EPAM senior DE screens live in SQL mechanics — windows, dedup, grouping traps — and in whether you know how the engine logically executes a query.</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — SQL Execution &amp; Window Playbook</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — SQL Execution & Window Playbook", "nodes": [{"id": "start", "label": "FROM and JOIN", "cap": "Base rows enter first; duplicate join keys fan out and silently double sums — check row counts at FROM/JOIN."}, {"id": "dedup", "label": "Dedup with ROW_NUMBER", "cap": "`PARTITION BY customer_id ORDER BY order_ts DESC, id DESC`, keep rn=1 — one scan, deterministic ties, one row per key."}, {"id": "where", "label": "WHERE", "cap": "Filters **rows only** — keep predicates SARGable so the engine can prune partitions."}, {"id": "sarg", "label": "Fix the SARGability break", "cap": "`WHERE CAST(dt AS STRING)=...` full-scans; compare `dt = DATE '2024-01-01'` and let partition pruning work."}, {"id": "group", "label": "GROUP BY and HAVING", "cap": "Groups form after WHERE; HAVING filters groups. Need a value on **every row** instead? Windows run here."}, {"id": "window", "label": "SELECT + window functions", "cap": "One pass, every row survives — unlike GROUP BY. RANK 1,1,3 vs DENSE_RANK 1,1,2: should ties consume ranks?"}, {"id": "qualify", "label": "QUALIFY variant", "cap": "Snowflake and Databricks SQL filter windows natively; the rn=1 subquery collapses into a single clause."}, {"id": "limit", "label": "ORDER BY and LIMIT", "cap": "Aliases and windows finally visible — windows already ran. Re-explain the plan: pushdown, pruning, shuffle size."}], "edges": [{"src": "start", "label": "Join keys duplicated", "dst": "dedup", "kind": "success", "choice": true, "loop": false}, {"src": "start", "label": "Rows come back clean", "dst": "where", "kind": "fail", "choice": true, "loop": false}, {"src": "dedup", "label": "deduplicated", "dst": "where", "kind": null, "choice": false, "loop": false}, {"src": "where", "label": "Predicate SARGable", "dst": "group", "kind": "success", "choice": true, "loop": false}, {"src": "where", "label": "Column wrapped in a function", "dst": "sarg", "kind": "fail", "choice": true, "loop": false}, {"src": "sarg", "label": "unwrapped and pruning", "dst": "group", "kind": null, "choice": false, "loop": false}, {"src": "group", "label": "Need per-row values over a frame", "dst": "window", "kind": "success", "choice": true, "loop": false}, {"src": "group", "label": "collapse and filter groups", "dst": "limit", "kind": null, "choice": false, "loop": false}, {"src": "window", "label": "Engine has QUALIFY", "dst": "qualify", "kind": "success", "choice": true, "loop": false}, {"src": "window", "label": "OSS Spark, no QUALIFY", "dst": "limit", "kind": "fail", "choice": true, "loop": false}, {"src": "qualify", "label": "native window filter", "dst": "limit", "kind": null, "choice": false, "loop": false}, {"src": "limit", "label": "keep tuning", "dst": "start", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/sql-pipeline.png" alt="sql-pipeline.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/sql-pipeline.dark.png" alt="sql-pipeline.png diagram (dark)" loading="lazy"></div>

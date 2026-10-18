@@ -29,6 +29,15 @@ FILES = [
     "15-interview-prep.md",
     "16-genai-design.md",
     "17-ml-design.md",
+    "18-machine-translation.md",
+    "19-chatbot-assistant.md",
+    "20-image-captioning.md",
+    "21-rag.md",
+    "22-face-generation.md",
+    "23-high-resolution-image-synthesis.md",
+    "24-text-to-image.md",
+    "25-headshot-personalization.md",
+    "26-text-to-video.md",
 ]
 
 # Duolingo-style path metadata — order matches FILES.
@@ -50,6 +59,15 @@ NODES = [
     {"icon": "🎯", "short": "Playbook",    "blurb": "Six-step framework, 3 worked scenarios, capacity math."},
     {"icon": "🤖", "short": "GenAI",      "blurb": "GenAI system design: one framework, 11 designs — RAG, LLM serving, diffusion."},
     {"icon": "🧠", "short": "ML Design",  "blurb": "ML system design: 7-step framework, retrieval→ranking, recsys/ads at scale."},
+    {"icon": "🌍", "short": "Translation", "blurb": "NMT pipeline: tokenization, attention, beam vs sampling, evaluation."},
+    {"icon": "💬", "short": "Chatbot",     "blurb": "Intent, dialogue state, retrieval+generation hybrid, guardrails."},
+    {"icon": "🖼️", "short": "Captioning",  "blurb": "CNN encoder + transformer decoder, beam search, BLEU/CIDEr."},
+    {"icon": "🔍", "short": "RAG",         "blurb": "Chunking, embeddings, vector search, rerank, freshness + eval."},
+    {"icon": "🎭", "short": "Face Gen",    "blurb": "GAN/StyleGAN latent space, ethics + provenance."},
+    {"icon": "✨", "short": "Hi-Res Synth", "blurb": "Progressive growing, super-resolution cascade, compute budget."},
+    {"icon": "🎨", "short": "Text→Image",  "blurb": "Diffusion, CLIP conditioning, guidance scale, serving latency."},
+    {"icon": "👤", "short": "Headshots",   "blurb": "Personalization tuning, privacy, dedup at scale."},
+    {"icon": "🎬", "short": "Text→Video",  "blurb": "Temporal consistency, frame sampling, cost + moderation."},
 ]
 
 # Module grouping for sidebar/map narrative (index = FILE index).
@@ -58,7 +76,7 @@ MODULES = [
     ("🏗️ Platform Design",   4, 8),      # 05–08: architecture, streaming, lakehouse, vendors
     ("⚙️ Technology Deep-Dive", 8, 12),  # 09–12: formats, engines, tuning, kafka
     ("🏁 Production & Defense", 12, 15), # 13–15: reliability, practice, playbook
-    ("🤖 GenAI Adjacent",      15, 17), # 16–17: genai + ml system design
+    ("🤖 GenAI & ML Design",  15, 26), # 16–26: genai + ml system design + nine deep-dive topics
 ]
 
 def module_of(i):
@@ -393,6 +411,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -1013,7 +1032,7 @@ def main_with_sidebar(active, inner, outline=""):
 index_body = main_with_sidebar(-1, f"""      <div class="hero">
         <div class="kicker">A3 Senior Data Software Engineer · Assessment Prep</div>
         <h1>Learn Data Platform Engineering</h1>
-        <p class="tagline">15 short sections in 4 modules — Goal &amp; Foundations → Platform Design → Technology Deep-Dive → Production &amp; Defense — covering everything the EPAM A3 internal assessment probes.</p>
+        <p class="tagline">26 short sections in 5 modules — Goal &amp; Foundations → Platform Design → Technology Deep-Dive → Production &amp; Defense → GenAI &amp; ML Design — covering everything the EPAM A3 internal assessment probes.</p>
         <div class="actions">
           <a class="btn brand" href="s01.html">Start the path →</a>
           <a class="btn alt" href="#vmap">Browse the map</a>
@@ -1023,7 +1042,7 @@ index_body = main_with_sidebar(-1, f"""      <div class="hero">
         </div>
       </div>
       <h2 id="learning-map">Learning Map</h2>
-      <p>Work through the four modules in order — each dashed band groups a stage of the path. Tap a node to preview it, tap again or "Go →" to open its page. Completed sections turn green — progress is saved in your browser.</p>
+      <p>Work through the five modules in order — each dashed band groups a stage of the path. Tap a node to preview it, tap again or "Go →" to open its page. Completed sections turn green — progress is saved in your browser.</p>
       {vmap_html()}
       <div class="mermaid">
 {LEARNING_MAP}
@@ -1049,4 +1068,4 @@ for s in sections:
         shell(s["title"], body, section_attr=f' data-section="{s["i"]}"', active=s["i"]))
     print(f"  wrote {s['url']}: '{s['title']}' +{len(s['subs'])} subs")
 
-print("Done — index.html + 13 section pages")
+print(f"Done — index.html + {len(FILES)} section pages")

@@ -61,6 +61,32 @@ flowchart LR
     TK --> OUT[Translation to user]
 ```
 
+:::scenario Serve a four-language translation service
+@detect Auto-detect the source language :: Users can't always name the language — an encoder-only classifier routes by detected + desired pair
+-> detected => @fleet
+@fleet One model or one per pair? :: Bilingual: higher accuracy, N models to train and maintain; multilingual mT5/mBART: one deployment
+-> accuracy first => @bilingual
+-> ops cost first => @checkpoint
+@bilingual Train per-pair encoder-decoders :: 300M sentence pairs each; N models to train, deploy, and monitor
+-> @checkpoint
+@checkpoint Start from T5/BART weights :: Public checkpoints skip unsupervised pretraining cost
+-> pretrain anyway => @mlm | fail
+-> initialized => @bpe | success
+@mlm Pretrain with masked LM :: Next-token over the full sentence lets the encoder leak the answer — mask input tokens instead
+-> @bpe
+@bpe Subword BPE tokenization :: Compact vocabulary; rare/unseen words decompose into known pieces; `</w>` marks word boundaries
+-> @entities
+@entities Placeholder named entities :: Replace proper nouns with ENTITY_1-style tokens, restore after decoding
+-> @beam
+@beam Beam-search the target :: Deterministic and higher-accuracy — diversity is a defect in translation
+-> BLEU regression => @eval | fail
+-> pass => @eval | success
+@eval BLEU + METEOR + user feedback :: BLEU punishes correct rewording; METEOR matches synonyms; thumbs and edits are the online signal
+-> wrong language routed => @detect | fail
+-> quality holds => @ship | success
+@ship Deploy with a regression gate :: Per-pair models versioned; auto-rollback when a language pair's BLEU drops
+:::
+
 - **Language detector:** sequence classification with an encoder-only Transformer — either average-pool token outputs or use the last-token representation, then a prediction head over language classes (ch3 §Language detector, Fig. 27).
 - **Sampling: beam search**, not stochastic — (1) higher accuracy via evaluating multiple candidate sequences, (2) deterministic: same input → same output; diversity is undesirable in translation (ch3 §Sampling).
 

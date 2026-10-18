@@ -24,6 +24,30 @@ flowchart LR
     R --> G[LLM generation]
 ```
 
+:::scenario ChatPDF over 5M internal pages
+@start Meet ChatPDF :: Knowledge changes often and answers must cite sources — decide retrieval vs stuffing first
+? Knowledge changes often, citations required => @parse | success
+? Static corpus that fits the context window => @prompt | fail
+@parse Rule-based or AI parsing? :: Varied single/double-column layouts break fixed-template parsers — layout detection + OCR reads boxes in order
+-> @chunk
+@chunk Chunk 500 chars, 200 overlap :: Whole documents lose detail and bust token limits; 1,500-char pages yield 5 text + 3 image chunks
+-> 5M pages x 8 chunks => @embed
+@embed One shared embedding space :: Same text encoder for chunks and queries; CLIP space (or caption-then-embed) aligns images
+-> @index
+@index Exact or ANN search? :: Linear scan is 40M comparisons per query — clustering/LSH/HNSW approximate search is mandatory at this scale
+-> @prompt
+@prompt Assemble the prompt :: Query + top-k chunks + role + citation format ("end sentences with [1]") + CoT bullets
+-> retrieved chunks irrelevant => @triad | fail
+-> relevant => @triad | success
+@triad Score the RAG triad :: Context relevance, faithfulness, answer relevance — one aggregate score hides which half broke
+-> answers still bad, context fine => @raft
+-> context still weak => @parse | fail
+-> triad green => @ship | success
+@raft RAFT-finetune last :: Golden + distractor docs teach the LLM to ignore retrieval noise — only after retrieval is fixed
+-> @triad
+@ship Ship with live retrieval :: Ingestion pipeline refreshes the index as pages change; stale-index monitoring alerts when crawls fall behind
+:::
+
 - **Website-sourced KBs**: clean before ingestion — remove inappropriate content, anonymize sensitive information (ch6 §Data Preparation).
 - **Document parsing** converts PDF → structured blocks. *Rule-based* parsers compute layout from fixed templates — fine for uniform docs, breaks on the varied single/double-column pages this corpus has. *AI-based* parsers (Layout-Parser, Dedoc, Google Cloud Document AI) run layout detection (object detection boxes over paragraphs/tables/figures) → OCR per box in reading order → structured output of text blocks (coordinates, text, order) + non-text blocks ([LayoutParser](https://arxiv.org/abs/2103.15348)) (ch6 §Document parsing).
 - **Document chunking**: embedding a whole report captures gist but misses details, and retrieved full docs exceed model limits (e.g., GPT-4o's 128K). Options: length-based (LangChain `CharacterTextSplitter`/`RecursiveCharacterTextSplitter` with `chunk_size`/`overlap`), regex on punctuation, structure-aware (`MarkdownHeaderTextSplitter`, `HTMLHeaderTextSplitter`, `PythonCodeTextSplitter`) preserving hierarchy (ch6 §Document chunking).

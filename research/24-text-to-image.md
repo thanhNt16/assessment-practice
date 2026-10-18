@@ -59,6 +59,27 @@ flowchart TD
     D --> E[Loss = MSE true eps vs predicted eps]
 ```
 
+:::scenario Ship a text-to-image product at a 10-second SLA
+@pick Diffusion or autoregressive? :: AR is simpler to train; diffusion wins fine detail and the steps dial — pay implementation complexity for quality
+-> diffusion committed => @arch
+@arch U-Net or DiT backbone :: Cross-attention is the steering layer — queries from image features, keys/values from text-encoder embeddings
+-> CLIP or T5 conditioning at every block => @train
+@train Predict the noise, not the image :: Sample t, closed-form noise to x_t, model predicts eps, MSE(eps, eps-hat) — four steps per training image
+-> @fixes
+@fixes Fix sampling's two failures :: Classifier-free guidance for prompt adherence; DDIM cuts 1,000 steps to ~20 for the latency budget
+-> @data
+@data Curate the 500M pairs :: Drop <64px, dedup perceptually, NSFW + aesthetic filters, CLIP-gated captions with BLIP-3 recaptioning
+-> raw web captions trusted => @data | fail
+-> aligned pairs => @serve | success
+@serve Gate twice, cascade resolution :: Prompt safety classifier before compute, harm detection after generation, SR 64->256->1024
+-> output unsafe => @serve | fail
+-> safe => @metrics | success
+@metrics Watch the trap metric :: CTR, conversion, latency — and average cost per user per month, because re-rolling seeds burns GPU money
+-> CLIPScore alignment or cost regresses => @data | fail
+-> hold => @ship | success
+@ship Feed the flywheel :: Cached text-encoder embeddings, user prompts + feedback folded back into training data, eval pipeline gating new models
+:::
+
 Interview depth stops at the loss — MSE between true and predicted noise; the math derivation is explicitly non-load-bearing for design (ch9 §ML objective and loss calculation).
 
 ### Sampling: Two Fixes for Two Failures

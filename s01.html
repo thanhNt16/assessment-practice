@@ -76,6 +76,7 @@ a:hover{color:var(--vp-c-brand-1)}
 .vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
 .vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
 .vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
 .vp-doc p{margin:16px 0}
 .header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
 .vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
@@ -338,9 +339,18 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
 <li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
 <li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
 <li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
-<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li class="nav-mod">🤖 GenAI &amp; ML Design</li>
 <li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
 <li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+<li><a class="sidebar-link" href="s18.html"><span class="sl-num">18</span>Machine Translation (Google Translate)</a></li>
+<li><a class="sidebar-link" href="s19.html"><span class="sl-num">19</span>Personal Assistant Chatbot</a></li>
+<li><a class="sidebar-link" href="s20.html"><span class="sl-num">20</span>Image Captioning</a></li>
+<li><a class="sidebar-link" href="s21.html"><span class="sl-num">21</span>Retrieval-Augmented Generation</a></li>
+<li><a class="sidebar-link" href="s22.html"><span class="sl-num">22</span>Realistic Face Generation</a></li>
+<li><a class="sidebar-link" href="s23.html"><span class="sl-num">23</span>High-Resolution Image Synthesis</a></li>
+<li><a class="sidebar-link" href="s24.html"><span class="sl-num">24</span>Text-to-Image Generation</a></li>
+<li><a class="sidebar-link" href="s25.html"><span class="sl-num">25</span>Personalized Headshot Generation</a></li>
+<li><a class="sidebar-link" href="s26.html"><span class="sl-num">26</span>Text-to-Video Generation</a></li>
     </ul>
 <div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
   <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
@@ -376,12 +386,30 @@ html.dark .sc-btn{background:var(--vp-c-bg)}
   <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
 </a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
   <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="17"><a class="pw-link" href="s18.html">
+  <span class="pw-ic">🌍</span><span class="pw-name">18. Translation</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="18"><a class="pw-link" href="s19.html">
+  <span class="pw-ic">💬</span><span class="pw-name">19. Chatbot</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="19"><a class="pw-link" href="s20.html">
+  <span class="pw-ic">🖼️</span><span class="pw-name">20. Captioning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="20"><a class="pw-link" href="s21.html">
+  <span class="pw-ic">🔍</span><span class="pw-name">21. RAG</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="21"><a class="pw-link" href="s22.html">
+  <span class="pw-ic">🎭</span><span class="pw-name">22. Face Gen</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="22"><a class="pw-link" href="s23.html">
+  <span class="pw-ic">✨</span><span class="pw-name">23. Hi-Res Synth</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="23"><a class="pw-link" href="s24.html">
+  <span class="pw-ic">🎨</span><span class="pw-name">24. Text→Image</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="24"><a class="pw-link" href="s25.html">
+  <span class="pw-ic">👤</span><span class="pw-name">25. Headshots</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="25"><a class="pw-link" href="s26.html">
+  <span class="pw-ic">🎬</span><span class="pw-name">26. Text→Video</span><span class="pw-check">✓</span>
 </a></li></ul>
   </aside>
   <main class="main">
     <div class="vp-doc">
 
-<div class="kicker">Section 1 of 17</div><h1>The EPAM A3 Senior Data Engineer Assessment</h1>
+<div class="kicker">Section 1 of 26</div><h1>The EPAM A3 Senior Data Engineer Assessment</h1>
 <p>You are already inside EPAM. &quot;Assessment&quot; here is not a hiring loop — it is EPAM's formal internal process for evaluating whether an existing employee's demonstrated work justifies a title/grade change (e.g., A3 confirmation or A3→A4 promotion). The currency is not quiz answers: it is a <strong>narrative presentation of your progression</strong>, delivered to a peer/expert committee and scored against the competency matrix (<a href="https://www.epam.com/careers/blog/assessment-at-epam-what-it-means-for-your-career-growth">EPAM careers blog</a>). Employees still billable on client engagements (~56,600 of ~62,850 staff; <a href="https://investors.epam.com/news/news-details/2026/EPAM-Reports-Results-for-Fourth-Quarter-and-Full-Year-2025/default.aspx">FY2025 results</a>) — the bar is &quot;your delivered project proves the next grade,&quot; not &quot;did you pass a test.&quot;</p>
 <p><div class="scenario" data-sc="0"><div class="sc-head"><span><span class="sc-ic">🧭</span><b>Scenario · Scenario — From Nomination to Matrix Verdict</b></span></div><div class="sc-body"><div class="sc-bar"><button data-a="zout">−</button><button data-a="zpct" class="sc-pct">100%</button><button data-a="zin">+</button><button data-a="hl">✎</button><button data-a="reset">↺</button><button data-a="reveal">◉</button></div></div><div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div></div><script type="application/json" class="sc-json">{"title": "Scenario — From Nomination to Matrix Verdict", "nodes": [{"id": "start", "label": "Pick the target grade", "cap": "**A3 confirmation** (~1 year of delivery evidence) vs **A3→A4** (leadership delta): different evidence, same process."}, {"id": "sponsor", "label": "Secure manager sponsorship", "cap": "Advocacy is a **stated gate** — assessments stall regardless of skill; open the conversation quarters ahead."}, {"id": "stalled", "label": "No sponsorship, no assessment", "cap": "Re-approach with visible impact and a narrated delivery record; reapply next cycle regardless of skill."}, {"id": "assemble", "label": "Apply year-round, assemble one real project", "cap": "Applications are open any time; anchor the narrative to **real delivered work** — decisions owned, not tasks done."}, {"id": "matrix", "label": "Map to the competency matrix", "cap": "Cover all dimensions: engineering depth, **≥2 options per decision**, delivery impact, mentoring, English B2+."}, {"id": "deck", "label": "Build the defense deck", "cap": "Context → Architecture → Impact → Growth → Mentoring; one artifact, one number per bullet — rehearse spoken and timed."}, {"id": "committee", "label": "Face the committee", "cap": "Peer/expert panel probes **one level deeper** than your deck — Spark execution model, Delta MERGE, your own war stories."}, {"id": "deltagap", "label": "The classic A3→A4 failure", "cap": "Needs a **leadership delta** — formal mentoring, review leadership, workstream direction — not more component work."}, {"id": "verdict", "label": "Matrix-anchored verdict", "cap": "Pass confirms the grade; gaps below the line (e.g. mentoring under the A4 bar) loop you back until evidence matures."}], "edges": [{"src": "start", "label": "grade picked", "dst": "sponsor", "kind": null, "choice": false, "loop": false}, {"src": "sponsor", "label": "Manager actively sponsors", "dst": "assemble", "kind": "success", "choice": true, "loop": false}, {"src": "sponsor", "label": "Sponsorship missing", "dst": "stalled", "kind": "fail", "choice": true, "loop": false}, {"src": "stalled", "label": "rebuild the case", "dst": "sponsor", "kind": null, "choice": false, "loop": true}, {"src": "assemble", "label": "narrative anchored", "dst": "matrix", "kind": null, "choice": false, "loop": false}, {"src": "matrix", "label": "dimensions covered", "dst": "deck", "kind": null, "choice": false, "loop": false}, {"src": "deck", "label": "rehearsed aloud", "dst": "committee", "kind": null, "choice": false, "loop": false}, {"src": "committee", "label": "Evidence clears the target grade", "dst": "verdict", "kind": "success", "choice": true, "loop": false}, {"src": "committee", "label": "A4 label on A3-grade evidence", "dst": "deltagap", "kind": "fail", "choice": true, "loop": false}, {"src": "deltagap", "label": "gather leadership evidence", "dst": "assemble", "kind": null, "choice": false, "loop": true}], "start": "start"}</script></div></p>
 <div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/assessment-loop.png" alt="assessment-loop.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/assessment-loop.dark.png" alt="assessment-loop.png diagram (dark)" loading="lazy"></div>

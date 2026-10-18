@@ -61,6 +61,28 @@ flowchart TD
     SR --> U
 ```
 
+:::scenario Serve 1024-2048px images in five seconds
+@pick Diffusion or autoregressive? :: Diffusion is O(T-N^2) — minutes at high res; AR over 64x64-px chunk tokens is 256 steps — seconds
+-> chunked AR chosen => @tokenizer | success
+@tokenizer Tokenize with VQ-VAE :: CNN encoder -> codebook nearest-neighbor -> transposed-conv decoder; discrete latents avoid posterior collapse
+-> MSE-only losses at high res => @tokenizer | fail
+-> reconstruction + quantization + perceptual + adversarial => @cache | success
+@cache Tokenize the corpus once :: Add LAION-400M for a richer codebook; straight-through gradients keep the encoder trainable; cache all 5M token sequences
+-> @generate
+@generate Train the generator :: Decoder-only Transformer, next-token + cross-entropy over the cached sequences
+-> @sample
+@sample Seed, predict, repeat :: Random first codebook token, top-p per step, until 256 tokens exist
+-> @decode
+@decode Decoding service, decoder only :: The tokenizer encoder exists for training and never ships; decoding scales on its own compute profile
+-> 2048 requested => @sr
+-> 1024 sufficient => @ship | success
+@sr Super-resolution service :: Pretrained 2x upscaler (RCAN/ESRGAN) restores 2048 from the 1024 generation
+-> @ship
+@ship Gate on quality and unit economics :: IS/FID + human votes + time and cost per image before any new model serves
+-> artifacts or cost regress => @tokenizer | fail
+-> hold => @ship | success
+:::
+
 - **System**: three services (ch8 §Overall ML System Design, Fig. 16) — **generation service** (transformer → tokens), **decoding service** (tokenizer's decoder; the encoder exists only for training and is never deployed), **super-resolution service** (pretrained 2× upscaler — CNN-based [RCAN](https://arxiv.org/abs/1807.02758) or [ESRGAN](https://arxiv.org/abs/1809.00219) — when 2048² is requested but the generator emits 1024²).
 - **Why split generation and decoding**: different models with distinct computational needs and latencies → each service scales independently (ch8 §Decoding service).
 - **Extension talking points** (ch8 §Other Talking Points): text-conditioned generation ([Muse](https://arxiv.org/abs/2301.00704), [VQGAN-CLIP](https://arxiv.org/abs/2204.08583)); image completion / AR super-resolution ([LAR-SR](https://openaccess.thecvf.com/content/CVPR2022/papers/Guo_LARSR_A_Local_Autoregressive_Model_for_Image_Super-Resolution_CVPR_2022_paper.pdf)); diversity-vs-fidelity via temperature scaling; stability via adversarial training, gradient clipping, LR scheduling; progressive growing / multi-scale architectures; interactive refinement ([CogView2](https://arxiv.org/abs/2204.14217)).
