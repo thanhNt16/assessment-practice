@@ -4,7 +4,7 @@
 index.html  — hero + interactive Duolingo-style course path + learning map.
 sNN.html    — one page per section (short, readable), sidebar nav, prev/next.
 """
-import re, html
+import re, html, json
 from pathlib import Path
 from markdown_it import MarkdownIt
 
@@ -188,8 +188,8 @@ def scenario_parse(title, lines):
         m = SC_EDGE_RE.match(ln)
         if m:
             tok, label, dst, kind = m.group(1), m.group(2), m.group(3), m.group(5)
-            if tok == "?" and last is None:
-                raise ValueError(f"?-edge before any node in {title!r}: {ln!r}")
+            if last is None:
+                raise ValueError(f"edge before any node in {title!r}: {ln!r}")
             edges.append({"src": last, "label": label, "dst": dst, "kind": kind,
                           "choice": tok == "?", "loop": dst in {n["id"] for n in nodes}})
             continue
@@ -227,7 +227,7 @@ def scenario_html(g, idx):
             f'<div class="sc-body"></div>'
             f'<div class="sc-panel"><div class="sc-cap"></div><div class="sc-choices"></div>'
             f'<div class="sc-bar"><button data-a="reset">↺ Reset</button><button data-a="reveal">Reveal all</button></div></div>'
-            f'<script type="application/json" class="sc-json">{html.escape(json.dumps(g, ensure_ascii=False))}</script></div>')
+            f'<script type="application/json" class="sc-json">{json.dumps(g, ensure_ascii=False).replace("<", "\\u003c")}</script></div>')
 
 def render_page(src, sec_no):
     """Render a section file: ## → h1, ### → h2 with anchors."""

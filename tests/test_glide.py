@@ -8,7 +8,7 @@ class GlideTest(unittest.TestCase):
     def test_parse(self):
         b = load_build()
         src = "## T\n\n:::glide My Flow\n1) A :: first\n2) B :: second\n? Q :: A\n:::\n\n### s\n"
-        out, mer, glides = b.preprocess(src)
+        out, mer, glides, scenarios = b.preprocess(src)
         self.assertEqual(len(glides), 1)
         g = glides[0]
         self.assertEqual(g["title"], "My Flow")
