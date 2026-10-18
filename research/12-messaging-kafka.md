@@ -2,19 +2,34 @@
 
 Queues distribute work, pub/sub fans out events, and Kafka is a third model — the partitioned, replayable log — from which most modern backbones derive.
 
-:::glide Glide — From Producer to Acknowledged Write
-1) Produce to the leader :: Producer batches per partition (`linger.ms`, `batch.size`), partitioning by **murmur2 key hash** — `hash(key) % partitionCount` is where per-entity ordering lives, so changing partition count silently breaks it.
-2) Followers fetch continuously :: One leader per partition; replicas current within `replica.lag.time.max.ms` (30s) form the **ISR** — the set Kafka trusts.
-3) `acks=all` gates the ack :: With `min.insync.replicas=2`, the write is only acknowledged once all ISR have it; acks shrink to 1 and producers get `NOT_ENOUGH_REPLICAS` instead of silent degradation.
-4) High watermark advances :: The **HW** is the highest offset replicated to all ISR — consumers read only up to it, never seeing un-replicated tail data.
-5) Leader dies, controller elects :: Election picks from the ISR; `unclean.leader.election.enable=false` (default) trades availability for **zero acknowledged-data loss**.
-6) Consumers own their offsets :: Committed to `__consumer_offsets`, a 50-partition log-compacted topic — replay is an offset reset, not a redeliver.
-7) Exactly-once stops at Kafka's edge :: Idempotent producer + transactions give EOS *within* Kafka; across system boundaries it's at-least-once + **idempotent sinks** or the outbox.
-8) The crash-in-between window :: `db.save(x); kafka.send(event(x))` dual-writes — only the outbox (event row commits with business change, CDC publishes) makes DB↔Kafka atomic.
-? Why `acks=all` + RF=3 + `min.insync.replicas=2` rather than `acks=1`? :: `acks=1` only covers the leader writing locally — a leader crash before replication loses records. The canonical recipe survives `min.insync.replicas−1` broker failures.
-? When does strict ordering break? :: Ordering is strict only *within a partition*; `hash(key) % partitionCount` maps a key to one partition, so **changing partition count** silently breaks the key→partition map.
-? What happens when ISR shrinks to 1 with `min.insync.replicas=2`? :: Producers get `NOT_ENOUGH_REPLICAS` — an explicit failure instead of silent degradation of durability.
-? Why is exactly-once "marketing" for external effects? :: EOS (idempotent producer + transactions + `read_committed`) is real *within* Kafka; across boundaries delivery is at-least-once, so side effects need idempotent sinks (DB unique key/upsert) or the outbox pattern.
+:::scenario Scenario — Call the Kafka Durability Shots
+@produce Produce to the leader :: batches per partition (linger.ms, batch.size); murmur2 key hash fixes ordering
+-> followers fetch => @isr
+@isr ISR caught up? :: replicas within replica.lag.time.max.ms (30s) stay in-sync
+? yes, all in ISR => @acks
+? ISR shrunk to 1 => @ner |fail
+@acks acks level? :: acks=1 covers only the leader's local write
+? acks=1, leader writes => @weak |fail
+? acks=all + min.insync=2 => @hw |success
+@weak Leader crash before followers sync :: acknowledged data lost — acks=1 is not durable
+-> recover => @isr
+@ner NOT_ENOUGH_REPLICAS :: explicit failure, not silent degradation — resurface when ISR recovers
+-> retry when ISR recovers => @isr
+@hw HW advances past the write :: consumers only read offsets replicated to all ISR
+-> leader dies => @elect
+@elect unclean.leader.election? :: controller picks the new leader
+? false (default): wait for ISR member => @clean |success
+? true: elect out-of-sync replica => @unclean |fail
+@clean Zero acknowledged-data loss :: availability traded for durability — the canonical recipe holds
+@unclean Acknowledged offsets vanish :: out-of-sync leader truncates what the old leader had committed
+-> durable recipe => @eos
+@eos Need exactly-once across a boundary? :: EOS stops at Kafka's edge — outside it's at-least-once
+? inside Kafka only: idempotent producer + txns => @eidok |success
+? db.save + kafka.send dual-write => @dual |fail
+? outbox row commits with business change => @outbox |success
+@eidok Transactions + read_committed :: atomic multi-partition writes inside Kafka — real EOS
+@dual Crash-in-between loses the event :: DB committed, Kafka never saw it — dual-write is not atomic
+@outbox CDC publishes the outbox row :: atomic DB↔Kafka — the only boundary-safe pattern
 :::
 
 :::diagram kafka-write-path.png
