@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Snowflake vs Databricks — EPAM A3 Senior Data Engineer assessment prep.">
+<title>Snowflake vs Databricks | Learn Data Platform Engineering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --vp-c-brand-1:#D95C41;--vp-c-brand-2:#C14E36;--vp-c-brand-3:#A8412B;
+  --vp-c-brand-soft:rgba(217,92,65,.1);
+  --vp-c-bg:#FAF9F5;--vp-c-bg-alt:#F4F3EE;--vp-c-bg-elv:#FFFFFF;
+  --vp-c-divider:rgba(0,0,0,.08);--vp-c-text-1:#1A1A1A;--vp-c-text-2:#4A4A4A;
+  --vp-c-text-3:#757575;
+  --vp-code-bg:rgba(142,150,170,.14);--vp-code-color:#1A1A1A;
+  --vp-c-tip-1:#D95C41;
+  --nav-h:64px;--sidebar-w:272px;--outline-w:256px;
+  --font-body:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Newsreader",serif;
+  --font-mono:"JetBrains Mono","Fira Code",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html.dark{
+  --vp-c-brand-1:#E07A64;--vp-c-brand-2:#E07A64;--vp-c-brand-3:#D95C41;
+  --vp-c-brand-soft:rgba(224,122,100,.15);
+  --vp-c-bg:#1A1A1A;--vp-c-bg-alt:#242424;--vp-c-bg-elv:#242424;
+  --vp-c-divider:rgba(255,255,255,.1);--vp-c-text-1:#E5E5E5;--vp-c-text-2:#B3B3B3;
+  --vp-c-text-3:#808080;
+  --vp-code-bg:rgba(101,117,133,.16);--vp-code-color:#E5E5E5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 24px)}
+body{margin:0;font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--vp-c-text-1);background:var(--vp-c-bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--vp-c-brand-2);text-decoration:none}
+a:hover{color:var(--vp-c-brand-1)}
+
+/* ---------- navbar ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--vp-c-divider);background:var(--vp-c-bg);z-index:100}
+.nav .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--vp-c-text-1);text-decoration:none}
+.nav .logo svg{flex:none}
+.nav .spacer{flex:1}
+.nav .search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--vp-c-divider);border-radius:8px;padding:6px 12px;color:var(--vp-c-text-3);font-size:13px;background:var(--vp-c-bg-alt);min-width:180px;cursor:text}
+.nav .search-box kbd{margin-left:auto;border:1px solid var(--vp-c-divider);border-radius:4px;padding:0 5px;font-size:11px;font-family:var(--font-mono);background:var(--vp-c-bg)}
+.nav .theme-btn{border:none;background:none;cursor:pointer;color:var(--vp-c-text-2);padding:8px;display:flex;border-radius:50%}
+.nav .theme-btn:hover{background:var(--vp-c-brand-soft);color:var(--vp-c-text-1)}
+.menu-toggle{display:none;border:none;background:none;color:var(--vp-c-text-2);cursor:pointer;padding:8px}
+.nav .home-link{color:var(--vp-c-text-2);font-size:14px;padding:8px;border-radius:8px;text-decoration:none}
+.nav .home-link:hover{color:var(--vp-c-text-1);background:var(--vp-c-brand-soft)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;padding-top:var(--nav-h);overflow-x:clip}
+.sidebar{position:fixed;top:var(--nav-h);bottom:0;left:0;width:var(--sidebar-w);overflow-y:auto;padding:24px 8px 96px 32px;border-right:1px solid var(--vp-c-divider);background:var(--vp-c-bg)}
+.sidebar .group-title{font-weight:700;font-size:14px;padding:8px 12px 4px;display:flex;justify-content:space-between;align-items:center}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar-link{display:flex;gap:8px;align-items:baseline;padding:5px 12px;font-size:14px;color:var(--vp-c-text-2);border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.4;text-decoration:none}
+.sidebar-link:hover{color:var(--vp-c-text-1)}
+.sidebar-link.active{color:var(--vp-c-brand-2);font-weight:600;border-left-color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft)}
+.sl-num{font-size:11px;color:var(--vp-c-text-3);font-family:var(--font-mono);flex:none}
+.sidebar-link.active .sl-num{color:var(--vp-c-brand-2)}
+.main{flex:1;min-width:0;margin-left:var(--sidebar-w)}
+@media(min-width:1440px){.main{margin-right:var(--outline-w)}}
+.vp-doc{max-width:784px;margin:0 auto;padding:32px 24px 96px}
+
+/* ---------- outline ---------- */
+.outline{position:fixed;top:var(--nav-h);right:0;bottom:0;width:var(--outline-w);overflow-y:auto;padding:24px 16px 96px;border-left:1px solid var(--vp-c-divider);display:none}
+@media(min-width:1440px){.outline{display:block}}
+.outline .outline-title{font-weight:600;font-size:14px;padding:0 12px 8px}
+.outline ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--vp-c-divider)}
+.outline-link{display:block;padding:4px 12px;font-size:13px;color:var(--vp-c-text-3);border-left:2px solid transparent;margin-left:-1px;line-height:1.4;text-decoration:none}
+.outline-link.lvl3{padding-left:26px}
+.outline-link:hover{color:var(--vp-c-text-1)}
+.outline-link.active{color:var(--vp-c-brand-2);border-left-color:var(--vp-c-brand-2)}
+
+/* ---------- typography ---------- */
+.vp-doc .kicker{font-size:13px;font-weight:700;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
+.vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
+.vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc p{margin:16px 0}
+.header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
+.vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
+.header-anchor::before{content:"#"}
+.vp-doc strong{font-weight:600}
+.vp-doc code{font-family:var(--font-mono);font-size:.875em;background:var(--vp-code-bg);color:var(--vp-code-color);padding:.15em .35em;border-radius:4px}
+.vp-doc pre{position:relative;margin:16px 0;padding:20px 24px;border-radius:8px;background:var(--vp-code-bg);overflow-x:auto;font-size:14px;line-height:1.7}
+.vp-doc pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.vp-doc pre .copy-btn{position:absolute;top:8px;right:8px;border:1px solid var(--vp-c-divider);border-radius:4px;background:var(--vp-c-bg);color:var(--vp-c-text-3);font-size:11px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .2s;font-family:var(--font-body)}
+.vp-doc pre:hover .copy-btn{opacity:1}
+.vp-doc blockquote{margin:16px 0;padding:8px 16px;border-left:4px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.vp-doc blockquote p{margin:4px 0}
+.vp-doc ul,.vp-doc ol{padding-left:1.25rem;margin:16px 0}
+.vp-doc li{margin:4px 0}
+.vp-doc li::marker{color:var(--vp-c-text-3)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0}
+.vp-doc table{border-collapse:collapse;width:100%;margin:0;font-size:14px}
+.vp-doc th,.vp-doc td{border:1px solid var(--vp-c-divider);padding:8px 16px;text-align:left;line-height:1.6}
+.vp-doc th{background:var(--vp-c-bg-alt);font-weight:600}
+.vp-doc tr:nth-child(2n) td{background:var(--vp-c-bg-alt)}
+.vp-doc hr{border:none;border-top:1px solid var(--vp-c-divider);margin:40px 0}
+.vp-doc a{text-decoration:underline;text-underline-offset:2px}
+.vp-doc a:hover{text-decoration:none}
+.vp-doc a.vm-btn,.vp-doc a.pw-link,.vp-doc .pager a,.vp-doc .feature a,.vp-doc .btn,.vp-doc a.vm-go{text-decoration:none}
+.vp-doc pre.ascii{font-size:12.5px;line-height:1.5}
+
+/* hero */
+.hero{padding:24px 0 8px}
+.hero .kicker{font-size:14px;font-weight:600;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:var(--font-head);font-size:56px;font-weight:600;margin:8px 0 12px;line-height:1.1;color:var(--vp-c-brand-1)}
+.hero .tagline{font-size:18px;color:var(--vp-c-text-2);max-width:640px}
+.hero .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid var(--vp-c-divider)}
+.btn.brand{background:#A8412B;color:#fff!important;border-color:#A8412B}
+.btn.brand:hover{background:#C14E36}
+.btn.alt{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)!important}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 8px}
+.feature{border:1px solid var(--vp-c-divider);border-radius:12px;padding:20px;background:var(--vp-c-bg-elv);transition:border-color .2s}
+.feature:hover{border-color:var(--vp-c-brand-3)}
+.feature .icon{font-size:22px}
+.feature h3{margin:8px 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:var(--vp-c-text-2);line-height:1.55}
+.feature a{font-size:13px;font-weight:600}
+
+/* mermaid */
+.mermaid{display:flex;justify-content:center;margin:24px 0;padding:16px;background:var(--vp-c-bg-alt);border:1px solid var(--vp-c-divider);border-radius:12px;overflow-x:auto}
+.mermaid svg{max-width:100%;height:auto}
+
+/* custom containers */
+.ct{margin:18px 0;padding:14px 18px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-elv);font-size:14.5px;line-height:1.65}
+.ct p{margin:6px 0}
+.ct .ct-title{font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.ct-info{border-left:4px solid var(--vp-c-brand-3)}
+.ct-info .ct-title{color:var(--vp-c-brand-2)}
+.ct-tip{border-left:4px solid #22a55b;background:rgba(34,165,91,.07)}
+.ct-tip .ct-title{color:#1d914e}
+.ct-warning{border-left:4px solid #e38407;background:rgba(227,132,7,.08)}
+.ct-warning .ct-title{color:#b4690e}
+html.dark .ct-tip{background:rgba(34,165,91,.12)}
+html.dark .ct-tip .ct-title{color:#4ccb7f}
+html.dark .ct-warning{background:rgba(227,132,7,.12)}
+html.dark .ct-warning .ct-title{color:#f0b45c}
+
+/* ---------- Duolingo path map ---------- */
+.vmap{margin:28px 0 8px;border:1px solid var(--vp-c-divider);border-radius:16px;background:var(--vp-c-bg-elv);overflow:hidden}
+.vmap-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--vp-c-divider);font-weight:700;font-size:14px}
+.vm-progress{color:var(--vp-c-text-3);font-weight:600;font-size:13px}
+.vmap-body{position:relative;padding:8px 0 24px}
+.vm-svg{display:block;margin:0 auto;width:340px;height:auto}
+.nav-mod{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--vp-c-text-3);padding:14px 12px 3px}
+.vm-mod{position:absolute;left:12px;right:12px;border:1px dashed var(--vp-c-divider);border-radius:12px;pointer-events:none}
+.vm-mod span{position:absolute;top:-9px;left:14px;background:var(--vp-c-bg-elv);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--vp-c-text-3)}
+.vm-path{stroke:var(--vp-c-divider);stroke-width:14;stroke-linecap:round;stroke-dasharray:0 18}
+.vm-node{position:absolute;width:72px;height:64px}
+.vm-btn{position:relative;width:64px;height:60px;border:none;border-radius:50%;background:var(--vp-c-bg-alt);border-bottom:5px solid var(--vp-c-divider);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .2s;padding:0;color:var(--vp-c-text-1)}
+.vm-btn:hover{transform:scale(1.08);filter:brightness(1.05)}
+.vm-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.vm-check{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:#22a55b;color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;border:2px solid var(--vp-c-bg-elv)}
+.vm-node.done .vm-btn{background:#e3f5e9;border-bottom-color:#1d914e}
+.vm-node.done .vm-check{display:flex}
+html.dark .vm-node.done .vm-btn{background:#12351f}
+.vm-node.current .vm-btn{background:var(--vp-c-brand-soft);border-bottom-color:var(--vp-c-brand-2);animation:vm-pulse 2s infinite}
+@keyframes vm-pulse{0%,100%{box-shadow:0 0 0 6px var(--vp-c-brand-soft)}50%{box-shadow:0 0 0 12px var(--vp-c-brand-soft)}}
+.vm-num{position:absolute;left:-26px;top:16px;font-size:12px;font-weight:700;color:var(--vp-c-text-3);width:20px;text-align:center}
+.vm-card{position:absolute;min-width:180px;max-width:230px;background:var(--vp-c-bg);border:1px solid var(--vp-c-divider);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;top:-18px;left:auto;right:calc(100% + 14px)}
+.vm-node:hover .vm-card,.vm-node.open .vm-card{opacity:1;pointer-events:auto}
+.vm-card-title{font-weight:700;font-size:14px}
+.vm-card-blurb{font-size:12.5px;color:var(--vp-c-text-2);line-height:1.5;margin:4px 0 8px}
+.vm-go{font-size:13px;font-weight:700}
+.vm-node[data-side="r"] .vm-card{right:auto;left:calc(100% + 14px)}
+
+/* compact path list (section pages) */
+.pathlist{list-style:none;margin:0 0 8px;padding:0}
+.pw-link{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:13px;color:var(--vp-c-text-2);border-radius:6px;text-decoration:none}
+.pw-link:hover{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)}
+.pw-ic{width:20px;flex:none}
+.pw-name{flex:1}
+.pw-check{color:#22a55b;font-weight:700;opacity:0}
+.pw-item.done .pw-check{opacity:1}
+.pw-item.done .pw-name{color:var(--vp-c-text-3);text-decoration:line-through}
+.pw-item.current .pw-link{color:var(--vp-c-brand-2);font-weight:600;background:var(--vp-c-brand-soft)}
+
+/* mark-as-read + pager */
+.mark-done{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 18px;border-radius:20px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.mark-done:hover{border-color:#22a55b}
+.mark-done.done{background:#e3f5e9;border-color:#1d914e;color:#1d914e}
+html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--vp-c-divider)}
+.pager a{flex:1;max-width:48%;border:1px solid var(--vp-c-divider);border-radius:8px;padding:12px 16px;font-size:14px}
+.pager a .plabel{font-size:12px;color:var(--vp-c-text-3)}
+.pager a .ptitle{font-weight:600;color:var(--vp-c-brand-2)}
+.pager a.next{text-align:right;margin-left:auto}
+.footer-note{text-align:center;color:var(--vp-c-text-3);font-size:13px;margin-top:48px}
+
+@media(max-width:960px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;z-index:99;top:var(--nav-h);left:0;bottom:0;background:var(--vp-c-bg);width:min(320px,85vw);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .nav{padding:0 16px}
+  .nav .search-box{display:none}
+  .vp-doc{padding:24px 16px 96px}
+  .hero h1{font-size:30px}
+  .vp-doc table{table-layout:fixed}
+  .vp-doc th{white-space:normal}
+  .vp-doc td,.vp-doc th{overflow-wrap:anywhere}
+  .vp-doc code{overflow-wrap:anywhere;word-break:break-word}
+  .vp-doc pre{font-size:12.5px;padding:14px 16px}
+  .vp-doc pre code{overflow-wrap:normal;word-break:normal}
+  .mermaid{padding:8px}
+  .vm-num{display:none}
+}
+@media(max-width:760px){
+  .vm-card{position:fixed;top:auto;bottom:16px;left:16px!important;right:16px!important;max-width:none;z-index:200}
+  .vm-node.open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;pointer-events:none}
+  .vm-node.open .vm-btn{position:relative;z-index:160}
+  .vm-svg{width:min(340px,90vw)}
+}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .hero .tagline{font-size:16px}
+  .btn{padding:9px 14px;font-size:13px}
+  .features{grid-template-columns:1fr 1fr}
+  .vp-doc h1{font-size:26px}
+  .vp-doc h2{font-size:20px}
+  .vm-svg{width:min(300px,85vw)}
+}
+@media(max-width:420px){.features{grid-template-columns:1fr}}
+.glide{margin:18px 0 26px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 16px}
+.glide:focus{outline:2px solid var(--vp-c-brand-1);outline-offset:2px}
+.glide-h{display:flex;align-items:center;gap:8px;font-weight:600}
+.glide-h b{flex:1}
+.glide-ic{font-size:18px}
+.glide-ct{font-family:var(--vp-font-family-mono);font-size:12px;color:var(--vp-c-text-3)}
+.glide-steps{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:10px 0;margin:0}
+.glide-chip{flex:1 1 auto;min-width:70px;text-align:center;padding:8px 10px;border-radius:8px;background:var(--vp-c-bg-alt);color:var(--vp-c-text-2);font-size:13px;line-height:1.3;transition:all .2s;border:1px solid transparent}
+.glide-chip b{display:block;font-family:var(--vp-font-family-mono);font-size:11px;color:var(--vp-c-text-3)}
+.glide-chip.lit{background:rgba(217,92,65,.12);border-color:var(--vp-c-brand-1);color:var(--vp-c-text-1)}
+.glide-chip.lit b{color:var(--vp-c-brand-1)}
+.glide-caps{position:relative;min-height:44px}
+.glide-cap{display:none;font-size:14px;color:var(--vp-c-text-2);padding:6px 0}
+.glide-cap.on{display:block}
+.glide-ctl{display:flex;gap:6px;margin-top:4px}
+.gprev,.gnext{width:34px;height:30px;border-radius:8px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);cursor:pointer;font-size:13px}
+.gprev:hover,.gnext:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.glide-quiz{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.qflip{text-align:left;width:100%;border:1px dashed var(--vp-c-divider);border-radius:8px;background:transparent;padding:8px 10px;cursor:pointer;font:inherit;color:var(--vp-c-text-1)}
+.qflip .qa{display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.qflip.show .qa{display:block}
+.qflip.show{border-style:solid;border-color:var(--vp-c-brand-1)}
+.dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
+.dg-frame iframe{display:block;width:100%;height:640px;border:0}
+.dg-png img{display:block;width:100%;height:auto}
+.dg-dark{display:none}
+html.dark .dg-light{display:none}
+html.dark .dg-dark{display:block}
+.dg-png img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
+.lb.open{display:block}
+.lb-vp{position:absolute;inset:0;overflow:auto;padding:64px 20px 20px;cursor:zoom-out}
+.lb-img{display:block;margin:0 auto;max-width:none;background:var(--vp-c-bg-elv);border-radius:10px}
+.lb-bar{position:fixed;top:12px;right:16px;display:flex;gap:8px;z-index:201;align-items:center}
+.lb-bar button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-size:15px;padding:5px 12px;cursor:pointer;font-family:var(--font-body)}
+.lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
+@media (max-width:640px){.dg-frame iframe{height:480px}}
+@media (max-width:640px){.glide-chip{min-width:56px;font-size:12px;padding:6px}}
+</style>
+<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
+</head>
+<body data-section="7">
+<nav class="nav">
+  <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <a class="logo" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D95C41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Learn Data Platform Engineering</span></a>
+  <div class="spacer"></div>
+  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="group-title">Course Sections</div>
+    <ul>
+<li class="nav-mod">🎯 Goal &amp; Foundations</li>
+<li><a class="sidebar-link" href="s01.html"><span class="sl-num">01</span>The EPAM A3 Senior Data Engineer Assessment</a></li>
+<li><a class="sidebar-link" href="s02.html"><span class="sl-num">02</span>SQL Deep Dive: The Problems EPAM Actually Asks</a></li>
+<li><a class="sidebar-link" href="s03.html"><span class="sl-num">03</span>Python &amp; PySpark: Coding Patterns</a></li>
+<li><a class="sidebar-link" href="s04.html"><span class="sl-num">04</span>Distributed Systems Fundamentals</a></li>
+<li class="nav-mod">🏗️ Platform Design</li>
+<li><a class="sidebar-link" href="s05.html"><span class="sl-num">05</span>Data Platform Architecture</a></li>
+<li><a class="sidebar-link" href="s06.html"><span class="sl-num">06</span>Batch vs Streaming</a></li>
+<li><a class="sidebar-link" href="s07.html"><span class="sl-num">07</span>Data Warehouse vs Data Lake vs Lakehouse</a></li>
+<li><a class="sidebar-link active" href="s08.html"><span class="sl-num">08</span>Snowflake vs Databricks</a></li>
+<li class="nav-mod">⚙️ Technology Deep-Dive</li>
+<li><a class="sidebar-link" href="s09.html"><span class="sl-num">09</span>Table Formats: Delta Lake vs Iceberg vs Hudi</a></li>
+<li><a class="sidebar-link" href="s10.html"><span class="sl-num">10</span>Compute Engines: Spark vs Flink</a></li>
+<li><a class="sidebar-link" href="s11.html"><span class="sl-num">11</span>Spark Performance: Catalyst, AQE &amp; Tuning</a></li>
+<li><a class="sidebar-link" href="s12.html"><span class="sl-num">12</span>Messaging &amp; Streaming Backbones: Kafka and Friends</a></li>
+<li class="nav-mod">🏁 Production &amp; Defense</li>
+<li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
+<li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
+<li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
+<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
+<li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+    </ul>
+<div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
+  <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="1"><a class="pw-link" href="s02.html">
+  <span class="pw-ic">🧮</span><span class="pw-name">2. SQL</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="2"><a class="pw-link" href="s03.html">
+  <span class="pw-ic">🐍</span><span class="pw-name">3. PySpark</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="3"><a class="pw-link" href="s04.html">
+  <span class="pw-ic">🌐</span><span class="pw-name">4. Distributed</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="4"><a class="pw-link" href="s05.html">
+  <span class="pw-ic">🏗️</span><span class="pw-name">5. Architecture</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="5"><a class="pw-link" href="s06.html">
+  <span class="pw-ic">🌊</span><span class="pw-name">6. Streaming</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="6"><a class="pw-link" href="s07.html">
+  <span class="pw-ic">🏬</span><span class="pw-name">7. Lakehouse</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="7"><a class="pw-link" href="s08.html">
+  <span class="pw-ic">❄️</span><span class="pw-name">8. Snow v DBX</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="8"><a class="pw-link" href="s09.html">
+  <span class="pw-ic">🧊</span><span class="pw-name">9. Formats</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="9"><a class="pw-link" href="s10.html">
+  <span class="pw-ic">⚡</span><span class="pw-name">10. Engines</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="10"><a class="pw-link" href="s11.html">
+  <span class="pw-ic">🔧</span><span class="pw-name">11. Spark Tuning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="11"><a class="pw-link" href="s12.html">
+  <span class="pw-ic">📨</span><span class="pw-name">12. Kafka</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="12"><a class="pw-link" href="s13.html">
+  <span class="pw-ic">🛡️</span><span class="pw-name">13. Reliability</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="13"><a class="pw-link" href="s14.html">
+  <span class="pw-ic">📚</span><span class="pw-name">14. Practice</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="14"><a class="pw-link" href="s15.html">
+  <span class="pw-ic">🎯</span><span class="pw-name">15. Playbook</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="15"><a class="pw-link" href="s16.html">
+  <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
+  <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li></ul>
+  </aside>
+  <main class="main">
+    <div class="vp-doc">
+
+<div class="kicker">Section 8 of 17</div><h1>Snowflake vs Databricks</h1>
+<p>Two platforms converging from opposite origins — Snowflake grew a SQL warehouse outward into the lakehouse, Databricks grew a Spark lakehouse inward into SQL/BI — so the honest comparison is mechanisms and tradeoffs, not feature checklists.</p>
+<p><div class="glide" tabindex="0"><div class="glide-h"><span class="glide-ic">🧩</span><b>Glide · Glide — Who Owns the Storage</b><span class="glide-ct">1/8</span></div><ol class="glide-steps"><li class="glide-chip" data-i="0"><b>1</b>Converging origins</li><li class="glide-chip" data-i="1"><b>2</b>Storage ownership</li><li class="glide-chip" data-i="2"><b>3</b>Compute model</li><li class="glide-chip" data-i="3"><b>4</b>Billing shape</li><li class="glide-chip" data-i="4"><b>5</b>Workload verdicts</li><li class="glide-chip" data-i="5"><b>6</b>Lock-in asymmetry</li><li class="glide-chip" data-i="6"><b>7</b>The neutral layer</li><li class="glide-chip" data-i="7"><b>8</b>The exit</li></ol><div class="glide-caps"><div class="glide-cap" data-i="0">Snowflake grew a SQL warehouse outward into the lakehouse; Databricks grew a Spark lakehouse inward into SQL/BI — compare mechanisms, not feature checklists</div><div class="glide-cap" data-i="1"><strong>Snowflake abstracts storage away</strong> (micro-partitions, ~16 MB, bundled bill); <strong>Databricks makes your lake the source of truth</strong> (your S3 + Delta ACID log) — this one choice explains pricing, governance, and lock-in</div><div class="glide-cap" data-i="2">Warehouses XS→6XL auto-suspend to zero vs Spark + <strong>Photon</strong> clusters — why BI defaults to Snowflake and code-heavy pipelines to Databricks</div><div class="glide-cap" data-i="3"><strong>Credits bundle IaaS</strong>; <strong>DBUs stack on the VM bill</strong> — never compare list rates; the ~15% Databricks edge in the worked example is entirely assumption-driven</div><div class="glide-cap" data-i="4">SQL/BI → Snowflake; ML/GPU/code-first pipelines and continuous streaming → Databricks; governance is capability parity but openness favors Unity Catalog</div><div class="glide-cap" data-i="5">Snowflake locks in <strong>data gravity</strong> (exit = unload proprietary native tables to Iceberg); Databricks locks in <strong>workflows</strong> (exit = re-platform notebooks/jobs, data stays in your bucket)</div><div class="glide-cap" data-i="6"><strong>Iceberg + one REST catalog</strong> (Open Catalog/Polaris or UC) lets both engines read shared data — no efficient cross-read of Snowflake native tables otherwise</div><div class="glide-cap" data-i="7">Iceberg support is table stakes on both sides now; catalog ownership is the live differentiator — design the exit before you need it</div></div><div class="glide-ctl"><button class="gprev" type="button">◀</button><button class="gnext" type="button">▶</button></div><div class="glide-quiz"><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why is Databricks ~15% cheaper in the worked example, and why not trust that number?</span><span class="qa">It is entirely assumption-driven — swap the credit price ($2–4 by cloud/region), warehouse sizes, or the analyst/ETL mix and either side wins; model 3-year all-in TCO on your workload, never list rates.</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Where does each platform's lock-in actually bite?</span><span class="qa"><strong>Snowflake locks in data gravity</strong>: native tables are proprietary, so exiting means re-platforming storage by unloading to Iceberg. <strong>Databricks locks in workflows</strong>: exiting means re-platforming notebooks/jobs, but data stays in your cloud account.</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why can't the two platforms just share data naively?</span><span class="qa">Snowflake native tables are proprietary and Spark can't scan them efficiently — the neutral pattern is Iceberg in S3 with a REST catalog (Open Catalog/Polaris or UC) both engines read, at the cost of two contracts, two governance models, two teams.</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why discount vendor benchmarks like TPC-DS 2023 or TPC-DI 2025?</span><span class="qa">Claims contradict each other year over year (~3× DBX, then ~5× for DBX SQL Serverless, Snowflake's Gen2 rebuttal, consultancies reporting the reverse on pure BI) — workload shape dominates, so run a 2-week PoC with your schemas, query mix, and concurrency profile.</span></button></div></div></p>
+<div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/vendor-arch.png" alt="vendor-arch.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/vendor-arch.dark.png" alt="vendor-arch.png diagram (dark)" loading="lazy"></div>
+<h2 id="architecture-two-different-answers" tabindex="-1">Architecture: Two Different Answers<a class="header-anchor" href="#architecture-two-different-answers">&ZeroWidthSpace;</a></h2>
+<pre><code class="language-text">         SNOWFLAKE                        DATABRICKS
+┌───────────────────────────┐   ┌───────────────────────────┐
+│ Cloud services: optimizer │   │ Control plane: UC, SQL    │
+│ Virtual warehouses XS-6XL │   │ Spark + Photon clusters   │
+│ Storage: micro-partitions │   │ Your S3 + Delta ACID log  │
+│ Bundled bill              │   │ Unbundled: DBU + VM bill  │
+└───────────────────────────┘   └───────────────────────────┘
+</code></pre>
+<ul>
+<li><strong>Snowflake</strong>: storage/compute/cloud-services decoupled; warehouses (XS→6XL) auto-suspend to zero; micro-partitions (~16 MB, min/max pruning) remove partition design; Time Travel + zero-copy cloning included.</li>
+<li><strong>Databricks</strong>: control plane + Spark/Photon compute over <strong>your</strong> S3/ADLS/GCS; Delta Lake transaction log gives ACID with optimistic concurrency; Photon (C++ vectorized) is why its SQL got competitive.</li>
+<li>Deepest difference: <strong>Snowflake abstracts storage away; Databricks makes your lake the source of truth</strong> — that choice explains pricing, governance, and lock-in below.</li>
+<li>Sharing data between them is the 2025–26 pain: Snowflake native tables are proprietary and Spark can't scan them efficiently; the neutral pattern is Iceberg + REST catalog (Open Catalog/Polaris or UC) with both engines reading.</li>
+</ul>
+
+<h2 id="pricing-credits-vs-dbus" tabindex="-1">Pricing: Credits vs DBUs<a class="header-anchor" href="#pricing-credits-vs-dbus">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Snowflake</th>
+<th>Databricks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td>Credit; per-second, 60s minimum</td>
+<td>DBU; per-second on serverless</td>
+</tr>
+<tr>
+<td>Rate shape</td>
+<td>1 credit/hr at XS, ×2 per size, × edition multiplier</td>
+<td>Per-SKU: Jobs ≈ $0.15, All-purpose $0.40–0.55, SQL Serverless $0.70 /DBU (US list 2025)</td>
+</tr>
+<tr>
+<td>Compute + IaaS</td>
+<td>Bundled in the credit price</td>
+<td>DBU <strong>plus</strong> the underlying EC2/VM bill</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>~$23–40/TB/mo compressed</td>
+<td>Your S3/ADLS bill + small-file request overhead</td>
+</tr>
+<tr>
+<td>Idle cost</td>
+<td>Auto-suspend to zero if configured</td>
+<td>Classic clusters bill while up; serverless scales to zero</td>
+</tr>
+</tbody>
+</table>
+<div class="ct ct-info">
+<div class="ct-title">Worked Example - Monthly Bill, Same Workload</div>
+<p>Assumptions: 500 GB data, transforms 4 h/day, 100 analysts driving ~10 h/day of BI, 22 business days, US East list prices, no commitments, credit = $2.50, Medium = 4 credits/hr.</p>
+<table>
+<thead>
+<tr>
+<th>Line item</th>
+<th>Snowflake</th>
+<th>Databricks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storage</td>
+<td>0.5 TB × $40 = <strong>$20</strong></td>
+<td>S3 0.5 TB × $23 = <strong>$12</strong></td>
+</tr>
+<tr>
+<td>Transforms, 120 h/mo</td>
+<td>Medium: 4 cr/h × 120 h × $2.50 = <strong>$1,200</strong></td>
+<td>4× r5.2xlarge + driver ≈ $2.27/h VM + 9 DBU/h × $0.15 → <strong>$434</strong></td>
+</tr>
+<tr>
+<td>BI, 220 h/mo</td>
+<td>Medium: 880 cr × $2.50 = <strong>$2,200</strong></td>
+<td>SQL Serverless Small: 16 DBU/h × 220 h × $0.70 = <strong>$2,464</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>≈ $3,420/mo</strong></td>
+<td><strong>≈ $2,910/mo</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Read: ~15% Databricks edge at list, and it is entirely assumption-driven — swap credit price ($2–4 by cloud/region), warehouse sizes, or the analyst/ETL mix and either side wins. Add ~10% to both for cloud-services credits beyond the waiver, serverless-feature spend, and egress.</p>
+</div>
+<div class="ct ct-tip">
+<div class="ct-title">TCO Traps</div>
+<ul>
+<li>Snowflake: forgotten warehouses never suspending, spill-to-storage on big sorts, separately-credited serverless features (Snowpipe, search optimization, MV maintenance), cloud-services credits past the ~10% daily waiver.</li>
+<li>Databricks: all-purpose ($0.55) vs jobs ($0.15) misclassification is ~3×; classic clusters stack VM cost; small Delta files inflate S3 requests.</li>
+<li>Model 3-year all-in cost; a spreadsheet older than Snowflake Gen2 warehouses (GA 2025, ~2.1× Gen1 analytics) is stale.</li>
+</ul>
+</div>
+
+<h2 id="workload-strength" tabindex="-1">Workload Strength<a class="header-anchor" href="#workload-strength">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>Snowflake</th>
+<th>Databricks</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL / BI</td>
+<td>Result cache, Gen2 warehouses, mature BI ecosystem</td>
+<td>Databricks SQL + serverless, competitive since 2022</td>
+<td>Snowflake default; DBX on cost at scale</td>
+</tr>
+<tr>
+<td>ETL pipelines</td>
+<td>Snowpark, Dynamic Tables, tasks/streams (SQL-centric)</td>
+<td>Spark + Photon, Lakeflow pipelines, code-first Python</td>
+<td>DBX for complex code-heavy pipelines</td>
+</tr>
+<tr>
+<td>ML / AI</td>
+<td>Snowpark ML, Cortex in-SQL functions</td>
+<td>MLflow origin, GPU clusters, Mosaic AI, Model Serving, Lakebase (2025)</td>
+<td>DBX clearly for training/LLM</td>
+</tr>
+<tr>
+<td>Streaming</td>
+<td>Streams/tasks, Snowpipe Streaming sub-second (2025)</td>
+<td>Structured Streaming, Auto Loader</td>
+<td>DBX for continuous; SF fine at minutes</td>
+</tr>
+<tr>
+<td>Governance</td>
+<td>Horizon: RBAC, masking, lineage — turnkey</td>
+<td>Unity Catalog: ABAC (2025), lineage, Delta Sharing — more open</td>
+<td>Capability parity; openness favors UC</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li>BI-heavy org of analysts, not engineers → <strong>Snowflake</strong>: near-zero ops, auto-suspend, cloning, Horizon masking out of the box.</li>
+<li>ML platform with GPU training, notebooks, MLOps lifecycle → <strong>Databricks</strong>: MLflow lineage end-to-end, feature store, model serving.</li>
+<li>Regulated shared data across orgs → <strong>Snowflake</strong> Horizon + Secure Data Sharing for turnkey audit/masking; <strong>Databricks</strong> UC + Delta Sharing when recipients must read Delta/Iceberg with their own engines.</li>
+</ul>
+
+<h2 id="governance-openness-and-benchmarks" tabindex="-1">Governance, Openness, and Benchmarks<a class="header-anchor" href="#governance-openness-and-benchmarks">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>Databricks</strong>: Delta is Apache-2.0 OSS; UniForm exposes Delta tables as Iceberg; June 2025 added full managed Iceberg in UC plus REST catalog federation (<a href="https://www.databricks.com/blog/announcing-full-apache-iceberg-support-databricks">blog</a>); UC itself is OSS (<a href="https://docs.databricks.com/aws/en/tables/managed">docs</a>).</li>
+<li><strong>Snowflake</strong>: native tables stay proprietary — the core lock-in. Exit ramps: Iceberg tables (managed or via any Iceberg REST catalog), catalog-linked databases (2025), and <strong>Open Catalog</strong>, a managed Apache Polaris that Snowflake donated to the ASF (<a href="https://www.snowflake.com/en/engineering-blog/apache-polaris-iceberg-rest-catalog">blog</a>, <a href="https://docs.snowflake.com/en/user-guide/tables-iceberg">docs</a>).</li>
+<li>Benchmark honesty: dueling TPC-DS 100TB claims in 2023 (~3× DBX, <a href="https://www.databricks.com/blog/2021/11/15/snowflake-claims-similar-price-performance-to-databricks-but-not-so-fast.html">Databricks</a>); 2025 TPC-DI claims of ~5× for DBX SQL Serverless (<a href="https://medium.com/dbsql-sme-engineering/benchmarking-etl-with-the-tpc-di-snowflake-cb0a83aaad5b">Medium</a>) vs Snowflake's Gen2 rebuttal (<a href="https://www.snowflake.com/en/blog/engineering/snowflake-vs-databricks">Snowflake</a>); independent consultancies report the reverse on pure BI. Workload shape dominates.</li>
+</ul>
+<div class="ct ct-warning">
+<p>Vendor benchmarks contradict each other year over year. Basing procurement on them is malpractice: run a 2-week PoC with your schemas, query mix, and concurrency profile.</p>
+</div>
+
+<h2 id="ecosystem-and-hybrid-reality" tabindex="-1">Ecosystem and Hybrid Reality<a class="header-anchor" href="#ecosystem-and-hybrid-reality">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Snowflake optimizes for analysts staying in-SQL (Snowpark, Streamlit-in-Snowflake, Native Apps, Marketplace); Databricks for code-first teams (notebooks, Asset Bundles, Lakeflow Jobs, Mosaic AI). Hiring profiles follow.</li>
+<li>Running both hits: catalog mismatch (no efficient cross-read of Snowflake native tables), two storage bills, duplicated RBAC/audit/lineage.</li>
+<li>Common convergence: Iceberg in S3 as the neutral layer, Polaris or UC as catalog, Snowflake for BI/finance consumers, Databricks for ML and heavy pipelines — best of both, at the cost of two contracts, two governance models, two teams.</li>
+</ul>
+
+<h2 id="decision-matrix" tabindex="-1">Decision Matrix<a class="header-anchor" href="#decision-matrix">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Choose <strong>Snowflake</strong> when…</th>
+<th>Choose <strong>Databricks</strong> when…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL/BI-centric; analysts, not engineers</td>
+<td>ML/AI-heavy or code-first Spark pipelines</td>
+</tr>
+<tr>
+<td>Near-zero ops; cloning and Time Travel default-on</td>
+<td>Cluster/version/GPU control; Spark skills in-house</td>
+</tr>
+<tr>
+<td>Turnkey governance fast (Horizon RBAC + masking)</td>
+<td>Open formats/catalog as a strategic hedge</td>
+</tr>
+<tr>
+<td>Snowflake already the BI product</td>
+<td>Lake is source of truth; warehouse just one consumer</td>
+</tr>
+<tr>
+<td>Minutes-latency streaming acceptable</td>
+<td>Continuous sub-second streaming (Kafka) required</td>
+</tr>
+<tr>
+<td>One predictable bundled bill wanted</td>
+<td>VM/storage transparency and cloud optimization matter</td>
+</tr>
+</tbody>
+</table>
+<p><div class="mermaid">
+flowchart TD
+    W[What dominates the workload] --> BI[Interactive SQL and dashboards]
+    W --> ML[ML training and feature pipelines]
+    W --> BOTH[Heavy BI plus heavy ML on shared data]
+    BI --> OPS[Team wants minimal ops]
+    OPS --> SF[Choose Snowflake]
+    BI --> CTRL[Team wants cost transparency]
+    CTRL --> DBX[Choose Databricks SQL]
+    ML --> GPU[GPU or LLM training]
+    GPU --> D2[Choose Databricks]
+    ML --> SQLAI[In SQL AI functions only]
+    SQLAI --> SF2[Choose Snowflake]
+    BOTH --> L2[Run both over shared Iceberg]
+</div></p>
+
+<h2 id="lock-in-analysis" tabindex="-1">Lock-In Analysis<a class="header-anchor" href="#lock-in-analysis">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Vector</th>
+<th>Snowflake</th>
+<th>Databricks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Table format</td>
+<td>Proprietary native; Iceberg as exit ramp</td>
+<td>Delta OSS; Iceberg via UniForm/managed Iceberg</td>
+</tr>
+<tr>
+<td>Catalog</td>
+<td>Proprietary + Open Catalog (Polaris, OSS)</td>
+<td>UC OSS, Iceberg REST endpoint</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>Snowflake-managed buckets</td>
+<td>Your cloud account — lower data gravity</td>
+</tr>
+<tr>
+<td>Engine / skills</td>
+<td>Closed engine, but ops abstracted away</td>
+<td>Spark skills transfer everywhere</td>
+</tr>
+<tr>
+<td>Exit cost driver</td>
+<td>Re-platforming storage: unload native → Iceberg</td>
+<td>Re-platforming pipelines: notebooks/jobs, not data</td>
+</tr>
+</tbody>
+</table>
+<p>Net: <strong>Snowflake locks in data gravity; Databricks locks in workflows</strong>. The Iceberg REST ecosystem erodes both — which is exactly why both vendors embraced it.</p>
+
+<h2 id="key-takeaways" tabindex="-1">Key Takeaways<a class="header-anchor" href="#key-takeaways">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Storage ownership (bundled vs your-bucket) drives pricing, governance, and lock-in more than feature lists do; warehouse vs lakehouse framing is stale.</li>
+<li>Credits bundle IaaS; DBUs stack on VMs — never compare list rates, model 3-year all-in TCO on your workload.</li>
+<li>Iceberg support is table stakes on both sides now; catalog ownership (UC vs Open Catalog/Polaris) is the live differentiator.</li>
+<li>Vendor benchmarks (TPC-DS 2023, TPC-DI 2025) contradict each other; only your PoC settles price/performance.</li>
+<li>Fit: BI + turnkey ops → Snowflake; ML/GPU/code-first/continuous streaming → Databricks; run both over shared Delta/Iceberg when you must — and design the exit before you need it.</li>
+</ul>
+
+<h2 id="interview-lens" tabindex="-1">Interview Lens<a class="header-anchor" href="#interview-lens">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>&quot;Which would you pick?&quot; — name the workload mix first, then mechanisms (micro-partition pruning vs Delta log, bundled vs unbundled billing), then decide with tradeoffs stated; never a fanpage verdict.</li>
+<li>Expect probes on TCO divergence (serverless feature credits vs all-purpose/jobs misclassification, VM stacking), keeping the two platforms consistent on shared data (Iceberg + one REST catalog owner, Delta Sharing), and the lock-in story (data gravity vs workflow).</li>
+<li>Cite the dueling benchmarks as evidence claims invert by workload shape, then pivot to how you would benchmark with your own data.</li>
+</ul>
+
+      <button class="mark-done" id="markDone">Mark section as done</button>
+<div class="pager"><a class="prev" href="s07.html"><div class="plabel">Previous</div><div class="ptitle">← Data Warehouse vs Data Lake vs Lakehouse</div></a><a class="next" href="s09.html"><div class="plabel">Next</div><div class="ptitle">Table Formats: Delta Lake vs Iceberg vs Hudi →</div></a></div>
+      <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
+    </div>
+  </main>
+  <aside class="outline">
+    <div class="outline-title">On this page</div>
+    <ul>
+<li><a class="outline-link lvl2" href="#">Overview</a></li>
+<li><a class="outline-link lvl3" href="#architecture-two-different-answers">Architecture: Two Different Answers</a></li>
+<li><a class="outline-link lvl3" href="#pricing-credits-vs-dbus">Pricing: Credits vs DBUs</a></li>
+<li><a class="outline-link lvl3" href="#workload-strength">Workload Strength</a></li>
+<li><a class="outline-link lvl3" href="#governance-openness-and-benchmarks">Governance, Openness, and Benchmarks</a></li>
+<li><a class="outline-link lvl3" href="#ecosystem-and-hybrid-reality">Ecosystem and Hybrid Reality</a></li>
+<li><a class="outline-link lvl3" href="#decision-matrix">Decision Matrix</a></li>
+<li><a class="outline-link lvl3" href="#lock-in-analysis">Lock-In Analysis</a></li>
+<li><a class="outline-link lvl3" href="#key-takeaways">Key Takeaways</a></li>
+<li><a class="outline-link lvl3" href="#interview-lens">Interview Lens</a></li>
+    </ul>
+  </aside>
+</div>
+<script>
+// theme
+const root=document.documentElement;
+const stored=localStorage.getItem('vp-theme');
+const prefersDark=matchMedia('(prefers-color-scheme: dark)').matches;
+if(stored==='dark'||(!stored&&prefersDark)){root.classList.add('dark')}
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  root.classList.toggle('dark');
+  localStorage.setItem('vp-theme',root.classList.contains('dark')?'dark':'light');
+  setTimeout(()=>location.reload(),60);
+});
+document.getElementById('menuBtn')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.querySelectorAll('.sidebar-link,.pw-link').forEach(a=>a.addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open')));
+// copy buttons + ascii class
+document.querySelectorAll('.vp-doc pre').forEach(pre=>{
+  const code=pre.querySelector('code');
+  const m=/language-(\w+)/.exec(code?code.className:'');
+  if(m&&m[1]==='text')pre.classList.add('ascii');
+  const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+  btn.onclick=e=>{e.stopPropagation();navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)};
+  pre.appendChild(btn);
+});
+// wrap tables for scroll
+document.querySelectorAll('.vp-doc table').forEach(t=>{
+  const w=document.createElement('div');w.className='table-wrap';
+  t.parentNode.insertBefore(w,t);w.appendChild(t);
+});
+// scrollspy outline
+const heads=[...document.querySelectorAll('.vp-doc h2,.vp-doc h3')];
+const outLinks={};document.querySelectorAll('.outline-link').forEach(a=>outLinks[a.getAttribute('href')]=a);
+function spy(){
+  let cur=null;
+  for(const h of heads){if(h.getBoundingClientRect().top<=100)cur=h;else break}
+  for(const k in outLinks)outLinks[k].classList.remove('active');
+  if(cur&&outLinks['#'+cur.id])outLinks['#'+cur.id].classList.add('active');
+  else if(!cur&&outLinks['#'])outLinks['#'].classList.add('active');
+}
+addEventListener('scroll',spy,{passive:true});spy();
+// progress tracking (localStorage set of section indices)
+const PROGRESS_KEY='ldp-visited';
+const visited=new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]'));
+function saveVisited(){localStorage.setItem(PROGRESS_KEY,JSON.stringify([...visited]))}
+function paintProgress(){
+  document.querySelectorAll('.vm-node,.pw-item').forEach(n=>{
+    const i=+n.dataset.n;
+    n.classList.toggle('done',visited.has(i));
+  });
+  // current = first unvisited node (path) or explicit current page
+  const cur=document.querySelector('.pw-item.current');
+  if(!cur){
+    for(let i=0;i<document.querySelectorAll('.vm-node').length;i++){if(!visited.has(i)){const n=document.querySelector(`.vm-node[data-n="${i}"]`);if(n)n.classList.add('current');break}}
+  }
+  const pct=document.getElementById('vmProgress');if(pct)pct.textContent=visited.size+' / '+document.querySelectorAll('.vm-node').length;
+  const p2=document.getElementById('vmProgress2');if(p2)p2.textContent=visited.size+' / '+document.querySelectorAll('.pw-item').length;
+}
+// section page: auto-mark visited + mark-as-read toggle
+const secIdx=document.body.dataset.section;
+if(secIdx!==undefined){
+  visited.add(+secIdx);saveVisited();
+  const item=document.querySelector(`.pw-item[data-n="${secIdx}"]`);if(item)item.classList.add('current');
+  const btn=document.getElementById('markDone');
+  if(btn){
+    const paint=()=>{btn.classList.toggle('done',visited.has(+secIdx));btn.textContent=visited.has(+secIdx)?'✓ Section done — nice':'Mark section as done'};
+    btn.onclick=()=>{visited.has(+secIdx)?visited.delete(+secIdx):visited.add(+secIdx);saveVisited();paint();paintProgress()};
+    paint();
+  }
+}
+paintProgress();
+// vmap popovers: click toggles card; Go link navigates
+const vmNodes=[...document.querySelectorAll('.vm-node')];
+vmNodes.forEach(n=>{
+  const b=n.querySelector('.vm-btn');
+  b.addEventListener('click',e=>{
+    if(n.classList.contains('open'))return; // second tap follows link
+    e.preventDefault();
+    e.stopPropagation();
+    vmNodes.forEach(m=>{if(m!==n)m.classList.remove('open')});
+    n.classList.add('open');
+  });
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
+document.querySelectorAll('.glide').forEach(gl=>{
+  const chips=[...gl.querySelectorAll('.glide-chip')];
+  const caps=[...gl.querySelectorAll('.glide-cap')];
+  const ct=gl.querySelector('.glide-ct');
+  let i=0;const n=caps.length;
+  const show=k=>{i=Math.max(0,Math.min(n-1,k));
+    chips.forEach((c,j)=>c.classList.toggle('lit',j<=i));
+    caps.forEach((c,j)=>c.classList.toggle('on',j===i));
+    if(ct)ct.textContent=(i+1)+'/'+n;};
+  gl.querySelector('.gprev').onclick=()=>show(i-1);
+  gl.querySelector('.gnext').onclick=()=>show(i+1);
+  gl.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'){e.preventDefault();show(i-1)}
+    if(e.key==='ArrowRight'){e.preventDefault();show(i+1)}});
+  chips.forEach((c,j)=>{c.style.cursor='pointer';c.onclick=()=>show(j)});
+  show(0);
+});
+document.querySelectorAll('.qflip').forEach(q=>q.onclick=()=>{
+  q.classList.toggle('show');q.setAttribute('aria-expanded',q.classList.contains('show'))});
+// diagram zoom lightbox
+const lb=document.createElement('div');lb.className='lb';
+lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
+document.body.appendChild(lb);
+const lbVp=lb.querySelector('.lb-vp'),lbImg=lb.querySelector('.lb-img'),lbPct=lb.querySelector('.lb-pct');
+let lbW=0,lbZoom=1;
+const lbSteps=[0.25,0.5,0.75,1,1.5,2,3,4];
+function lbSet(z){lbZoom=z;lbImg.style.width=(lbW*z)+'px';lbPct.textContent=Math.round(z*100)+'%'}
+lbImg.onload=()=>{lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)};
+document.querySelectorAll('.dg-png img').forEach(img=>img.addEventListener('click',e=>{
+  e.stopPropagation();
+  lbImg.src=img.src;
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(lbImg.complete&&lbImg.naturalWidth){lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)}
+}));
+function lbClose(){lb.classList.remove('open');document.body.style.overflow=''}
+lbVp.addEventListener('click',e=>{if(e.target===lbVp)lbClose()});
+lb.querySelectorAll('.lb-bar button').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();const a=b.dataset.z;
+  if(a==='close')return lbClose();
+  if(a==='reset')return lbSet(1);
+  const dz=parseFloat(a),n=lbSteps.filter(s=>dz>1?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(dz>1?(n[0]||4):(n[n.length-1]||0.25));
+}));
+lbVp.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();
+  const n=lbSteps.filter(s=>e.deltaY<0?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(e.deltaY<0?(n[0]||4):(n[n.length-1]||0.25));},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  if(e.key==='+'||e.key==='='){const n=lbSteps.find(s=>s>lbZoom+0.01);lbSet(n||4)}
+  if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
+  if(e.key==='0')lbSet(1);
+});
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const isDark=document.documentElement.classList.contains('dark');
+mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
+const els=document.querySelectorAll('.mermaid');
+for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+</script>
+
+</body>
+</html>

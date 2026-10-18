@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Machine Learning System Design Interview (Aminian &amp; Xu) — EPAM A3 Senior Data Engineer assessment prep.">
+<title>Machine Learning System Design Interview (Aminian &amp; Xu) | Learn Data Platform Engineering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --vp-c-brand-1:#D95C41;--vp-c-brand-2:#C14E36;--vp-c-brand-3:#A8412B;
+  --vp-c-brand-soft:rgba(217,92,65,.1);
+  --vp-c-bg:#FAF9F5;--vp-c-bg-alt:#F4F3EE;--vp-c-bg-elv:#FFFFFF;
+  --vp-c-divider:rgba(0,0,0,.08);--vp-c-text-1:#1A1A1A;--vp-c-text-2:#4A4A4A;
+  --vp-c-text-3:#757575;
+  --vp-code-bg:rgba(142,150,170,.14);--vp-code-color:#1A1A1A;
+  --vp-c-tip-1:#D95C41;
+  --nav-h:64px;--sidebar-w:272px;--outline-w:256px;
+  --font-body:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Newsreader",serif;
+  --font-mono:"JetBrains Mono","Fira Code",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html.dark{
+  --vp-c-brand-1:#E07A64;--vp-c-brand-2:#E07A64;--vp-c-brand-3:#D95C41;
+  --vp-c-brand-soft:rgba(224,122,100,.15);
+  --vp-c-bg:#1A1A1A;--vp-c-bg-alt:#242424;--vp-c-bg-elv:#242424;
+  --vp-c-divider:rgba(255,255,255,.1);--vp-c-text-1:#E5E5E5;--vp-c-text-2:#B3B3B3;
+  --vp-c-text-3:#808080;
+  --vp-code-bg:rgba(101,117,133,.16);--vp-code-color:#E5E5E5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 24px)}
+body{margin:0;font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--vp-c-text-1);background:var(--vp-c-bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--vp-c-brand-2);text-decoration:none}
+a:hover{color:var(--vp-c-brand-1)}
+
+/* ---------- navbar ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--vp-c-divider);background:var(--vp-c-bg);z-index:100}
+.nav .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--vp-c-text-1);text-decoration:none}
+.nav .logo svg{flex:none}
+.nav .spacer{flex:1}
+.nav .search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--vp-c-divider);border-radius:8px;padding:6px 12px;color:var(--vp-c-text-3);font-size:13px;background:var(--vp-c-bg-alt);min-width:180px;cursor:text}
+.nav .search-box kbd{margin-left:auto;border:1px solid var(--vp-c-divider);border-radius:4px;padding:0 5px;font-size:11px;font-family:var(--font-mono);background:var(--vp-c-bg)}
+.nav .theme-btn{border:none;background:none;cursor:pointer;color:var(--vp-c-text-2);padding:8px;display:flex;border-radius:50%}
+.nav .theme-btn:hover{background:var(--vp-c-brand-soft);color:var(--vp-c-text-1)}
+.menu-toggle{display:none;border:none;background:none;color:var(--vp-c-text-2);cursor:pointer;padding:8px}
+.nav .home-link{color:var(--vp-c-text-2);font-size:14px;padding:8px;border-radius:8px;text-decoration:none}
+.nav .home-link:hover{color:var(--vp-c-text-1);background:var(--vp-c-brand-soft)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;padding-top:var(--nav-h);overflow-x:clip}
+.sidebar{position:fixed;top:var(--nav-h);bottom:0;left:0;width:var(--sidebar-w);overflow-y:auto;padding:24px 8px 96px 32px;border-right:1px solid var(--vp-c-divider);background:var(--vp-c-bg)}
+.sidebar .group-title{font-weight:700;font-size:14px;padding:8px 12px 4px;display:flex;justify-content:space-between;align-items:center}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar-link{display:flex;gap:8px;align-items:baseline;padding:5px 12px;font-size:14px;color:var(--vp-c-text-2);border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.4;text-decoration:none}
+.sidebar-link:hover{color:var(--vp-c-text-1)}
+.sidebar-link.active{color:var(--vp-c-brand-2);font-weight:600;border-left-color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft)}
+.sl-num{font-size:11px;color:var(--vp-c-text-3);font-family:var(--font-mono);flex:none}
+.sidebar-link.active .sl-num{color:var(--vp-c-brand-2)}
+.main{flex:1;min-width:0;margin-left:var(--sidebar-w)}
+@media(min-width:1440px){.main{margin-right:var(--outline-w)}}
+.vp-doc{max-width:784px;margin:0 auto;padding:32px 24px 96px}
+
+/* ---------- outline ---------- */
+.outline{position:fixed;top:var(--nav-h);right:0;bottom:0;width:var(--outline-w);overflow-y:auto;padding:24px 16px 96px;border-left:1px solid var(--vp-c-divider);display:none}
+@media(min-width:1440px){.outline{display:block}}
+.outline .outline-title{font-weight:600;font-size:14px;padding:0 12px 8px}
+.outline ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--vp-c-divider)}
+.outline-link{display:block;padding:4px 12px;font-size:13px;color:var(--vp-c-text-3);border-left:2px solid transparent;margin-left:-1px;line-height:1.4;text-decoration:none}
+.outline-link.lvl3{padding-left:26px}
+.outline-link:hover{color:var(--vp-c-text-1)}
+.outline-link.active{color:var(--vp-c-brand-2);border-left-color:var(--vp-c-brand-2)}
+
+/* ---------- typography ---------- */
+.vp-doc .kicker{font-size:13px;font-weight:700;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
+.vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
+.vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc p{margin:16px 0}
+.header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
+.vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
+.header-anchor::before{content:"#"}
+.vp-doc strong{font-weight:600}
+.vp-doc code{font-family:var(--font-mono);font-size:.875em;background:var(--vp-code-bg);color:var(--vp-code-color);padding:.15em .35em;border-radius:4px}
+.vp-doc pre{position:relative;margin:16px 0;padding:20px 24px;border-radius:8px;background:var(--vp-code-bg);overflow-x:auto;font-size:14px;line-height:1.7}
+.vp-doc pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.vp-doc pre .copy-btn{position:absolute;top:8px;right:8px;border:1px solid var(--vp-c-divider);border-radius:4px;background:var(--vp-c-bg);color:var(--vp-c-text-3);font-size:11px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .2s;font-family:var(--font-body)}
+.vp-doc pre:hover .copy-btn{opacity:1}
+.vp-doc blockquote{margin:16px 0;padding:8px 16px;border-left:4px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.vp-doc blockquote p{margin:4px 0}
+.vp-doc ul,.vp-doc ol{padding-left:1.25rem;margin:16px 0}
+.vp-doc li{margin:4px 0}
+.vp-doc li::marker{color:var(--vp-c-text-3)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0}
+.vp-doc table{border-collapse:collapse;width:100%;margin:0;font-size:14px}
+.vp-doc th,.vp-doc td{border:1px solid var(--vp-c-divider);padding:8px 16px;text-align:left;line-height:1.6}
+.vp-doc th{background:var(--vp-c-bg-alt);font-weight:600}
+.vp-doc tr:nth-child(2n) td{background:var(--vp-c-bg-alt)}
+.vp-doc hr{border:none;border-top:1px solid var(--vp-c-divider);margin:40px 0}
+.vp-doc a{text-decoration:underline;text-underline-offset:2px}
+.vp-doc a:hover{text-decoration:none}
+.vp-doc a.vm-btn,.vp-doc a.pw-link,.vp-doc .pager a,.vp-doc .feature a,.vp-doc .btn,.vp-doc a.vm-go{text-decoration:none}
+.vp-doc pre.ascii{font-size:12.5px;line-height:1.5}
+
+/* hero */
+.hero{padding:24px 0 8px}
+.hero .kicker{font-size:14px;font-weight:600;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:var(--font-head);font-size:56px;font-weight:600;margin:8px 0 12px;line-height:1.1;color:var(--vp-c-brand-1)}
+.hero .tagline{font-size:18px;color:var(--vp-c-text-2);max-width:640px}
+.hero .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid var(--vp-c-divider)}
+.btn.brand{background:#A8412B;color:#fff!important;border-color:#A8412B}
+.btn.brand:hover{background:#C14E36}
+.btn.alt{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)!important}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 8px}
+.feature{border:1px solid var(--vp-c-divider);border-radius:12px;padding:20px;background:var(--vp-c-bg-elv);transition:border-color .2s}
+.feature:hover{border-color:var(--vp-c-brand-3)}
+.feature .icon{font-size:22px}
+.feature h3{margin:8px 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:var(--vp-c-text-2);line-height:1.55}
+.feature a{font-size:13px;font-weight:600}
+
+/* mermaid */
+.mermaid{display:flex;justify-content:center;margin:24px 0;padding:16px;background:var(--vp-c-bg-alt);border:1px solid var(--vp-c-divider);border-radius:12px;overflow-x:auto}
+.mermaid svg{max-width:100%;height:auto}
+
+/* custom containers */
+.ct{margin:18px 0;padding:14px 18px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-elv);font-size:14.5px;line-height:1.65}
+.ct p{margin:6px 0}
+.ct .ct-title{font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.ct-info{border-left:4px solid var(--vp-c-brand-3)}
+.ct-info .ct-title{color:var(--vp-c-brand-2)}
+.ct-tip{border-left:4px solid #22a55b;background:rgba(34,165,91,.07)}
+.ct-tip .ct-title{color:#1d914e}
+.ct-warning{border-left:4px solid #e38407;background:rgba(227,132,7,.08)}
+.ct-warning .ct-title{color:#b4690e}
+html.dark .ct-tip{background:rgba(34,165,91,.12)}
+html.dark .ct-tip .ct-title{color:#4ccb7f}
+html.dark .ct-warning{background:rgba(227,132,7,.12)}
+html.dark .ct-warning .ct-title{color:#f0b45c}
+
+/* ---------- Duolingo path map ---------- */
+.vmap{margin:28px 0 8px;border:1px solid var(--vp-c-divider);border-radius:16px;background:var(--vp-c-bg-elv);overflow:hidden}
+.vmap-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--vp-c-divider);font-weight:700;font-size:14px}
+.vm-progress{color:var(--vp-c-text-3);font-weight:600;font-size:13px}
+.vmap-body{position:relative;padding:8px 0 24px}
+.vm-svg{display:block;margin:0 auto;width:340px;height:auto}
+.nav-mod{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--vp-c-text-3);padding:14px 12px 3px}
+.vm-mod{position:absolute;left:12px;right:12px;border:1px dashed var(--vp-c-divider);border-radius:12px;pointer-events:none}
+.vm-mod span{position:absolute;top:-9px;left:14px;background:var(--vp-c-bg-elv);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--vp-c-text-3)}
+.vm-path{stroke:var(--vp-c-divider);stroke-width:14;stroke-linecap:round;stroke-dasharray:0 18}
+.vm-node{position:absolute;width:72px;height:64px}
+.vm-btn{position:relative;width:64px;height:60px;border:none;border-radius:50%;background:var(--vp-c-bg-alt);border-bottom:5px solid var(--vp-c-divider);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .2s;padding:0;color:var(--vp-c-text-1)}
+.vm-btn:hover{transform:scale(1.08);filter:brightness(1.05)}
+.vm-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.vm-check{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:#22a55b;color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;border:2px solid var(--vp-c-bg-elv)}
+.vm-node.done .vm-btn{background:#e3f5e9;border-bottom-color:#1d914e}
+.vm-node.done .vm-check{display:flex}
+html.dark .vm-node.done .vm-btn{background:#12351f}
+.vm-node.current .vm-btn{background:var(--vp-c-brand-soft);border-bottom-color:var(--vp-c-brand-2);animation:vm-pulse 2s infinite}
+@keyframes vm-pulse{0%,100%{box-shadow:0 0 0 6px var(--vp-c-brand-soft)}50%{box-shadow:0 0 0 12px var(--vp-c-brand-soft)}}
+.vm-num{position:absolute;left:-26px;top:16px;font-size:12px;font-weight:700;color:var(--vp-c-text-3);width:20px;text-align:center}
+.vm-card{position:absolute;min-width:180px;max-width:230px;background:var(--vp-c-bg);border:1px solid var(--vp-c-divider);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;top:-18px;left:auto;right:calc(100% + 14px)}
+.vm-node:hover .vm-card,.vm-node.open .vm-card{opacity:1;pointer-events:auto}
+.vm-card-title{font-weight:700;font-size:14px}
+.vm-card-blurb{font-size:12.5px;color:var(--vp-c-text-2);line-height:1.5;margin:4px 0 8px}
+.vm-go{font-size:13px;font-weight:700}
+.vm-node[data-side="r"] .vm-card{right:auto;left:calc(100% + 14px)}
+
+/* compact path list (section pages) */
+.pathlist{list-style:none;margin:0 0 8px;padding:0}
+.pw-link{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:13px;color:var(--vp-c-text-2);border-radius:6px;text-decoration:none}
+.pw-link:hover{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)}
+.pw-ic{width:20px;flex:none}
+.pw-name{flex:1}
+.pw-check{color:#22a55b;font-weight:700;opacity:0}
+.pw-item.done .pw-check{opacity:1}
+.pw-item.done .pw-name{color:var(--vp-c-text-3);text-decoration:line-through}
+.pw-item.current .pw-link{color:var(--vp-c-brand-2);font-weight:600;background:var(--vp-c-brand-soft)}
+
+/* mark-as-read + pager */
+.mark-done{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 18px;border-radius:20px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.mark-done:hover{border-color:#22a55b}
+.mark-done.done{background:#e3f5e9;border-color:#1d914e;color:#1d914e}
+html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--vp-c-divider)}
+.pager a{flex:1;max-width:48%;border:1px solid var(--vp-c-divider);border-radius:8px;padding:12px 16px;font-size:14px}
+.pager a .plabel{font-size:12px;color:var(--vp-c-text-3)}
+.pager a .ptitle{font-weight:600;color:var(--vp-c-brand-2)}
+.pager a.next{text-align:right;margin-left:auto}
+.footer-note{text-align:center;color:var(--vp-c-text-3);font-size:13px;margin-top:48px}
+
+@media(max-width:960px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;z-index:99;top:var(--nav-h);left:0;bottom:0;background:var(--vp-c-bg);width:min(320px,85vw);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .nav{padding:0 16px}
+  .nav .search-box{display:none}
+  .vp-doc{padding:24px 16px 96px}
+  .hero h1{font-size:30px}
+  .vp-doc table{table-layout:fixed}
+  .vp-doc th{white-space:normal}
+  .vp-doc td,.vp-doc th{overflow-wrap:anywhere}
+  .vp-doc code{overflow-wrap:anywhere;word-break:break-word}
+  .vp-doc pre{font-size:12.5px;padding:14px 16px}
+  .vp-doc pre code{overflow-wrap:normal;word-break:normal}
+  .mermaid{padding:8px}
+  .vm-num{display:none}
+}
+@media(max-width:760px){
+  .vm-card{position:fixed;top:auto;bottom:16px;left:16px!important;right:16px!important;max-width:none;z-index:200}
+  .vm-node.open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;pointer-events:none}
+  .vm-node.open .vm-btn{position:relative;z-index:160}
+  .vm-svg{width:min(340px,90vw)}
+}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .hero .tagline{font-size:16px}
+  .btn{padding:9px 14px;font-size:13px}
+  .features{grid-template-columns:1fr 1fr}
+  .vp-doc h1{font-size:26px}
+  .vp-doc h2{font-size:20px}
+  .vm-svg{width:min(300px,85vw)}
+}
+@media(max-width:420px){.features{grid-template-columns:1fr}}
+.glide{margin:18px 0 26px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 16px}
+.glide:focus{outline:2px solid var(--vp-c-brand-1);outline-offset:2px}
+.glide-h{display:flex;align-items:center;gap:8px;font-weight:600}
+.glide-h b{flex:1}
+.glide-ic{font-size:18px}
+.glide-ct{font-family:var(--vp-font-family-mono);font-size:12px;color:var(--vp-c-text-3)}
+.glide-steps{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:10px 0;margin:0}
+.glide-chip{flex:1 1 auto;min-width:70px;text-align:center;padding:8px 10px;border-radius:8px;background:var(--vp-c-bg-alt);color:var(--vp-c-text-2);font-size:13px;line-height:1.3;transition:all .2s;border:1px solid transparent}
+.glide-chip b{display:block;font-family:var(--vp-font-family-mono);font-size:11px;color:var(--vp-c-text-3)}
+.glide-chip.lit{background:rgba(217,92,65,.12);border-color:var(--vp-c-brand-1);color:var(--vp-c-text-1)}
+.glide-chip.lit b{color:var(--vp-c-brand-1)}
+.glide-caps{position:relative;min-height:44px}
+.glide-cap{display:none;font-size:14px;color:var(--vp-c-text-2);padding:6px 0}
+.glide-cap.on{display:block}
+.glide-ctl{display:flex;gap:6px;margin-top:4px}
+.gprev,.gnext{width:34px;height:30px;border-radius:8px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);cursor:pointer;font-size:13px}
+.gprev:hover,.gnext:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.glide-quiz{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.qflip{text-align:left;width:100%;border:1px dashed var(--vp-c-divider);border-radius:8px;background:transparent;padding:8px 10px;cursor:pointer;font:inherit;color:var(--vp-c-text-1)}
+.qflip .qa{display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.qflip.show .qa{display:block}
+.qflip.show{border-style:solid;border-color:var(--vp-c-brand-1)}
+.dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
+.dg-frame iframe{display:block;width:100%;height:640px;border:0}
+.dg-png img{display:block;width:100%;height:auto}
+.dg-dark{display:none}
+html.dark .dg-light{display:none}
+html.dark .dg-dark{display:block}
+.dg-png img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
+.lb.open{display:block}
+.lb-vp{position:absolute;inset:0;overflow:auto;padding:64px 20px 20px;cursor:zoom-out}
+.lb-img{display:block;margin:0 auto;max-width:none;background:var(--vp-c-bg-elv);border-radius:10px}
+.lb-bar{position:fixed;top:12px;right:16px;display:flex;gap:8px;z-index:201;align-items:center}
+.lb-bar button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-size:15px;padding:5px 12px;cursor:pointer;font-family:var(--font-body)}
+.lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
+@media (max-width:640px){.dg-frame iframe{height:480px}}
+@media (max-width:640px){.glide-chip{min-width:56px;font-size:12px;padding:6px}}
+</style>
+<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
+</head>
+<body data-section="16">
+<nav class="nav">
+  <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <a class="logo" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D95C41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Learn Data Platform Engineering</span></a>
+  <div class="spacer"></div>
+  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="group-title">Course Sections</div>
+    <ul>
+<li class="nav-mod">🎯 Goal &amp; Foundations</li>
+<li><a class="sidebar-link" href="s01.html"><span class="sl-num">01</span>The EPAM A3 Senior Data Engineer Assessment</a></li>
+<li><a class="sidebar-link" href="s02.html"><span class="sl-num">02</span>SQL Deep Dive: The Problems EPAM Actually Asks</a></li>
+<li><a class="sidebar-link" href="s03.html"><span class="sl-num">03</span>Python &amp; PySpark: Coding Patterns</a></li>
+<li><a class="sidebar-link" href="s04.html"><span class="sl-num">04</span>Distributed Systems Fundamentals</a></li>
+<li class="nav-mod">🏗️ Platform Design</li>
+<li><a class="sidebar-link" href="s05.html"><span class="sl-num">05</span>Data Platform Architecture</a></li>
+<li><a class="sidebar-link" href="s06.html"><span class="sl-num">06</span>Batch vs Streaming</a></li>
+<li><a class="sidebar-link" href="s07.html"><span class="sl-num">07</span>Data Warehouse vs Data Lake vs Lakehouse</a></li>
+<li><a class="sidebar-link" href="s08.html"><span class="sl-num">08</span>Snowflake vs Databricks</a></li>
+<li class="nav-mod">⚙️ Technology Deep-Dive</li>
+<li><a class="sidebar-link" href="s09.html"><span class="sl-num">09</span>Table Formats: Delta Lake vs Iceberg vs Hudi</a></li>
+<li><a class="sidebar-link" href="s10.html"><span class="sl-num">10</span>Compute Engines: Spark vs Flink</a></li>
+<li><a class="sidebar-link" href="s11.html"><span class="sl-num">11</span>Spark Performance: Catalyst, AQE &amp; Tuning</a></li>
+<li><a class="sidebar-link" href="s12.html"><span class="sl-num">12</span>Messaging &amp; Streaming Backbones: Kafka and Friends</a></li>
+<li class="nav-mod">🏁 Production &amp; Defense</li>
+<li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
+<li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
+<li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
+<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
+<li><a class="sidebar-link active" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+    </ul>
+<div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
+  <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="1"><a class="pw-link" href="s02.html">
+  <span class="pw-ic">🧮</span><span class="pw-name">2. SQL</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="2"><a class="pw-link" href="s03.html">
+  <span class="pw-ic">🐍</span><span class="pw-name">3. PySpark</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="3"><a class="pw-link" href="s04.html">
+  <span class="pw-ic">🌐</span><span class="pw-name">4. Distributed</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="4"><a class="pw-link" href="s05.html">
+  <span class="pw-ic">🏗️</span><span class="pw-name">5. Architecture</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="5"><a class="pw-link" href="s06.html">
+  <span class="pw-ic">🌊</span><span class="pw-name">6. Streaming</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="6"><a class="pw-link" href="s07.html">
+  <span class="pw-ic">🏬</span><span class="pw-name">7. Lakehouse</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="7"><a class="pw-link" href="s08.html">
+  <span class="pw-ic">❄️</span><span class="pw-name">8. Snow v DBX</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="8"><a class="pw-link" href="s09.html">
+  <span class="pw-ic">🧊</span><span class="pw-name">9. Formats</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="9"><a class="pw-link" href="s10.html">
+  <span class="pw-ic">⚡</span><span class="pw-name">10. Engines</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="10"><a class="pw-link" href="s11.html">
+  <span class="pw-ic">🔧</span><span class="pw-name">11. Spark Tuning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="11"><a class="pw-link" href="s12.html">
+  <span class="pw-ic">📨</span><span class="pw-name">12. Kafka</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="12"><a class="pw-link" href="s13.html">
+  <span class="pw-ic">🛡️</span><span class="pw-name">13. Reliability</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="13"><a class="pw-link" href="s14.html">
+  <span class="pw-ic">📚</span><span class="pw-name">14. Practice</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="14"><a class="pw-link" href="s15.html">
+  <span class="pw-ic">🎯</span><span class="pw-name">15. Playbook</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="15"><a class="pw-link" href="s16.html">
+  <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
+  <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li></ul>
+  </aside>
+  <main class="main">
+    <div class="vp-doc">
+
+<div class="kicker">Section 17 of 17</div><h1>Machine Learning System Design Interview (Aminian &amp; Xu)</h1>
+<p>Your A3 defense is a system-design interview in committee form: the panel probes how you framed the ML objective, built the feature/data pipeline, and justified metrics — exactly this book's skeleton. All 11 chapters share one 7-step framework; the chapters mapping to data-engineering work (retrieval/ranking, feature stores, continual learning) get the most space below.</p>
+<p><div class="glide" tabindex="0"><div class="glide-h"><span class="glide-ic">🧩</span><b>Glide · One Skeleton, Eleven Designs</b><span class="glide-ct">1/7</span></div><ol class="glide-steps"><li class="glide-chip" data-i="0"><b>1</b>Clarify requirements</li><li class="glide-chip" data-i="1"><b>2</b>Frame as ML task</li><li class="glide-chip" data-i="2"><b>3</b>Prepare data</li><li class="glide-chip" data-i="3"><b>4</b>Develop a model</li><li class="glide-chip" data-i="4"><b>5</b>Evaluate offline + online</li><li class="glide-chip" data-i="5"><b>6</b>Deploy and serve</li><li class="glide-chip" data-i="6"><b>7</b>Monitor and retrain</li></ol><div class="glide-caps"><div class="glide-cap" data-i="0">the panel's menu — business objective, features, data sources/labels, constraints, scale, accuracy-vs-latency (ch1, p1-2)</div><div class="glide-cap" data-i="1">the load-bearing move: translate business goal → trainable objective — &quot;increase engagement&quot; → &quot;maximize watch time&quot; (Table 1.1, p3)</div><div class="glide-cap" data-i="2">ETL plus feature ops — imputation, scaling, encoding; seniority lives in data engineering, the models are the easy 20%</div><div class="glide-cap" data-i="3">the ladder — popularity baseline → LR → DNN → ensemble only if needed (ch1, p14)</div><div class="glide-cap" data-i="4">reproduce the elimination chain (MRR vs recall@k vs nDCG vs mAP vs NCE) — every chapter discards candidates for stated reasons</div><div class="glide-cap" data-i="5">retrieve-then-rank — candidate generation → ranking → re-ranking; business rules stay in re-rank, never in the model (ch2, p47)</div><div class="glide-cap" data-i="6">continual learning where freshness matters (ch7/ch8), batch-vs-online as a stated trade (ch11, p247)</div></div><div class="glide-ctl"><button class="gprev" type="button">◀</button><button class="gnext" type="button">▶</button></div><div class="glide-quiz"><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why weight unobserved pairs with WALS in matrix factorization?</span><span class="qa">Observed-pairs-only loss hits zero with degenerate all-ones embeddings; adding weighted unobserved pairs forces real separation (ch6, p131-132).</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why does recall@k fail for visual search at billions of images?</span><span class="qa">Millions of relevant items drown recall@k, and precision@k is rank-blind — the elimination chain lands on nDCG for continuous relevance (ch2, p42-46).</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why do ad click models demand continual learning while GBDT fights it?</span><span class="qa">A 5-minute model-update delay measurably damages performance, and GBDT cannot be fine-tuned — only retrained from scratch — so DCN/DeepFM win (ch7, p162; ch8, p171-172, p186).</span></button></div></div></p>
+<div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/ml-serving-pipeline.png" alt="ml-serving-pipeline.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/ml-serving-pipeline.dark.png" alt="ml-serving-pipeline.png diagram (dark)" loading="lazy"></div>
+
+<h2 id="the-repeating-framework-ch1" tabindex="-1">The Repeating Framework (ch1)<a class="header-anchor" href="#the-repeating-framework-ch1">&ZeroWidthSpace;</a></h2>
+<p><div class="mermaid">
+flowchart LR
+    A[Clarify requirements] --> B[Frame as ML task]
+    B --> C[Data preparation]
+    C --> D[Model development]
+    D --> E[Evaluate offline + online]
+    E --> F[Deployment + serving]
+    F --> G[Monitoring]
+    E -. "metrics fail" .-> D
+</div></p>
+<ul>
+<li>Seven steps every chapter follows: clarifying requirements, framing as ML task, data preparation, model development, evaluation, deployment/serving, monitoring/infrastructure (ch1, p2).</li>
+<li>Clarifying-question menu: business objective, features to support, data sources/labels, constraints (compute, on-device), scale, performance (accuracy vs latency) (ch1 §Clarifying Requirements, p1-2).</li>
+<li>The load-bearing move is translating business goal → trainable ML objective (Table 1.1, p3): &quot;increase engagement&quot; → &quot;maximize watch time&quot;; &quot;protect privacy&quot; → &quot;detect faces/plates accurately&quot;.</li>
+<li>Data engineering vocabulary expected: ETL, structured vs unstructured data (ch1, p7-9). Feature ops: missing values (deletion vs imputation), scaling (min-max, z-score, log for skew), discretization, encoding (integer for ordinal, one-hot for nominal, embeddings for high cardinality) (ch1 §Feature engineering, p10-14).</li>
+<li>Model ladder: popularity/simple baseline → simple model (LR) → complex (DNN) → ensemble only if needed (ch1 §Model selection, p14).</li>
+</ul>
+
+<h2 id="the-chapter-map" tabindex="-1">The Chapter Map<a class="header-anchor" href="#the-chapter-map">&ZeroWidthSpace;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Ch</th>
+<th>Prompt</th>
+<th>ML objective</th>
+<th>Model verdict</th>
+<th>Offline metric</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 Visual Search</td>
+<td>rank similar images</td>
+<td>representation learning</td>
+<td>CNN/ViT + contrastive</td>
+<td>nDCG</td>
+</tr>
+<tr>
+<td>3 Street Blur</td>
+<td>detect faces/plates</td>
+<td>object detection</td>
+<td>two-stage detector</td>
+<td>mAP</td>
+</tr>
+<tr>
+<td>4 Video Search</td>
+<td>text → relevant videos</td>
+<td>two retrievers fused</td>
+<td>BERT text + ViT frames + inverted index</td>
+<td>MRR</td>
+</tr>
+<tr>
+<td>5 Harmful Content</td>
+<td>flag harmful posts</td>
+<td>per-policy classification</td>
+<td>multi-task multimodal NN</td>
+<td>PR-AUC/ROC-AUC</td>
+</tr>
+<tr>
+<td>6 Video Rec</td>
+<td>recommend relevant videos</td>
+<td>implicit-feedback CF</td>
+<td>MF/WALS + two-tower</td>
+<td>diversity, recall</td>
+</tr>
+<tr>
+<td>7 Event Rec</td>
+<td>rank events by attendance</td>
+<td>pointwise LTR</td>
+<td>GBDT→NN, continual learning</td>
+<td>mAP</td>
+</tr>
+<tr>
+<td>8 Ad Click</td>
+<td>predict click probability</td>
+<td>pointwise LTR ⟨user,ad⟩</td>
+<td>DeepFM / DCN</td>
+<td>CE, NCE</td>
+</tr>
+<tr>
+<td>9 Similar Listings</td>
+<td>next-click from session</td>
+<td>session-based rec</td>
+<td>word2vec-style embeddings</td>
+<td>avg rank of booked listing</td>
+</tr>
+<tr>
+<td>10 News Feed</td>
+<td>engagement-ranked posts</td>
+<td>weighted multi-reaction score</td>
+<td>multi-task DNN</td>
+<td>ROC-AUC per reaction</td>
+</tr>
+<tr>
+<td>11 PYMK</td>
+<td>rank potential connections</td>
+<td>edge prediction</td>
+<td>GNN</td>
+<td>ROC-AUC + mAP</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="design-cards" tabindex="-1">Design Cards<a class="header-anchor" href="#design-cards">&ZeroWidthSpace;</a></h2>
+<h4>ch2 — Visual Search: the ANN retrieval template</h4>
+<ul>
+<li>Requirements: 100-200B images, images only, no personalization, click-only feedback (ch2 §Clarifying Requirements, p31).</li>
+<li>Task: ranking via representation learning — embeddings of similar images sit close in N-dimensional space (ch2, p33).</li>
+<li>Positive-pair labeling options: human judgment (accurate, expensive), clicks (free, noisy, sparse), self-supervision via augmentation (free, clean, but differs from real data) → chose self-supervision at billions scale (ch2 §Constructing the dataset, p38-39).</li>
+<li>Loss: similarities (dot product/cosine — Euclidean fails in high dimensions) → softmax → cross-entropy (ch2 §Model training, p41).</li>
+<li>Metric elimination chain: MRR ignores items after the first hit; recall@k drowns under millions of relevant items; precision@k is rank-blind → nDCG for continuous relevance scores (ch2 §Evaluation, p42-46).</li>
+<li>Serving: embedding generation → nearest-neighbor service → re-rank (privacy/duplicate/business filters) (ch2, p47). Indexing pipeline precomputes all embeddings, quantization for memory (ch2, p48). Exact NN is O(N×D) — infeasible at billions; ANN (tree-based, LSH, clustering) is sublinear; Faiss/ScaNN (ch2, p48-51).</li>
+<li><strong>Insight: every later chapter reuses this retrieve-then-rank shape — cite it as your own pipeline instinct.</strong></li>
+</ul>
+<h4>ch3 — Street View Blurring: precision-first object detection</h4>
+<ul>
+<li>Privacy objective → detect + blur faces/plates; offline batch processing acceptable, latency not a concern (ch3 §Clarifying Requirements, p53-54).</li>
+<li>Task: object detection = bounding-box regression + class classification (ch3, p55).</li>
+<li>Two-stage (RPN + classifier, R-CNN family) over one-stage (YOLO/SSD): slower but more accurate; 1M training images doesn't punish the slower option — switch to one-stage when data or latency grows (ch3 §Model selection, p56).</li>
+<li>Loss: MSE (boxes) + cross-entropy (classes), balanced by λ (ch3, p61-62); a detection counts only above an IOU threshold (ch3, p63).</li>
+<li>Eval: precision varies with IOU threshold → AP averages over thresholds → mAP averages over classes (ch3 §Evaluation, p63-65). Online: user reports + human spot-checks (ch3, p65).</li>
+<li>Serving: batch prediction; preprocessing is CPU-bound, blurring GPU-bound → separate services, scale independently (ch3, p67); hard negative mining from user reports feeds retraining (ch3, p68).</li>
+</ul>
+<h4>ch4 — YouTube Video Search: two retrievers, one fuse</h4>
+<ul>
+<li>1B videos, 10M ⟨video, query⟩ pairs, English only, no personalization (ch4 §Clarifying Requirements, p71-72).</li>
+<li>Two parallel retrievers: visual search (two encoders — video + text — dot product in embedding space) and text search (inverted index via Elasticsearch, zero ML training cost) (ch4 §Framing the Problem, p73-75).</li>
+<li>Encoders: BoW/TF-IDF (fast, sparse, no semantics) &lt; embedding layer/word2vec (static vectors) &lt; Transformers (contextual) → BERT text encoder (ch4, p81-84). Video: video-level 3D-conv models capture time but are expensive; frame-level ViT samples frames and averages — chosen for speed (ch4, p84-85). Trained contrastively like ch2 (ch4, p85).</li>
+<li>Eval: with one relevant video per query, precision@10 caps at 0.1 — useless; recall@k becomes hit-rate but scores 0 whether the item is at rank 15 or 50 → MRR (ch4 §Evaluation, p86-87).</li>
+<li>Serving: ANN + Elasticsearch results merged by a fusing layer — weighted-sum re-rank chosen over a trained fusion model (extra training, serving latency) (ch4 §Serving, p88-89). Auto-tagger fills missing video tags (ch4, p89).</li>
+</ul>
+<h4>ch5 — Harmful Content Detection: multimodal, multi-task</h4>
+<ul>
+<li>
+<blockquote>
+<p>500M posts/day; humans can label ~10K/day → natural labeling required (ch5 §Clarifying Requirements, p93).</p>
+</blockquote>
+</li>
+<li>Memes: text and image benign separately, harmful combined — motivates fusion choice: early fusion (concatenate modalities early, captures interactions) vs late fusion (separate per-modality models, merged) (ch5, p95-97).</li>
+<li>Task: multi-task NN, one binary classifier per policy; DistilmBERT text encoder (ch5 §Model Development, p101-105). Labels: hand-labeled for evaluation (accuracy), naturally-reported for training (volume) (ch5 §Data, p109).</li>
+<li>Eval: PR-AUC/ROC-AUC per policy; distinguish prevalence (harmful content existing on platform) from harmful impressions (what users actually see); track valid appeals + proactive detection rate (ch5 §Evaluation, p110-111).</li>
+</ul>
+<h4>ch6 — Video Recommendation: the flagship chapter</h4>
+<ul>
+<li>10B videos, &lt;200 ms serving (ch6 §Clarifying Requirements, p115).</li>
+<li>Objective options each carry a stated drawback: clicks → clickbait recommendations; completions → bias toward shorter videos; the elimination lands on maximizing relevant videos watched (ch6 §Frame the Problem, p116-117).</li>
+<li>Content-based (no cold start, poor discovery) vs collaborative filtering (discovers, cold-start pain) vs hybrid → CF-heavy hybrid like YouTube (ch6 Table 6.1, p120).</li>
+<li>Feedback matrix: explicit ratings scarce, implicit watches abundant but noisy → implicit (ch6, p128-129).</li>
+<li>MF loss walk: observed-pairs-only loss lets all-ones embeddings score zero loss (ch6, p131); adding unobserved pairs, weighted, optimized by WALS (ch6, p132).</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Matrix factorization</th>
+<th>Two-tower NN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Serving</td>
+<td>Precomputed dot products, very fast</td>
+<td>Encoder inference per request</td>
+</tr>
+<tr>
+<td>Features</td>
+<td>ID interactions only</td>
+<td>Rich user/video features</td>
+</tr>
+<tr>
+<td>New items</td>
+<td>Retrain/recompute whole matrix</td>
+<td>Handled via features</td>
+</tr>
+<tr>
+<td>Reference</td>
+<td>(ch6 Table 6.5, p137)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Serving: two-stage — candidate generation (two-tower CF, no video features needed at this stage) → scoring (content-based, heavier model on the survivors) → re-ranking (clickbait suppression, freshness) (ch6 §Serving, p138-142); multiple candidate generators add diversity (ch6, p140).</li>
+<li>Cold start: new users via demographic features; new videos via heuristics → collect interactions → fine-tune (ch6, p143).</li>
+<li><strong>Insight: walk the loss function reasoning aloud — naive losses collapsing (all-ones labels → zero loss) is the show-your-reasoning set piece that signals depth.</strong></li>
+</ul>
+<h4>ch7 — Event Recommendation: pointwise LTR + feature freshness</h4>
+<ul>
+<li>Ephemeral items — events happen once, then expire → intrinsic cold start (ch7 §Clarifying Requirements, p145-146).</li>
+<li>Task: pointwise LTR — binary classifier &quot;will this user attend&quot; (ch7, p148).</li>
+<li>Features: user, event, affinities; streaming features with a decay factor weighting recent interactions (ch7 §Feature engineering, p156).</li>
+<li>GBDT rejected: not fine-tunable, retraining from scratch is inefficient for continual learning at scale (ch7 §Model development, p162).</li>
+<li>Class imbalance: focal loss or class-balanced loss (ch7, p164). mAP over nDCG — relevance is binary here (ch7, p165).</li>
+<li>Serving: rule-based filtering cuts 1M events to hundreds (city/time), then the model ranks; static features precomputed in a feature store, dynamic fetched real-time (ch7 §Serving, p167-168).</li>
+</ul>
+<h4>ch8 — Ad Click Prediction: continual learning + the CTR model zoo</h4>
+<ul>
+<li>Revenue objective; continual learning essential — a 5-minute model-update delay measurably damages performance (ch8 §Clarifying Requirements, p171-172).</li>
+<li>Labeling: impression visible for a duration without click = negative; click within t seconds (tuned hyperparameter) = positive (ch8, p172, p186).</li>
+<li>Core challenge: high-cardinality sparse features — millions of IDs, mostly zeros (ch8, p176-177).</li>
+<li>The model zoo is the CTR-evolution tour (ch8 §Model Development, p178-186): LR baseline (no interactions) → feature crossing + LR (manual, explodes sparsity) → GBDT (no fine-tuning, no embedding layers) → GBDT+LR (tree leaves as features) → plain NN (drowns in sparsity) → DCN (learns crosses automatically) → FM (LR + learned pairwise interactions via embeddings) → <strong>DeepFM</strong> (FM low-order + DNN high-order, shared embeddings). GBDT+DeepFM won competitions but slows continual learning (ch8, p186). Pick by experiment: LR baseline, then DCN/DeepFM.</li>
+<li>Eval: offline CE + NCE — CE normalized by the background-CTR baseline's CE; NCE &lt; 1 means beating the naive baseline (ch8 §Evaluation, p188-189). Online: CTR, conversion rate, revenue lift, hide rate (ch8, p189-190).</li>
+<li>Serving: static features batch-computed into a feature store, dynamic features computed at query time; continual-learning pipeline fine-tunes → evaluates → deploys only if metrics improve (ch8 §Serving, p191-192). Two-stage: advertiser-targeting candidate generation → rank by pCTR → diversity re-rank (ch8, p192).</li>
+</ul>
+<h4>ch9 — Similar Listings: session-based embeddings</h4>
+<ul>
+<li>5M listings; new listings appear after 1 day; interactions only — no user or listing attributes (ch9 §Clarifying Requirements, p195-196).</li>
+<li>Session-based recommendation: recent interactions beat long-term interests (a user browsing SF doesn't care about generic history) (ch9, p197-198). Lineage: Airbnb listing embeddings, Instagram Explore, word2vec (ch9, p198).</li>
+<li>Training: shallow NN, word2vec-style sliding window, negative sampling — central vs context listings positive, central vs random negative (ch9 §Model training, p200-202).</li>
+<li>Two loss upgrades: eventually-booked listing as permanent global context (positive); same-region negatives as hard negatives — random negatives are trivially separable across regions users never compare (ch9, p203-204).</li>
+<li>Eval: average rank of the eventually-booked listing after re-ranking each session (ch9, p205). Online: CTR + session book rate (bookings = business objective) (ch9, p206).</li>
+<li>Serving: indexing pipeline precomputes embeddings and fully recomputes on each new model version (ch9, p207). Embedding fetcher: seen listing → index lookup; new listing → heuristic (nearest geographic embedding) until fine-tuned (ch9, p208). ANN mandatory at 5M comparisons; re-rank applies user price/city filters (ch9, p208).</li>
+</ul>
+<h4>ch10 — News Feed: weighted multi-task engagement</h4>
+<ul>
+<li>3B users, 2B DAU, &lt;200 ms (ch10 §Clarifying Requirements, p211-212).</li>
+<li>Objective: implicit signals are data-rich but noisy (clickbait), explicit clean but scarce → weighted blend: click 1, like 5, comment 10, share 20, friend request 30, hide −20, block −50 (ch10 Table 10.1, p212-213).</li>
+<li>Per ⟨user, post⟩ pair: several binary classifiers predict each reaction; probabilities × weights = engagement score (ch10, p214-215).</li>
+<li>Features: BERT for text, ResNet/CLIP for images (ch10 §Feature engineering, p218); hashtags — Viterbi tokenization, feature hashing (handles unseen trending tags), TF-IDF/word2vec not Transformers (hashtags carry no context worth the cost) (ch10, p219); post-age buckets (ch10, p219). User-author affinities are among the most predictive features at Facebook scale (ch10, p221).</li>
+<li>Multi-task DNN (shared layers, per-reaction heads) over N independent DNNs — independent nets are expensive and starve rare reactions of data (ch10 §Model selection, p222-223). Passive users: add dwell-time regression + skip tasks (ch10, p224).</li>
+<li>Eval: ROC-AUC per reaction (ch10, p226); online CTR, reaction rates, total time spent (captures passive users), survey satisfaction (ch10, p227). Serving: retrieval → ranking → re-ranking (ch10, p227-228).</li>
+</ul>
+<h4>ch11 — People You May Know: graph edge prediction</h4>
+<ul>
+<li>1B users, 300M DAU, avg 1,000 connections; social graph evolves slowly (ch11 §Clarifying Requirements, p232).</li>
+<li>Pointwise LTR on ⟨user, user⟩ ignores social context — one-hop neighborhoods separate plausible from implausible pairs → frame as edge prediction on the social graph (ch11 §Choosing the right ML category, p233-235).</li>
+<li>Data: standardize free-text attributes (&quot;computer science&quot; vs &quot;CS&quot;) via predefined lists, heuristics, or clustering (ch11 §Data engineering, p237). Mutual connections are among the most predictive features; time-discount them — recent network growth signals openness to connect (ch11 §Feature engineering, p239).</li>
+<li>Model: GNN produces node embeddings; dot product = edge probability (ch11 §Model selection, p240). Training: graph snapshot at time t, label = edge formed by t+1 (ch11 §Model training, p241-244).</li>
+<li>Eval: ROC-AUC for the model, mAP for ranking (binary connect-or-not) (ch11, p245). Online: requests sent can inflate (spam), requests accepted reflect real network growth (ch11, p245).</li>
+<li>Scale: ranking 1B embeddings per user is impractical → friends-of-friends narrows 1B → 1M (1000²); a Meta study found 92% of new friendships form within FoF (ch11 §Efficiency, p246). Batch prediction over online: 300M DAU can't be scored on the fly; ~20% DAU means 80% of batch compute wasted — accepted; recompute every 7 days (1 day for new users); over-generate and hide already-seen (ch11, p246-247). Serving: FoF service → GNN scoring → store → fetch per request (ch11, p248-249). Bias: frequent users get over-recommended, compounding their representation (ch11, p250).</li>
+</ul>
+
+<h2 id="the-retrieval-ranking-serving-skeleton-ch2-4-6-8-9-10-11" tabindex="-1">The Retrieval → Ranking Serving Skeleton (ch2, 4, 6, 8, 9, 10, 11)<a class="header-anchor" href="#the-retrieval-ranking-serving-skeleton-ch2-4-6-8-9-10-11">&ZeroWidthSpace;</a></h2>
+<p><div class="mermaid">
+flowchart LR
+    Q[Query / user] --> CG[Candidate generation<br/>ANN - inverted index - FoF - targeting]
+    CG --> R[Ranking model<br/>feature store: static batch + dynamic online]
+    R --> RR[Re-ranking<br/>filters - diversity - freshness - business rules]
+    RR --> O[Top-K output]
+    L[Interaction logs] --> D[Training data generation]
+    D --> M[Retrain / fine-tune] --> R
+    L --> CG
+</div></p>
+<ul>
+<li><strong>Precompute-and-cache recurs</strong>: all embeddings indexed offline (ch2, p48; ch9, p207); static features batch-computed into a feature store, dynamic computed at query time (ch8, p191); whole PYMK lists batch-predicted and stored (ch11, p247).</li>
+<li>ANN above ~millions of candidates (ch2, p48-51); exact search only for small pools (ch9, p208).</li>
+<li>Re-ranking is the dumping ground for non-ML logic — never bake business rules into the model (ch2, p47; ch9, p208).</li>
+</ul>
+
+<h2 id="failure-modes-anti-patterns" tabindex="-1">Failure modes &amp; anti-patterns<a class="header-anchor" href="#failure-modes-anti-patterns">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>All-ones embeddings</strong>: loss over observed pairs only reaches zero with degenerate embeddings — always weight unobserved pairs (ch6, p131).</li>
+<li><strong>Uncalibrated probabilities</strong>: ad pCTRs feed downstream bidding — an uncalibrated model breaks the auction (ch8, p192).</li>
+<li><strong>Clickbait optimization</strong>: maximizing clicks or raw reactions rewards clickbait — weight negative signals, prefer relevance-aware objectives (ch6, p116; ch10, p212-213; hide rate ch8, p190).</li>
+<li><strong>Biased negatives</strong>: unclicked ≠ uninterested when the user scrolled past (ch8, p172); random negatives pair items across regions users never compare (ch9, p203).</li>
+<li><strong>Positional bias</strong>: higher-ranked items collect more clicks, inflating winners in a feedback loop (ch2, p51; ch9, p209; ch10, p228).</li>
+<li><strong>GBDT in continual-learning systems</strong>: cannot be fine-tuned; retraining from scratch at scale (ch7, p162; ch8, p180).</li>
+<li><strong>Wrong computation mode</strong>: blurring tolerates batch (ch3, p67) but ad models must refresh within minutes (ch8, p172); PYMK batch wastes 80% of compute on the 80% who never log in — an accepted, stated trade (ch11, p247).</li>
+<li><strong>Feedback-loop bias</strong>: over-recommended frequent users grow even more represented in training data (ch11, p250).</li>
+</ul>
+
+<h2 id="key-takeaways" tabindex="-1">Key Takeaways<a class="header-anchor" href="#key-takeaways">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>One skeleton, eleven designs — drill clarify → frame → data → model → eval → serve → monitor once, reuse on any prompt.</li>
+<li>Metric selection is a design decision with a written elimination chain (MRR vs recall@k vs nDCG vs mAP vs NCE) — every chapter discards candidates for stated reasons; reproduce that reasoning, don't just name a metric.</li>
+<li>Seniority lives in the data engineering: indexing pipelines, feature stores, negative sampling, labeling strategies, batch-vs-online choices — the models are the easy 20%.</li>
+</ul>
+
+<h2 id="interview-lens" tabindex="-1">Interview Lens<a class="header-anchor" href="#interview-lens">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Map committee questions onto the skeleton: &quot;how did you derive the ML objective from the business goal?&quot; (Table 1.1 move, p3), &quot;why this metric and not the alternatives?&quot; (each card's eval chain), &quot;batch or online?&quot; (skeleton section), &quot;what happens when data drifts?&quot; (continual-learning pipelines, ch7/ch8).</li>
+<li>Rehearse the objective-options ritual — naming 2-3 candidate objectives with their failure modes before choosing (ch6, p116-117; ch10, p212-213) — it signals senior judgment more than any model name.</li>
+</ul>
+
+      <button class="mark-done" id="markDone">Mark section as done</button>
+<div class="pager"><a class="prev" href="s16.html"><div class="plabel">Previous</div><div class="ptitle">← Generative AI System Design (Aminian &amp; Sheng)</div></a><span></span></div>
+      <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
+    </div>
+  </main>
+  <aside class="outline">
+    <div class="outline-title">On this page</div>
+    <ul>
+<li><a class="outline-link lvl2" href="#">Overview</a></li>
+<li><a class="outline-link lvl3" href="#the-repeating-framework-ch1">The Repeating Framework (ch1)</a></li>
+<li><a class="outline-link lvl3" href="#the-chapter-map">The Chapter Map</a></li>
+<li><a class="outline-link lvl3" href="#design-cards">Design Cards</a></li>
+<li><a class="outline-link lvl3" href="#the-retrieval-ranking-serving-skeleton-ch2-4-6-8-9-10-11">The Retrieval → Ranking Serving Skeleton (ch2, 4, 6, 8, 9, 10, 11)</a></li>
+<li><a class="outline-link lvl3" href="#failure-modes-anti-patterns">Failure modes &amp; anti-patterns</a></li>
+<li><a class="outline-link lvl3" href="#key-takeaways">Key Takeaways</a></li>
+<li><a class="outline-link lvl3" href="#interview-lens">Interview Lens</a></li>
+    </ul>
+  </aside>
+</div>
+<script>
+// theme
+const root=document.documentElement;
+const stored=localStorage.getItem('vp-theme');
+const prefersDark=matchMedia('(prefers-color-scheme: dark)').matches;
+if(stored==='dark'||(!stored&&prefersDark)){root.classList.add('dark')}
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  root.classList.toggle('dark');
+  localStorage.setItem('vp-theme',root.classList.contains('dark')?'dark':'light');
+  setTimeout(()=>location.reload(),60);
+});
+document.getElementById('menuBtn')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.querySelectorAll('.sidebar-link,.pw-link').forEach(a=>a.addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open')));
+// copy buttons + ascii class
+document.querySelectorAll('.vp-doc pre').forEach(pre=>{
+  const code=pre.querySelector('code');
+  const m=/language-(\w+)/.exec(code?code.className:'');
+  if(m&&m[1]==='text')pre.classList.add('ascii');
+  const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+  btn.onclick=e=>{e.stopPropagation();navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)};
+  pre.appendChild(btn);
+});
+// wrap tables for scroll
+document.querySelectorAll('.vp-doc table').forEach(t=>{
+  const w=document.createElement('div');w.className='table-wrap';
+  t.parentNode.insertBefore(w,t);w.appendChild(t);
+});
+// scrollspy outline
+const heads=[...document.querySelectorAll('.vp-doc h2,.vp-doc h3')];
+const outLinks={};document.querySelectorAll('.outline-link').forEach(a=>outLinks[a.getAttribute('href')]=a);
+function spy(){
+  let cur=null;
+  for(const h of heads){if(h.getBoundingClientRect().top<=100)cur=h;else break}
+  for(const k in outLinks)outLinks[k].classList.remove('active');
+  if(cur&&outLinks['#'+cur.id])outLinks['#'+cur.id].classList.add('active');
+  else if(!cur&&outLinks['#'])outLinks['#'].classList.add('active');
+}
+addEventListener('scroll',spy,{passive:true});spy();
+// progress tracking (localStorage set of section indices)
+const PROGRESS_KEY='ldp-visited';
+const visited=new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]'));
+function saveVisited(){localStorage.setItem(PROGRESS_KEY,JSON.stringify([...visited]))}
+function paintProgress(){
+  document.querySelectorAll('.vm-node,.pw-item').forEach(n=>{
+    const i=+n.dataset.n;
+    n.classList.toggle('done',visited.has(i));
+  });
+  // current = first unvisited node (path) or explicit current page
+  const cur=document.querySelector('.pw-item.current');
+  if(!cur){
+    for(let i=0;i<document.querySelectorAll('.vm-node').length;i++){if(!visited.has(i)){const n=document.querySelector(`.vm-node[data-n="${i}"]`);if(n)n.classList.add('current');break}}
+  }
+  const pct=document.getElementById('vmProgress');if(pct)pct.textContent=visited.size+' / '+document.querySelectorAll('.vm-node').length;
+  const p2=document.getElementById('vmProgress2');if(p2)p2.textContent=visited.size+' / '+document.querySelectorAll('.pw-item').length;
+}
+// section page: auto-mark visited + mark-as-read toggle
+const secIdx=document.body.dataset.section;
+if(secIdx!==undefined){
+  visited.add(+secIdx);saveVisited();
+  const item=document.querySelector(`.pw-item[data-n="${secIdx}"]`);if(item)item.classList.add('current');
+  const btn=document.getElementById('markDone');
+  if(btn){
+    const paint=()=>{btn.classList.toggle('done',visited.has(+secIdx));btn.textContent=visited.has(+secIdx)?'✓ Section done — nice':'Mark section as done'};
+    btn.onclick=()=>{visited.has(+secIdx)?visited.delete(+secIdx):visited.add(+secIdx);saveVisited();paint();paintProgress()};
+    paint();
+  }
+}
+paintProgress();
+// vmap popovers: click toggles card; Go link navigates
+const vmNodes=[...document.querySelectorAll('.vm-node')];
+vmNodes.forEach(n=>{
+  const b=n.querySelector('.vm-btn');
+  b.addEventListener('click',e=>{
+    if(n.classList.contains('open'))return; // second tap follows link
+    e.preventDefault();
+    e.stopPropagation();
+    vmNodes.forEach(m=>{if(m!==n)m.classList.remove('open')});
+    n.classList.add('open');
+  });
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
+document.querySelectorAll('.glide').forEach(gl=>{
+  const chips=[...gl.querySelectorAll('.glide-chip')];
+  const caps=[...gl.querySelectorAll('.glide-cap')];
+  const ct=gl.querySelector('.glide-ct');
+  let i=0;const n=caps.length;
+  const show=k=>{i=Math.max(0,Math.min(n-1,k));
+    chips.forEach((c,j)=>c.classList.toggle('lit',j<=i));
+    caps.forEach((c,j)=>c.classList.toggle('on',j===i));
+    if(ct)ct.textContent=(i+1)+'/'+n;};
+  gl.querySelector('.gprev').onclick=()=>show(i-1);
+  gl.querySelector('.gnext').onclick=()=>show(i+1);
+  gl.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'){e.preventDefault();show(i-1)}
+    if(e.key==='ArrowRight'){e.preventDefault();show(i+1)}});
+  chips.forEach((c,j)=>{c.style.cursor='pointer';c.onclick=()=>show(j)});
+  show(0);
+});
+document.querySelectorAll('.qflip').forEach(q=>q.onclick=()=>{
+  q.classList.toggle('show');q.setAttribute('aria-expanded',q.classList.contains('show'))});
+// diagram zoom lightbox
+const lb=document.createElement('div');lb.className='lb';
+lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
+document.body.appendChild(lb);
+const lbVp=lb.querySelector('.lb-vp'),lbImg=lb.querySelector('.lb-img'),lbPct=lb.querySelector('.lb-pct');
+let lbW=0,lbZoom=1;
+const lbSteps=[0.25,0.5,0.75,1,1.5,2,3,4];
+function lbSet(z){lbZoom=z;lbImg.style.width=(lbW*z)+'px';lbPct.textContent=Math.round(z*100)+'%'}
+lbImg.onload=()=>{lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)};
+document.querySelectorAll('.dg-png img').forEach(img=>img.addEventListener('click',e=>{
+  e.stopPropagation();
+  lbImg.src=img.src;
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(lbImg.complete&&lbImg.naturalWidth){lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)}
+}));
+function lbClose(){lb.classList.remove('open');document.body.style.overflow=''}
+lbVp.addEventListener('click',e=>{if(e.target===lbVp)lbClose()});
+lb.querySelectorAll('.lb-bar button').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();const a=b.dataset.z;
+  if(a==='close')return lbClose();
+  if(a==='reset')return lbSet(1);
+  const dz=parseFloat(a),n=lbSteps.filter(s=>dz>1?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(dz>1?(n[0]||4):(n[n.length-1]||0.25));
+}));
+lbVp.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();
+  const n=lbSteps.filter(s=>e.deltaY<0?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(e.deltaY<0?(n[0]||4):(n[n.length-1]||0.25));},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  if(e.key==='+'||e.key==='='){const n=lbSteps.find(s=>s>lbZoom+0.01);lbSet(n||4)}
+  if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
+  if(e.key==='0')lbSet(1);
+});
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const isDark=document.documentElement.classList.contains('dark');
+mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
+const els=document.querySelectorAll('.mermaid');
+for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+</script>
+
+</body>
+</html>

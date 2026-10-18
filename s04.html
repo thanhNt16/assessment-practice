@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Distributed Systems Fundamentals — EPAM A3 Senior Data Engineer assessment prep.">
+<title>Distributed Systems Fundamentals | Learn Data Platform Engineering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --vp-c-brand-1:#D95C41;--vp-c-brand-2:#C14E36;--vp-c-brand-3:#A8412B;
+  --vp-c-brand-soft:rgba(217,92,65,.1);
+  --vp-c-bg:#FAF9F5;--vp-c-bg-alt:#F4F3EE;--vp-c-bg-elv:#FFFFFF;
+  --vp-c-divider:rgba(0,0,0,.08);--vp-c-text-1:#1A1A1A;--vp-c-text-2:#4A4A4A;
+  --vp-c-text-3:#757575;
+  --vp-code-bg:rgba(142,150,170,.14);--vp-code-color:#1A1A1A;
+  --vp-c-tip-1:#D95C41;
+  --nav-h:64px;--sidebar-w:272px;--outline-w:256px;
+  --font-body:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Newsreader",serif;
+  --font-mono:"JetBrains Mono","Fira Code",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html.dark{
+  --vp-c-brand-1:#E07A64;--vp-c-brand-2:#E07A64;--vp-c-brand-3:#D95C41;
+  --vp-c-brand-soft:rgba(224,122,100,.15);
+  --vp-c-bg:#1A1A1A;--vp-c-bg-alt:#242424;--vp-c-bg-elv:#242424;
+  --vp-c-divider:rgba(255,255,255,.1);--vp-c-text-1:#E5E5E5;--vp-c-text-2:#B3B3B3;
+  --vp-c-text-3:#808080;
+  --vp-code-bg:rgba(101,117,133,.16);--vp-code-color:#E5E5E5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 24px)}
+body{margin:0;font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--vp-c-text-1);background:var(--vp-c-bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--vp-c-brand-2);text-decoration:none}
+a:hover{color:var(--vp-c-brand-1)}
+
+/* ---------- navbar ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--vp-c-divider);background:var(--vp-c-bg);z-index:100}
+.nav .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--vp-c-text-1);text-decoration:none}
+.nav .logo svg{flex:none}
+.nav .spacer{flex:1}
+.nav .search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--vp-c-divider);border-radius:8px;padding:6px 12px;color:var(--vp-c-text-3);font-size:13px;background:var(--vp-c-bg-alt);min-width:180px;cursor:text}
+.nav .search-box kbd{margin-left:auto;border:1px solid var(--vp-c-divider);border-radius:4px;padding:0 5px;font-size:11px;font-family:var(--font-mono);background:var(--vp-c-bg)}
+.nav .theme-btn{border:none;background:none;cursor:pointer;color:var(--vp-c-text-2);padding:8px;display:flex;border-radius:50%}
+.nav .theme-btn:hover{background:var(--vp-c-brand-soft);color:var(--vp-c-text-1)}
+.menu-toggle{display:none;border:none;background:none;color:var(--vp-c-text-2);cursor:pointer;padding:8px}
+.nav .home-link{color:var(--vp-c-text-2);font-size:14px;padding:8px;border-radius:8px;text-decoration:none}
+.nav .home-link:hover{color:var(--vp-c-text-1);background:var(--vp-c-brand-soft)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;padding-top:var(--nav-h);overflow-x:clip}
+.sidebar{position:fixed;top:var(--nav-h);bottom:0;left:0;width:var(--sidebar-w);overflow-y:auto;padding:24px 8px 96px 32px;border-right:1px solid var(--vp-c-divider);background:var(--vp-c-bg)}
+.sidebar .group-title{font-weight:700;font-size:14px;padding:8px 12px 4px;display:flex;justify-content:space-between;align-items:center}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar-link{display:flex;gap:8px;align-items:baseline;padding:5px 12px;font-size:14px;color:var(--vp-c-text-2);border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.4;text-decoration:none}
+.sidebar-link:hover{color:var(--vp-c-text-1)}
+.sidebar-link.active{color:var(--vp-c-brand-2);font-weight:600;border-left-color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft)}
+.sl-num{font-size:11px;color:var(--vp-c-text-3);font-family:var(--font-mono);flex:none}
+.sidebar-link.active .sl-num{color:var(--vp-c-brand-2)}
+.main{flex:1;min-width:0;margin-left:var(--sidebar-w)}
+@media(min-width:1440px){.main{margin-right:var(--outline-w)}}
+.vp-doc{max-width:784px;margin:0 auto;padding:32px 24px 96px}
+
+/* ---------- outline ---------- */
+.outline{position:fixed;top:var(--nav-h);right:0;bottom:0;width:var(--outline-w);overflow-y:auto;padding:24px 16px 96px;border-left:1px solid var(--vp-c-divider);display:none}
+@media(min-width:1440px){.outline{display:block}}
+.outline .outline-title{font-weight:600;font-size:14px;padding:0 12px 8px}
+.outline ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--vp-c-divider)}
+.outline-link{display:block;padding:4px 12px;font-size:13px;color:var(--vp-c-text-3);border-left:2px solid transparent;margin-left:-1px;line-height:1.4;text-decoration:none}
+.outline-link.lvl3{padding-left:26px}
+.outline-link:hover{color:var(--vp-c-text-1)}
+.outline-link.active{color:var(--vp-c-brand-2);border-left-color:var(--vp-c-brand-2)}
+
+/* ---------- typography ---------- */
+.vp-doc .kicker{font-size:13px;font-weight:700;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
+.vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
+.vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc p{margin:16px 0}
+.header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
+.vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
+.header-anchor::before{content:"#"}
+.vp-doc strong{font-weight:600}
+.vp-doc code{font-family:var(--font-mono);font-size:.875em;background:var(--vp-code-bg);color:var(--vp-code-color);padding:.15em .35em;border-radius:4px}
+.vp-doc pre{position:relative;margin:16px 0;padding:20px 24px;border-radius:8px;background:var(--vp-code-bg);overflow-x:auto;font-size:14px;line-height:1.7}
+.vp-doc pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.vp-doc pre .copy-btn{position:absolute;top:8px;right:8px;border:1px solid var(--vp-c-divider);border-radius:4px;background:var(--vp-c-bg);color:var(--vp-c-text-3);font-size:11px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .2s;font-family:var(--font-body)}
+.vp-doc pre:hover .copy-btn{opacity:1}
+.vp-doc blockquote{margin:16px 0;padding:8px 16px;border-left:4px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.vp-doc blockquote p{margin:4px 0}
+.vp-doc ul,.vp-doc ol{padding-left:1.25rem;margin:16px 0}
+.vp-doc li{margin:4px 0}
+.vp-doc li::marker{color:var(--vp-c-text-3)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0}
+.vp-doc table{border-collapse:collapse;width:100%;margin:0;font-size:14px}
+.vp-doc th,.vp-doc td{border:1px solid var(--vp-c-divider);padding:8px 16px;text-align:left;line-height:1.6}
+.vp-doc th{background:var(--vp-c-bg-alt);font-weight:600}
+.vp-doc tr:nth-child(2n) td{background:var(--vp-c-bg-alt)}
+.vp-doc hr{border:none;border-top:1px solid var(--vp-c-divider);margin:40px 0}
+.vp-doc a{text-decoration:underline;text-underline-offset:2px}
+.vp-doc a:hover{text-decoration:none}
+.vp-doc a.vm-btn,.vp-doc a.pw-link,.vp-doc .pager a,.vp-doc .feature a,.vp-doc .btn,.vp-doc a.vm-go{text-decoration:none}
+.vp-doc pre.ascii{font-size:12.5px;line-height:1.5}
+
+/* hero */
+.hero{padding:24px 0 8px}
+.hero .kicker{font-size:14px;font-weight:600;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:var(--font-head);font-size:56px;font-weight:600;margin:8px 0 12px;line-height:1.1;color:var(--vp-c-brand-1)}
+.hero .tagline{font-size:18px;color:var(--vp-c-text-2);max-width:640px}
+.hero .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid var(--vp-c-divider)}
+.btn.brand{background:#A8412B;color:#fff!important;border-color:#A8412B}
+.btn.brand:hover{background:#C14E36}
+.btn.alt{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)!important}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 8px}
+.feature{border:1px solid var(--vp-c-divider);border-radius:12px;padding:20px;background:var(--vp-c-bg-elv);transition:border-color .2s}
+.feature:hover{border-color:var(--vp-c-brand-3)}
+.feature .icon{font-size:22px}
+.feature h3{margin:8px 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:var(--vp-c-text-2);line-height:1.55}
+.feature a{font-size:13px;font-weight:600}
+
+/* mermaid */
+.mermaid{display:flex;justify-content:center;margin:24px 0;padding:16px;background:var(--vp-c-bg-alt);border:1px solid var(--vp-c-divider);border-radius:12px;overflow-x:auto}
+.mermaid svg{max-width:100%;height:auto}
+
+/* custom containers */
+.ct{margin:18px 0;padding:14px 18px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-elv);font-size:14.5px;line-height:1.65}
+.ct p{margin:6px 0}
+.ct .ct-title{font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.ct-info{border-left:4px solid var(--vp-c-brand-3)}
+.ct-info .ct-title{color:var(--vp-c-brand-2)}
+.ct-tip{border-left:4px solid #22a55b;background:rgba(34,165,91,.07)}
+.ct-tip .ct-title{color:#1d914e}
+.ct-warning{border-left:4px solid #e38407;background:rgba(227,132,7,.08)}
+.ct-warning .ct-title{color:#b4690e}
+html.dark .ct-tip{background:rgba(34,165,91,.12)}
+html.dark .ct-tip .ct-title{color:#4ccb7f}
+html.dark .ct-warning{background:rgba(227,132,7,.12)}
+html.dark .ct-warning .ct-title{color:#f0b45c}
+
+/* ---------- Duolingo path map ---------- */
+.vmap{margin:28px 0 8px;border:1px solid var(--vp-c-divider);border-radius:16px;background:var(--vp-c-bg-elv);overflow:hidden}
+.vmap-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--vp-c-divider);font-weight:700;font-size:14px}
+.vm-progress{color:var(--vp-c-text-3);font-weight:600;font-size:13px}
+.vmap-body{position:relative;padding:8px 0 24px}
+.vm-svg{display:block;margin:0 auto;width:340px;height:auto}
+.nav-mod{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--vp-c-text-3);padding:14px 12px 3px}
+.vm-mod{position:absolute;left:12px;right:12px;border:1px dashed var(--vp-c-divider);border-radius:12px;pointer-events:none}
+.vm-mod span{position:absolute;top:-9px;left:14px;background:var(--vp-c-bg-elv);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--vp-c-text-3)}
+.vm-path{stroke:var(--vp-c-divider);stroke-width:14;stroke-linecap:round;stroke-dasharray:0 18}
+.vm-node{position:absolute;width:72px;height:64px}
+.vm-btn{position:relative;width:64px;height:60px;border:none;border-radius:50%;background:var(--vp-c-bg-alt);border-bottom:5px solid var(--vp-c-divider);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .2s;padding:0;color:var(--vp-c-text-1)}
+.vm-btn:hover{transform:scale(1.08);filter:brightness(1.05)}
+.vm-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.vm-check{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:#22a55b;color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;border:2px solid var(--vp-c-bg-elv)}
+.vm-node.done .vm-btn{background:#e3f5e9;border-bottom-color:#1d914e}
+.vm-node.done .vm-check{display:flex}
+html.dark .vm-node.done .vm-btn{background:#12351f}
+.vm-node.current .vm-btn{background:var(--vp-c-brand-soft);border-bottom-color:var(--vp-c-brand-2);animation:vm-pulse 2s infinite}
+@keyframes vm-pulse{0%,100%{box-shadow:0 0 0 6px var(--vp-c-brand-soft)}50%{box-shadow:0 0 0 12px var(--vp-c-brand-soft)}}
+.vm-num{position:absolute;left:-26px;top:16px;font-size:12px;font-weight:700;color:var(--vp-c-text-3);width:20px;text-align:center}
+.vm-card{position:absolute;min-width:180px;max-width:230px;background:var(--vp-c-bg);border:1px solid var(--vp-c-divider);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;top:-18px;left:auto;right:calc(100% + 14px)}
+.vm-node:hover .vm-card,.vm-node.open .vm-card{opacity:1;pointer-events:auto}
+.vm-card-title{font-weight:700;font-size:14px}
+.vm-card-blurb{font-size:12.5px;color:var(--vp-c-text-2);line-height:1.5;margin:4px 0 8px}
+.vm-go{font-size:13px;font-weight:700}
+.vm-node[data-side="r"] .vm-card{right:auto;left:calc(100% + 14px)}
+
+/* compact path list (section pages) */
+.pathlist{list-style:none;margin:0 0 8px;padding:0}
+.pw-link{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:13px;color:var(--vp-c-text-2);border-radius:6px;text-decoration:none}
+.pw-link:hover{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)}
+.pw-ic{width:20px;flex:none}
+.pw-name{flex:1}
+.pw-check{color:#22a55b;font-weight:700;opacity:0}
+.pw-item.done .pw-check{opacity:1}
+.pw-item.done .pw-name{color:var(--vp-c-text-3);text-decoration:line-through}
+.pw-item.current .pw-link{color:var(--vp-c-brand-2);font-weight:600;background:var(--vp-c-brand-soft)}
+
+/* mark-as-read + pager */
+.mark-done{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 18px;border-radius:20px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.mark-done:hover{border-color:#22a55b}
+.mark-done.done{background:#e3f5e9;border-color:#1d914e;color:#1d914e}
+html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--vp-c-divider)}
+.pager a{flex:1;max-width:48%;border:1px solid var(--vp-c-divider);border-radius:8px;padding:12px 16px;font-size:14px}
+.pager a .plabel{font-size:12px;color:var(--vp-c-text-3)}
+.pager a .ptitle{font-weight:600;color:var(--vp-c-brand-2)}
+.pager a.next{text-align:right;margin-left:auto}
+.footer-note{text-align:center;color:var(--vp-c-text-3);font-size:13px;margin-top:48px}
+
+@media(max-width:960px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;z-index:99;top:var(--nav-h);left:0;bottom:0;background:var(--vp-c-bg);width:min(320px,85vw);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .nav{padding:0 16px}
+  .nav .search-box{display:none}
+  .vp-doc{padding:24px 16px 96px}
+  .hero h1{font-size:30px}
+  .vp-doc table{table-layout:fixed}
+  .vp-doc th{white-space:normal}
+  .vp-doc td,.vp-doc th{overflow-wrap:anywhere}
+  .vp-doc code{overflow-wrap:anywhere;word-break:break-word}
+  .vp-doc pre{font-size:12.5px;padding:14px 16px}
+  .vp-doc pre code{overflow-wrap:normal;word-break:normal}
+  .mermaid{padding:8px}
+  .vm-num{display:none}
+}
+@media(max-width:760px){
+  .vm-card{position:fixed;top:auto;bottom:16px;left:16px!important;right:16px!important;max-width:none;z-index:200}
+  .vm-node.open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;pointer-events:none}
+  .vm-node.open .vm-btn{position:relative;z-index:160}
+  .vm-svg{width:min(340px,90vw)}
+}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .hero .tagline{font-size:16px}
+  .btn{padding:9px 14px;font-size:13px}
+  .features{grid-template-columns:1fr 1fr}
+  .vp-doc h1{font-size:26px}
+  .vp-doc h2{font-size:20px}
+  .vm-svg{width:min(300px,85vw)}
+}
+@media(max-width:420px){.features{grid-template-columns:1fr}}
+.glide{margin:18px 0 26px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 16px}
+.glide:focus{outline:2px solid var(--vp-c-brand-1);outline-offset:2px}
+.glide-h{display:flex;align-items:center;gap:8px;font-weight:600}
+.glide-h b{flex:1}
+.glide-ic{font-size:18px}
+.glide-ct{font-family:var(--vp-font-family-mono);font-size:12px;color:var(--vp-c-text-3)}
+.glide-steps{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:10px 0;margin:0}
+.glide-chip{flex:1 1 auto;min-width:70px;text-align:center;padding:8px 10px;border-radius:8px;background:var(--vp-c-bg-alt);color:var(--vp-c-text-2);font-size:13px;line-height:1.3;transition:all .2s;border:1px solid transparent}
+.glide-chip b{display:block;font-family:var(--vp-font-family-mono);font-size:11px;color:var(--vp-c-text-3)}
+.glide-chip.lit{background:rgba(217,92,65,.12);border-color:var(--vp-c-brand-1);color:var(--vp-c-text-1)}
+.glide-chip.lit b{color:var(--vp-c-brand-1)}
+.glide-caps{position:relative;min-height:44px}
+.glide-cap{display:none;font-size:14px;color:var(--vp-c-text-2);padding:6px 0}
+.glide-cap.on{display:block}
+.glide-ctl{display:flex;gap:6px;margin-top:4px}
+.gprev,.gnext{width:34px;height:30px;border-radius:8px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);cursor:pointer;font-size:13px}
+.gprev:hover,.gnext:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.glide-quiz{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.qflip{text-align:left;width:100%;border:1px dashed var(--vp-c-divider);border-radius:8px;background:transparent;padding:8px 10px;cursor:pointer;font:inherit;color:var(--vp-c-text-1)}
+.qflip .qa{display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.qflip.show .qa{display:block}
+.qflip.show{border-style:solid;border-color:var(--vp-c-brand-1)}
+.dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
+.dg-frame iframe{display:block;width:100%;height:640px;border:0}
+.dg-png img{display:block;width:100%;height:auto}
+.dg-dark{display:none}
+html.dark .dg-light{display:none}
+html.dark .dg-dark{display:block}
+.dg-png img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
+.lb.open{display:block}
+.lb-vp{position:absolute;inset:0;overflow:auto;padding:64px 20px 20px;cursor:zoom-out}
+.lb-img{display:block;margin:0 auto;max-width:none;background:var(--vp-c-bg-elv);border-radius:10px}
+.lb-bar{position:fixed;top:12px;right:16px;display:flex;gap:8px;z-index:201;align-items:center}
+.lb-bar button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-size:15px;padding:5px 12px;cursor:pointer;font-family:var(--font-body)}
+.lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
+@media (max-width:640px){.dg-frame iframe{height:480px}}
+@media (max-width:640px){.glide-chip{min-width:56px;font-size:12px;padding:6px}}
+</style>
+<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
+</head>
+<body data-section="3">
+<nav class="nav">
+  <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <a class="logo" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D95C41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Learn Data Platform Engineering</span></a>
+  <div class="spacer"></div>
+  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</nav>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="group-title">Course Sections</div>
+    <ul>
+<li class="nav-mod">🎯 Goal &amp; Foundations</li>
+<li><a class="sidebar-link" href="s01.html"><span class="sl-num">01</span>The EPAM A3 Senior Data Engineer Assessment</a></li>
+<li><a class="sidebar-link" href="s02.html"><span class="sl-num">02</span>SQL Deep Dive: The Problems EPAM Actually Asks</a></li>
+<li><a class="sidebar-link" href="s03.html"><span class="sl-num">03</span>Python &amp; PySpark: Coding Patterns</a></li>
+<li><a class="sidebar-link active" href="s04.html"><span class="sl-num">04</span>Distributed Systems Fundamentals</a></li>
+<li class="nav-mod">🏗️ Platform Design</li>
+<li><a class="sidebar-link" href="s05.html"><span class="sl-num">05</span>Data Platform Architecture</a></li>
+<li><a class="sidebar-link" href="s06.html"><span class="sl-num">06</span>Batch vs Streaming</a></li>
+<li><a class="sidebar-link" href="s07.html"><span class="sl-num">07</span>Data Warehouse vs Data Lake vs Lakehouse</a></li>
+<li><a class="sidebar-link" href="s08.html"><span class="sl-num">08</span>Snowflake vs Databricks</a></li>
+<li class="nav-mod">⚙️ Technology Deep-Dive</li>
+<li><a class="sidebar-link" href="s09.html"><span class="sl-num">09</span>Table Formats: Delta Lake vs Iceberg vs Hudi</a></li>
+<li><a class="sidebar-link" href="s10.html"><span class="sl-num">10</span>Compute Engines: Spark vs Flink</a></li>
+<li><a class="sidebar-link" href="s11.html"><span class="sl-num">11</span>Spark Performance: Catalyst, AQE &amp; Tuning</a></li>
+<li><a class="sidebar-link" href="s12.html"><span class="sl-num">12</span>Messaging &amp; Streaming Backbones: Kafka and Friends</a></li>
+<li class="nav-mod">🏁 Production &amp; Defense</li>
+<li><a class="sidebar-link" href="s13.html"><span class="sl-num">13</span>Pipeline Reliability: Testing, Quality, Observability</a></li>
+<li><a class="sidebar-link" href="s14.html"><span class="sl-num">14</span>Resources &amp; Practice Lab</a></li>
+<li><a class="sidebar-link" href="s15.html"><span class="sl-num">15</span>System Design Interview Playbook</a></li>
+<li class="nav-mod">🤖 GenAI Adjacent</li>
+<li><a class="sidebar-link" href="s16.html"><span class="sl-num">16</span>Generative AI System Design (Aminian &amp; Sheng)</a></li>
+<li><a class="sidebar-link" href="s17.html"><span class="sl-num">17</span>Machine Learning System Design Interview (Aminian &amp; Xu)</a></li>
+    </ul>
+<div class="group-title">Course Path <span class="vm-progress" id="vmProgress2"></span></div><ul class="pathlist"><li class="pw-item" data-n="0"><a class="pw-link" href="s01.html">
+  <span class="pw-ic">🧭</span><span class="pw-name">1. Assessment</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="1"><a class="pw-link" href="s02.html">
+  <span class="pw-ic">🧮</span><span class="pw-name">2. SQL</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="2"><a class="pw-link" href="s03.html">
+  <span class="pw-ic">🐍</span><span class="pw-name">3. PySpark</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="3"><a class="pw-link" href="s04.html">
+  <span class="pw-ic">🌐</span><span class="pw-name">4. Distributed</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="4"><a class="pw-link" href="s05.html">
+  <span class="pw-ic">🏗️</span><span class="pw-name">5. Architecture</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="5"><a class="pw-link" href="s06.html">
+  <span class="pw-ic">🌊</span><span class="pw-name">6. Streaming</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="6"><a class="pw-link" href="s07.html">
+  <span class="pw-ic">🏬</span><span class="pw-name">7. Lakehouse</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="7"><a class="pw-link" href="s08.html">
+  <span class="pw-ic">❄️</span><span class="pw-name">8. Snow v DBX</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="8"><a class="pw-link" href="s09.html">
+  <span class="pw-ic">🧊</span><span class="pw-name">9. Formats</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="9"><a class="pw-link" href="s10.html">
+  <span class="pw-ic">⚡</span><span class="pw-name">10. Engines</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="10"><a class="pw-link" href="s11.html">
+  <span class="pw-ic">🔧</span><span class="pw-name">11. Spark Tuning</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="11"><a class="pw-link" href="s12.html">
+  <span class="pw-ic">📨</span><span class="pw-name">12. Kafka</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="12"><a class="pw-link" href="s13.html">
+  <span class="pw-ic">🛡️</span><span class="pw-name">13. Reliability</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="13"><a class="pw-link" href="s14.html">
+  <span class="pw-ic">📚</span><span class="pw-name">14. Practice</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="14"><a class="pw-link" href="s15.html">
+  <span class="pw-ic">🎯</span><span class="pw-name">15. Playbook</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="15"><a class="pw-link" href="s16.html">
+  <span class="pw-ic">🤖</span><span class="pw-name">16. GenAI</span><span class="pw-check">✓</span>
+</a></li><li class="pw-item" data-n="16"><a class="pw-link" href="s17.html">
+  <span class="pw-ic">🧠</span><span class="pw-name">17. ML Design</span><span class="pw-check">✓</span>
+</a></li></ul>
+  </aside>
+  <main class="main">
+    <div class="vp-doc">
+
+<div class="kicker">Section 4 of 17</div><h1>Distributed Systems Fundamentals</h1>
+<p>Interviewers rarely say &quot;CAP theorem&quot; — they test it by asking why your Kafka topic has 3 replicas with <code>min.insync.replicas=2</code>, whether a retried Spark job double-counts, or why Snowflake loads can safely re-run.</p>
+<p><div class="glide" tabindex="0"><div class="glide-h"><span class="glide-ic">🧩</span><b>Glide · Glide — The Quorum Decision</b><span class="glide-ct">1/8</span></div><ol class="glide-steps"><li class="glide-chip" data-i="0"><b>1</b>A partition occurs</li><li class="glide-chip" data-i="1"><b>2</b>Pick C or A</li><li class="glide-chip" data-i="2"><b>3</b>Apply the quorum rule</li><li class="glide-chip" data-i="3"><b>4</b>Guard against split-brain</li><li class="glide-chip" data-i="4"><b>5</b>Size the quorum</li><li class="glide-chip" data-i="5"><b>6</b>Accept retries</li><li class="glide-chip" data-i="6"><b>7</b>Make replays harmless</li><li class="glide-chip" data-i="7"><b>8</b>Order with event time</li></ol><div class="glide-caps"><div class="glide-cap" data-i="0">CAP only forces a choice under partition — before that, CA is coherent</div><div class="glide-cap" data-i="1">CP blocks or rejects rather than serve stale; AP answers with possibly stale data</div><div class="glide-cap" data-i="2"><code>R + W &gt; N</code> forces read and write sets to overlap, so every read sees the newest value</div><div class="glide-cap" data-i="3"><code>W &gt; N/2</code> prevents two write quorums from forming</div><div class="glide-cap" data-i="4">W=3/R=3 on N=5 gives 99.1% availability on both paths; W=1/R=5 gives ~99.999% writes but 59.0% reads</div><div class="glide-cap" data-i="5">retries are mandatory, so delivery is at-least-once and duplicates are guaranteed, not exceptional</div><div class="glide-cap" data-i="6">idempotency keys, dedup tables, upserts, and transactional offsets turn duplicate delivery into no-ops</div><div class="glide-cap" data-i="7">wall clocks lie across machines, so windows close deterministically only via event time + watermarks</div></div><div class="glide-ctl"><button class="gprev" type="button">◀</button><button class="gnext" type="button">▶</button></div><div class="glide-quiz"><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why is Kafka's W=3/R=3-style <code>acks=all</code> + <code>min.insync.replicas=2</code> treated as CP-leaning?</span><span class="qa">It approximates a write quorum over the ISR: <code>unclean.leader.election.enable</code> is the explicit switch that decides whether the cluster refuses stale leaders (CP) or keeps serving (AP).</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? Why does W=1/R=5 only suit rarely-read telemetry?</span><span class="qa">Any single node accepts writes (~99.999% write availability, lowest latency), but reads need all 5 nodes — only 59.0% read availability, tolerable only when a failed read can simply be retried.</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? What does &quot;exactly-once&quot; actually guarantee?</span><span class="qa">Effectively-once end-to-end: at-least-once delivery plus idempotent, transactional sinks — Kafka EOS (PID + per-partition sequence numbers) only works if the sink commits transactionally; no system executes a side effect literally once.</span></button><button class="qflip" type="button" aria-expanded="false"><span class="qf">? When does quorum sizing still lose data?</span><span class="qa">It doesn't prevent LWW-style loss — last-write-wins silently discards concurrent updates, which is why causal ordering (vector clocks) and event time matter alongside replication.</span></button></div></div></p>
+<div class="dg-frame dg-png"><img class="dg-light" src="diagrams/exc/quorum-replication.png" alt="quorum-replication.png diagram" loading="lazy"><img class="dg-dark" src="diagrams/exc/quorum-replication.dark.png" alt="quorum-replication.png diagram (dark)" loading="lazy"></div>
+<h2 id="cap-the-consistency-spectrum" tabindex="-1">CAP &amp; the Consistency Spectrum<a class="header-anchor" href="#cap-the-consistency-spectrum">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>CAP, read correctly:</strong> only when a network <em>partition</em> occurs must you choose — <strong>CP</strong> (refuse stale answers, sacrifice availability) or <strong>AP</strong> (serve possibly stale data, sacrifice consistency). &quot;CA&quot; is only coherent for non-distributed systems with no partitions (<a href="https://en.wikipedia.org/wiki/CAP_theorem">CAP theorem</a>).</li>
+<li>&quot;C&quot; here means linearizability (<a href="https://en.wikipedia.org/wiki/CAP_theorem">Gilbert–Lynch proof</a>); the practical spectrum from <a href="https://jepsen.io/consistency">Jepsen</a> is: strong → sequential → causal → eventual.</li>
+<li><strong>Read-your-writes</strong> is the pragmatic middle users actually need: a session sees its own writes without global coordination.</li>
+<li>ACID vs BASE (<a href="https://www.allthingsdistributed.com/2008/12/eventually_consistent.html">Vogels, Eventually-Consistent</a>):</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Core promise</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ACID</strong></td>
+<td>Atomic, Consistent, Isolated, Durable per transaction</td>
+<td>Locks + coordination + latency</td>
+</tr>
+<tr>
+<td><strong>BASE</strong></td>
+<td>Basically Available, Soft state, Eventually consistent</td>
+<td>Stale reads, app-level conflict handling</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Consistency level</th>
+<th>Guarantee</th>
+<th>Tools that offer it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linearizable</td>
+<td>Every read sees latest committed write</td>
+<td>ZooKeeper, etcd, Spanner</td>
+</tr>
+<tr>
+<td>Sequential</td>
+<td>Per-partition/client order kept, no cross-client causality</td>
+<td>Kafka per-partition ordering</td>
+</tr>
+<tr>
+<td>Causal / read-your-writes</td>
+<td>See effects of causes you observed</td>
+<td>DynamoDB strongly consistent reads, MongoDB causal sessions</td>
+</tr>
+<tr>
+<td>Eventual</td>
+<td>Replicas converge when writes stop</td>
+<td>Cassandra ONE (tunable), Redis replicas, DynamoDB default reads</td>
+</tr>
+</tbody>
+</table>
+<p><div class="mermaid">
+flowchart TD
+    REQ[Request arrives at cluster] --> P{Network partition now}
+    P -- No partition --> OK[CA is possible - serve consistent and available]
+    P -- Partition --> CH{Pick one}
+    CH -- Consistency --> CP[CP - block or reject rather than serve stale]
+    CH -- Availability --> AP[AP - answer with possibly stale data]
+    CP --> EX1[Examples - ZooKeeper - etcd - HBase - Kafka min ISR]
+    AP --> EX2[Examples - Cassandra - DynamoDB - DNS]
+</div></p>
+
+<h2 id="replication-partitioning" tabindex="-1">Replication &amp; Partitioning<a class="header-anchor" href="#replication-partitioning">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>Leader–follower replication:</strong> <em>sync</em> (follower acks before commit — no loss, higher latency) vs <em>async</em> (fast, but failover loses recent writes and lagging followers serve stale reads). Semi-sync is the middle ground.</li>
+<li><strong>Quorum rule:</strong> <code>R + W &gt; N</code> forces read and write sets to overlap; <code>W &gt; N/2</code> prevents two write quorums (split-brain).</li>
+</ul>
+<pre><code class="language-text">Quorum: N=5 replicas, W=3 writers, R=3 readers  -&gt;  R+W=6 &gt; 5
+
+  write W=3              read R=3            forced overlap
+ +----+----+----+       +----+----+----+
+ | R1 | R2 | R3 |       | R1 | R4 | R5 |     R1 sits in both sets,
+ +----+----+----+       +----+----+----+     so the reader always
+                                              sees the newest value
+</code></pre>
+<div class="ct ct-info">
+<div class="ct-title">Worked Example</div>
+<p>Quorum sizing on N=5 replicas at 90% node uptime:</p>
+<ul>
+<li><strong>W=3, R=3:</strong> write availability = P(≥3 of 5 up) = 10·0.9³·0.1² + 5·0.9⁴·0.1 + 0.9⁵ = <strong>99.1%</strong>; read availability identical. R+W=6&gt;5 → every read sees the latest acknowledged write. Tolerates 2 failures on both paths.</li>
+<li><strong>W=1, R=5:</strong> write availability = 1 − 0.1⁵ ≈ <strong>99.999%</strong> (any single node accepts, lowest latency); read availability = 0.9⁵ = <strong>59.0%</strong> — reads need all 5 nodes, but each read is maximally fresh.</li>
+<li><strong>Decision:</strong> W=3/R=3 for balanced OLTP; W=1/R=5 only for write-heavy, rarely-read telemetry where a failed read can simply be retried.</li>
+</ul>
+</div>
+<ul>
+<li><strong>Hash vs range partitioning:</strong> hash spreads load uniformly but kills range scans; range is scan-friendly but hot-spots on monotonically increasing keys (timestamps, IDs). Fix hot keys by salting or shard splitting.</li>
+<li><strong>Rebalancing:</strong> <code>hash(key) mod N</code> moves nearly everything when N changes; consistent hashing or many-fixed-partitions → few assignments move (Kafka's model).</li>
+<li><strong>Consensus in one breath:</strong> Raft/Paxos make a cluster agree on one ordered log despite crashes — the engine behind leader election and metadata (<a href="https://raft.github.io/">Raft</a>): Kafka KRaft controllers, Flink HA via ZooKeeper, etcd, HDFS QJM.</li>
+</ul>
+
+<h2 id="idempotency-exactly-once-myths" tabindex="-1">Idempotency &amp; Exactly-Once Myths<a class="header-anchor" href="#idempotency-exactly-once-myths">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Retries are mandatory in distributed systems → delivery is <strong>at-least-once</strong> → duplicates are guaranteed, not exceptional.</li>
+<li><strong>Idempotency</strong> makes replays harmless: same operation applied twice = same result. Mechanisms: idempotency keys, dedup tables, MERGE/upsert keyed on a natural ID, storing offsets in the same transaction as results.</li>
+<li>&quot;Exactly-once&quot; is <strong>effectively-once end-to-end</strong>: Kafka EOS = idempotent producer (PID + per-partition sequence numbers) + transactional offsets (<a href="https://kafka.apache.org/documentation/#semantics">Kafka semantics</a>); the sink must participate — e.g., an Iceberg sink committing on Spark checkpoints.</li>
+<li>No system executes a side effect literally once; it guarantees the <em>observable effect</em> happens once via dedup + atomic commit.</li>
+</ul>
+
+<h2 id="time-clocks-event-ordering" tabindex="-1">Time, Clocks &amp; Event Ordering<a class="header-anchor" href="#time-clocks-event-ordering">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Wall clocks drift (NTP skew, leap seconds) — never order business events with <code>now()</code> across machines.</li>
+<li><strong>LWW dangers:</strong> last-write-wins silently discards concurrent updates — data loss disguised as conflict resolution.</li>
+<li><strong>Vector clocks in one line:</strong> per-node counters that detect causality and concurrency without a global clock (Dynamo, Riak).</li>
+<li>Hence stream processing runs on <strong>event time</strong> (record timestamp) + <strong>watermarks</strong> (&quot;no earlier events expected&quot;) so windows close deterministically despite disorder (<a href="https://nightlies.apache.org/flink/flink-docs-stable/docs/concepts/stateful-stream-processing/">Flink event time</a>).</li>
+</ul>
+
+<h2 id="transactions-backpressure-the-fallacies" tabindex="-1">Transactions, Backpressure &amp; the Fallacies<a class="header-anchor" href="#transactions-backpressure-the-fallacies">&ZeroWidthSpace;</a></h2>
+<ul>
+<li><strong>2PC:</strong> coordinator prepares, then commits all participants — atomic but <strong>blocking</strong>: a coordinator crash leaves locks held. Fine inside one cluster (Flink two-phase-commit sinks), poor across services.</li>
+<li><strong>Saga:</strong> chain of local transactions, each with a compensating transaction on failure — trades atomicity for availability; the microservices default over cross-service 2PC.</li>
+<li><strong>Backpressure:</strong> consumers slower than producers fill unbounded buffers until OOM. Flow control = bounded queues, credit-based transfer (Flink), pull-based consumption (Kafka), rate limits (Spark <code>maxOffsetsPerTrigger</code>).</li>
+<li><strong>Fallacies of distributed computing:</strong> the network is reliable, latency is zero, bandwidth is infinite, the network is secure, topology doesn't change, there is one admin, transport cost is zero, the network is homogeneous. Every timeout, retry policy, and buffer bound exists because these are false.</li>
+</ul>
+
+<h2 id="where-this-shows-up" tabindex="-1">Where This Shows Up<a class="header-anchor" href="#where-this-shows-up">&ZeroWidthSpace;</a></h2>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li><strong>CAP:</strong> Kafka's <code>unclean.leader.election.enable</code> is an explicit CP-vs-AP switch; Iceberg commits use optimistic concurrency on the metadata pointer, serialized by catalog CAS (<a href="https://iceberg.apache.org/spec/">Iceberg spec</a>).</li>
+<li><strong>Replication/quorum:</strong> <code>acks=all</code> + <code>min.insync.replicas</code> ≈ write quorum over the ISR; read from followers trades freshness for locality.</li>
+<li><strong>Partitioning:</strong> Kafka partition keys, Spark hash-shuffle skew, Iceberg bucket transforms + partition evolution, Snowflake clustering keys (range-style micro-partitions).</li>
+<li><strong>Idempotency:</strong> Kafka idempotent producer; Spark <code>foreachBatch</code> + MERGE; Snowflake COPY skips already-loaded files for 64 days (<a href="https://docs.snowflake.com/en/user-guide/data-load-considerations-load">docs</a>); Iceberg MERGE makes replays no-ops.</li>
+<li><strong>Event time:</strong> Spark Structured Streaming / Flink watermarks; Kafka record timestamps (<code>CreateTime</code> vs <code>LogAppendTime</code>).</li>
+<li><strong>Consensus:</strong> Kafka KRaft replaced ZooKeeper with a Raft quorum of controllers; Flink HA elects the JobManager via ZooKeeper.</li>
+</ul>
+<div class="ct ct-tip">
+<div class="ct-title">Go Deeper — DDIA 2nd Edition (Mar 2026)</div>
+<p>This section maps almost 1:1 to <a href="https://martin.kleppmann.com/2026/03/24/designing-data-intensive-applications-2e.html">DDIA 2e</a> (Kleppmann &amp; Riccomini): ch6 Replication, ch7 Sharding, ch8 Transactions, ch9 The Trouble with Distributed Systems, ch10 Consistency &amp; Consensus. 2e adds cloud/object-store-native framing and renames Partitioning→Sharding. Per-chapter further-reading lists: <a href="https://github.com/ept/ddia2-references">ept/ddia2-references</a>. Free ch1+2+9 excerpt via <a href="https://lp.scylladb.com/designing-data-intensive-apps-book-offer">ScyllaDB</a>.</p>
+</div>
+
+<h2 id="key-takeaways" tabindex="-1">Key Takeaways<a class="header-anchor" href="#key-takeaways">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Under partition you pick C or A explicitly — every distributed store answers this whether you choose or not.</li>
+<li><code>R + W &gt; N</code> is the dial trading read/write availability and latency against freshness.</li>
+<li>Design every consumer and sink to be safe when it runs twice — because retries guarantee it will.</li>
+<li>Event time + watermarks exist because wall clocks lie across machines.</li>
+<li>&quot;Exactly-once&quot; = at-least-once delivery + idempotent, transactional sinks — never a transport guarantee alone.</li>
+</ul>
+
+<h2 id="interview-lens" tabindex="-1">Interview Lens<a class="header-anchor" href="#interview-lens">&ZeroWidthSpace;</a></h2>
+<ul>
+<li>Asked &quot;is Kafka CP or AP?&quot;: answer it's tunable per topic — quote <code>min.insync.replicas</code> and unclean leader election as the two knobs.</li>
+<li>Volunteer the quorum math (W=3/R=3 vs W=1/R=5) when replication factor comes up — it shows reasoning, not recitation.</li>
+<li>Map any &quot;what if the job crashes mid-run?&quot; question to idempotency + checkpointing, never to &quot;it probably won't happen&quot;.</li>
+</ul>
+
+      <button class="mark-done" id="markDone">Mark section as done</button>
+<div class="pager"><a class="prev" href="s03.html"><div class="plabel">Previous</div><div class="ptitle">← Python &amp; PySpark: Coding Patterns</div></a><a class="next" href="s05.html"><div class="plabel">Next</div><div class="ptitle">Data Platform Architecture →</div></a></div>
+      <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>
+    </div>
+  </main>
+  <aside class="outline">
+    <div class="outline-title">On this page</div>
+    <ul>
+<li><a class="outline-link lvl2" href="#">Overview</a></li>
+<li><a class="outline-link lvl3" href="#cap-the-consistency-spectrum">CAP &amp; the Consistency Spectrum</a></li>
+<li><a class="outline-link lvl3" href="#replication-partitioning">Replication &amp; Partitioning</a></li>
+<li><a class="outline-link lvl3" href="#idempotency-exactly-once-myths">Idempotency &amp; Exactly-Once Myths</a></li>
+<li><a class="outline-link lvl3" href="#time-clocks-event-ordering">Time, Clocks &amp; Event Ordering</a></li>
+<li><a class="outline-link lvl3" href="#transactions-backpressure-the-fallacies">Transactions, Backpressure &amp; the Fallacies</a></li>
+<li><a class="outline-link lvl3" href="#where-this-shows-up">Where This Shows Up</a></li>
+<li><a class="outline-link lvl3" href="#key-takeaways">Key Takeaways</a></li>
+<li><a class="outline-link lvl3" href="#interview-lens">Interview Lens</a></li>
+    </ul>
+  </aside>
+</div>
+<script>
+// theme
+const root=document.documentElement;
+const stored=localStorage.getItem('vp-theme');
+const prefersDark=matchMedia('(prefers-color-scheme: dark)').matches;
+if(stored==='dark'||(!stored&&prefersDark)){root.classList.add('dark')}
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  root.classList.toggle('dark');
+  localStorage.setItem('vp-theme',root.classList.contains('dark')?'dark':'light');
+  setTimeout(()=>location.reload(),60);
+});
+document.getElementById('menuBtn')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.querySelectorAll('.sidebar-link,.pw-link').forEach(a=>a.addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open')));
+// copy buttons + ascii class
+document.querySelectorAll('.vp-doc pre').forEach(pre=>{
+  const code=pre.querySelector('code');
+  const m=/language-(\w+)/.exec(code?code.className:'');
+  if(m&&m[1]==='text')pre.classList.add('ascii');
+  const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+  btn.onclick=e=>{e.stopPropagation();navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)};
+  pre.appendChild(btn);
+});
+// wrap tables for scroll
+document.querySelectorAll('.vp-doc table').forEach(t=>{
+  const w=document.createElement('div');w.className='table-wrap';
+  t.parentNode.insertBefore(w,t);w.appendChild(t);
+});
+// scrollspy outline
+const heads=[...document.querySelectorAll('.vp-doc h2,.vp-doc h3')];
+const outLinks={};document.querySelectorAll('.outline-link').forEach(a=>outLinks[a.getAttribute('href')]=a);
+function spy(){
+  let cur=null;
+  for(const h of heads){if(h.getBoundingClientRect().top<=100)cur=h;else break}
+  for(const k in outLinks)outLinks[k].classList.remove('active');
+  if(cur&&outLinks['#'+cur.id])outLinks['#'+cur.id].classList.add('active');
+  else if(!cur&&outLinks['#'])outLinks['#'].classList.add('active');
+}
+addEventListener('scroll',spy,{passive:true});spy();
+// progress tracking (localStorage set of section indices)
+const PROGRESS_KEY='ldp-visited';
+const visited=new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]'));
+function saveVisited(){localStorage.setItem(PROGRESS_KEY,JSON.stringify([...visited]))}
+function paintProgress(){
+  document.querySelectorAll('.vm-node,.pw-item').forEach(n=>{
+    const i=+n.dataset.n;
+    n.classList.toggle('done',visited.has(i));
+  });
+  // current = first unvisited node (path) or explicit current page
+  const cur=document.querySelector('.pw-item.current');
+  if(!cur){
+    for(let i=0;i<document.querySelectorAll('.vm-node').length;i++){if(!visited.has(i)){const n=document.querySelector(`.vm-node[data-n="${i}"]`);if(n)n.classList.add('current');break}}
+  }
+  const pct=document.getElementById('vmProgress');if(pct)pct.textContent=visited.size+' / '+document.querySelectorAll('.vm-node').length;
+  const p2=document.getElementById('vmProgress2');if(p2)p2.textContent=visited.size+' / '+document.querySelectorAll('.pw-item').length;
+}
+// section page: auto-mark visited + mark-as-read toggle
+const secIdx=document.body.dataset.section;
+if(secIdx!==undefined){
+  visited.add(+secIdx);saveVisited();
+  const item=document.querySelector(`.pw-item[data-n="${secIdx}"]`);if(item)item.classList.add('current');
+  const btn=document.getElementById('markDone');
+  if(btn){
+    const paint=()=>{btn.classList.toggle('done',visited.has(+secIdx));btn.textContent=visited.has(+secIdx)?'✓ Section done — nice':'Mark section as done'};
+    btn.onclick=()=>{visited.has(+secIdx)?visited.delete(+secIdx):visited.add(+secIdx);saveVisited();paint();paintProgress()};
+    paint();
+  }
+}
+paintProgress();
+// vmap popovers: click toggles card; Go link navigates
+const vmNodes=[...document.querySelectorAll('.vm-node')];
+vmNodes.forEach(n=>{
+  const b=n.querySelector('.vm-btn');
+  b.addEventListener('click',e=>{
+    if(n.classList.contains('open'))return; // second tap follows link
+    e.preventDefault();
+    e.stopPropagation();
+    vmNodes.forEach(m=>{if(m!==n)m.classList.remove('open')});
+    n.classList.add('open');
+  });
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
+document.querySelectorAll('.glide').forEach(gl=>{
+  const chips=[...gl.querySelectorAll('.glide-chip')];
+  const caps=[...gl.querySelectorAll('.glide-cap')];
+  const ct=gl.querySelector('.glide-ct');
+  let i=0;const n=caps.length;
+  const show=k=>{i=Math.max(0,Math.min(n-1,k));
+    chips.forEach((c,j)=>c.classList.toggle('lit',j<=i));
+    caps.forEach((c,j)=>c.classList.toggle('on',j===i));
+    if(ct)ct.textContent=(i+1)+'/'+n;};
+  gl.querySelector('.gprev').onclick=()=>show(i-1);
+  gl.querySelector('.gnext').onclick=()=>show(i+1);
+  gl.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'){e.preventDefault();show(i-1)}
+    if(e.key==='ArrowRight'){e.preventDefault();show(i+1)}});
+  chips.forEach((c,j)=>{c.style.cursor='pointer';c.onclick=()=>show(j)});
+  show(0);
+});
+document.querySelectorAll('.qflip').forEach(q=>q.onclick=()=>{
+  q.classList.toggle('show');q.setAttribute('aria-expanded',q.classList.contains('show'))});
+// diagram zoom lightbox
+const lb=document.createElement('div');lb.className='lb';
+lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
+document.body.appendChild(lb);
+const lbVp=lb.querySelector('.lb-vp'),lbImg=lb.querySelector('.lb-img'),lbPct=lb.querySelector('.lb-pct');
+let lbW=0,lbZoom=1;
+const lbSteps=[0.25,0.5,0.75,1,1.5,2,3,4];
+function lbSet(z){lbZoom=z;lbImg.style.width=(lbW*z)+'px';lbPct.textContent=Math.round(z*100)+'%'}
+lbImg.onload=()=>{lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)};
+document.querySelectorAll('.dg-png img').forEach(img=>img.addEventListener('click',e=>{
+  e.stopPropagation();
+  lbImg.src=img.src;
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(lbImg.complete&&lbImg.naturalWidth){lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)}
+}));
+function lbClose(){lb.classList.remove('open');document.body.style.overflow=''}
+lbVp.addEventListener('click',e=>{if(e.target===lbVp)lbClose()});
+lb.querySelectorAll('.lb-bar button').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();const a=b.dataset.z;
+  if(a==='close')return lbClose();
+  if(a==='reset')return lbSet(1);
+  const dz=parseFloat(a),n=lbSteps.filter(s=>dz>1?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(dz>1?(n[0]||4):(n[n.length-1]||0.25));
+}));
+lbVp.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();
+  const n=lbSteps.filter(s=>e.deltaY<0?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(e.deltaY<0?(n[0]||4):(n[n.length-1]||0.25));},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  if(e.key==='+'||e.key==='='){const n=lbSteps.find(s=>s>lbZoom+0.01);lbSet(n||4)}
+  if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
+  if(e.key==='0')lbSet(1);
+});
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const isDark=document.documentElement.classList.contains('dark');
+mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
+const els=document.querySelectorAll('.mermaid');
+for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+</script>
+
+</body>
+</html>
