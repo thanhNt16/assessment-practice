@@ -4,7 +4,7 @@
 index.html  — hero + interactive Duolingo-style course path + learning map.
 sNN.html    — one page per section (short, readable), sidebar nav, prev/next.
 """
-import re, html, json, math
+import os, re, html, json, math, subprocess
 from pathlib import Path
 from markdown_it import MarkdownIt
 
@@ -445,10 +445,13 @@ def outline_select(sec):
 def pager(i):
     prev_s = sections[i-1] if i > 0 else None
     next_s = sections[i+1] if i < len(sections)-1 else None
-    p = f'<a class="sp-prev" href="{prev_s["url"]}">‹ {strip(prev_s["title"])}</a>' if prev_s else '<span class="sp-prev"></span>'
-    n = f'<a class="sp-next" href="{next_s["url"]}">{strip(next_s["title"])} ›</a>' if next_s else '<span class="sp-next"></span>'
-    return (f'<div class="study-pager" data-sec="{i+1}">{p}'
-            f'<div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div>{n}</div>')
+    p = (f'<a class="pg prev" href="{prev_s["url"]}"><span class="desc">Previous page</span>'
+         f'<span class="ttl">{strip(prev_s["title"])}</span></a>' if prev_s else '')
+    n = (f'<a class="pg next" href="{next_s["url"]}"><span class="desc">Next page</span>'
+         f'<span class="ttl">{strip(next_s["title"])}</span></a>' if next_s else '')
+    return (f'<div class="study-pager pager-static" data-sec="{i+1}">'
+            f'<div class="sp-mid"><span class="sp-pct"></span><div class="sp-bar"><i></i></div></div></div>'
+            f'<nav class="doc-pager" aria-label="Page navigation">{p}{n}</nav>')
 
 # ---------------- Duolingo path ----------------
 NODE_X = [0, 70, 110, 70, 0, -70, -110, -70, 0, 70, 110, 70, 0]
@@ -916,6 +919,64 @@ html.dark .lab{--lab-ok:#7CA9F5;--lab-good:#57B76A;--lab-bad:#F2766B}
 .lab svg .wm-axis{stroke:var(--vp-c-divider)}
 .lab svg .wm-line{stroke:var(--vp-c-text-2);stroke-dasharray:4 3}
 .lab .lab-verdict{margin:6px 0 0;font-size:14.5px}
+
+/* ---------- scrollbar (VitePress parity) ---------- */
+::selection{background:var(--vp-c-brand-soft)}
+html{scrollbar-width:thin;scrollbar-color:var(--vp-c-brand-soft) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--vp-c-brand-soft);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--vp-c-brand-1)}
+/* ---------- reading progress + back to top ---------- */
+.read-progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--vp-c-brand-1);z-index:101;transition:width .1s linear}
+.top-btn{position:fixed;right:24px;bottom:24px;z-index:80;width:38px;height:38px;border-radius:50%;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.14)}
+.top-btn.show{display:flex}
+.top-btn:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+/* ---------- search modal (DocSearch parity) ---------- */
+.search-modal{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.42);display:none;align-items:flex-start;justify-content:center;padding:76px 16px 16px}
+.search-modal.open{display:flex}
+.sm-panel{width:100%;max-width:560px;background:var(--vp-c-bg-elv);border:1px solid var(--vp-c-divider);border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;max-height:calc(100vh - 120px)}
+.sm-head{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--vp-c-divider)}
+.sm-head svg{flex:none;color:var(--vp-c-text-3)}
+.sm-head input{flex:1;min-width:0;border:0;background:none;color:var(--vp-c-text-1);font:15px var(--font-body);outline:none}
+.sm-head kbd{flex:none;border:1px solid var(--vp-c-divider);border-radius:4px;padding:1px 7px;font:11px var(--font-mono);color:var(--vp-c-text-3);background:var(--vp-c-bg)}
+.sm-list{overflow:auto;padding:6px}
+.sm-item{display:block;padding:9px 12px;border-radius:8px;color:var(--vp-c-text-1);text-decoration:none;cursor:pointer}
+.sm-item .sm-kind{font-size:10.5px;font-weight:700;color:var(--vp-c-brand-2);text-transform:uppercase;letter-spacing:.5px}
+.sm-item .sm-t{font-size:14px;font-weight:600}
+.sm-item .sm-t mark{background:var(--vp-c-brand-soft);color:var(--vp-c-brand-3);border-radius:2px;padding:0 1px}
+.sm-item .sm-s{display:block;font-size:12.5px;color:var(--vp-c-text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.sm-item .sm-s mark{background:none;color:inherit;font-weight:600;text-decoration:underline;text-decoration-color:var(--vp-c-brand-1)}
+.sm-item.sel,.sm-item:hover{background:var(--vp-c-bg-alt)}
+.sm-empty{padding:26px;text-align:center;color:var(--vp-c-text-3);font-size:14px}
+.nav .search-ico{display:none;border:0;background:none;color:var(--vp-c-text-2);cursor:pointer;align-items:center;padding:6px}
+.nav .search-ico:hover{color:var(--vp-c-brand-1)}
+@media(max-width:960px){.nav .search-ico{display:flex}}
+/* ---------- github social link ---------- */
+.nav .gh-link{display:flex;align-items:center;color:var(--vp-c-text-2);padding:6px}
+.nav .gh-link:hover{color:var(--vp-c-brand-1)}
+/* ---------- footer pager (VitePress docFooter) ---------- */
+.doc-pager{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:34px 0 8px}
+.doc-pager .pg{display:block;border:1px solid var(--vp-c-divider);border-radius:12px;padding:15px 18px;text-decoration:none;transition:border-color .2s;min-width:0}
+.doc-pager .pg:hover{border-color:var(--vp-c-brand-1)}
+.doc-pager .pg .desc{display:block;font-size:12px;color:var(--vp-c-text-3)}
+.doc-pager .pg .ttl{display:block;font-weight:600;color:var(--vp-c-brand-2);font-size:14.5px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-pager .pg.next{text-align:right;margin-left:auto;grid-column:2}
+.doc-pager .pg.prev{grid-column:1}
+.pager-mid{margin-top:4px}
+.study-pager.pager-static{position:static;border-radius:12px;border:1px solid var(--vp-c-divider);border-top:1px solid var(--vp-c-divider);margin-top:20px;background:var(--vp-c-bg-alt)}
+/* ---------- diagram fullscreen ---------- */
+.fs-wrap{position:relative}
+.fs-wrap:fullscreen{background:var(--vp-c-bg);display:flex;align-items:center;justify-content:center;overflow:auto}
+.fs-wrap:fullscreen>*{max-width:96vw;max-height:96vh}
+.fs-wrap:fullscreen .mermaid{width:auto}
+.fs-btn{position:absolute;top:8px;right:8px;z-index:6;border:1px solid var(--vp-c-divider);border-radius:6px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.fs-wrap:hover .fs-btn,.fs-btn:focus-visible,.fs-wrap:fullscreen .fs-btn{opacity:1}
+.fs-btn:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.fs-wrap:fullscreen .sc-body{cursor:default}
+/* ---------- footer meta + print ---------- */
+.footer-meta{font-size:12.5px;color:var(--vp-c-text-3);margin-top:6px}
+@media print{.nav,.sidebar,.outline,.top-btn,.fs-btn,.doc-pager,.study-pager,.fc-grades,.menu-toggle,.read-progress{display:none!important}.main{margin:0}.vp-doc{padding:0}.sc-pair{break-inside:avoid}.sc-pair:not([open])>.sc-answer{display:block}}
+@media(max-width:768px){.doc-pager{grid-template-columns:1fr}.doc-pager .pg.next{grid-column:1;text-align:left}.sm-panel{max-width:100%}.search-modal{padding-top:56px}}
 """
 
 JS = r"""
@@ -1342,6 +1403,73 @@ window.__stepsInit=function(){
     if(e.key==='ArrowRight')act.__ctrl&&act.__ctrl.go(1);else if(e.key==='ArrowLeft')act.__ctrl&&act.__ctrl.go(-1);
   });
 };
+// ---- reading progress + back to top ----
+const rp=document.querySelector('.read-progress'),topBtn=document.getElementById('topBtn');
+addEventListener('scroll',()=>{
+  const h=document.documentElement,sc=h.scrollTop,max=h.scrollHeight-h.clientHeight;
+  if(rp)rp.style.width=(max>0?Math.min(100,sc/max*100):0)+'%';
+  if(topBtn)topBtn.classList.toggle('show',sc>600);
+},{passive:true});
+topBtn&&topBtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
+// ---- global search ----
+(function(){
+  const modal=document.getElementById('searchModal');if(!modal)return;
+  const input=document.getElementById('smInput'),list=document.getElementById('smList');
+  let index=null,sel=-1,items=[];
+  const esc=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+  const hi=(s,q)=>{const i=s.toLowerCase().indexOf(q);return i<0?esc(s):esc(s.slice(0,i))+'<mark>'+esc(s.slice(i,i+q.length))+'</mark>'+esc(s.slice(i+q.length));};
+  function snippet(txt,q){const i=txt.toLowerCase().indexOf(q);if(i<0)return esc(txt.slice(0,110));
+    const a=Math.max(0,i-40);return (a>0?'…':'')+hi(txt.slice(a,i+110),q)+(i+110<txt.length?'…':'');}
+  function score(doc,q){
+    const t=doc.t.toLowerCase(),h=(doc.h||'').toLowerCase(),x=doc.x.toLowerCase();
+    if(t===q)return 100;
+    if(t.includes(q))return 80;
+    if(h.includes(q))return 60;
+    if(x.includes(q))return 40;
+    return q.split(/\s+/).every(w=>x.includes(w)||t.includes(w))?10:-1;
+  }
+  function paint(){
+    const q=input.value.trim().toLowerCase();
+    if(!index){list.innerHTML='<div class="sm-empty">Loading index…</div>';return;}
+    if(q.length<2){list.innerHTML='<div class="sm-empty">Type to search '+index.length+' entries</div>';items=[];return;}
+    const hits=index.map(d=>[score(d,q),d]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,12).map(x=>x[1]);
+    items=hits;sel=-1;
+    list.innerHTML=hits.length?hits.map((d,k)=>
+      '<a class="sm-item" data-k="'+k+'" href="'+d.u+'"><span class="sm-kind">'+d.k+'</span><div class="sm-t">'+hi(d.t,q)+'</div><span class="sm-s">'+snippet(d.x,q)+'</span></a>'
+    ).join(''):'<div class="sm-empty">No results for “'+esc(q)+'”</div>';
+  }
+  function open(){modal.classList.add('open');
+    if(!index)fetch('search-index.json').then(r=>r.json()).then(j=>{index=j;paint()});
+    input.value='';items=[];sel=-1;
+    list.innerHTML='<div class="sm-empty">Type to search all sections, terms and practice questions</div>';
+    setTimeout(()=>input.focus(),30);}
+  function close(){modal.classList.remove('open')}
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  document.querySelectorAll('[data-search-open]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();open()}));
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();modal.classList.contains('open')?close():open();}
+    else if(e.key==='Escape'&&modal.classList.contains('open'))close();
+    else if(modal.classList.contains('open')&&['ArrowDown','ArrowUp','Enter'].includes(e.key)){
+      e.preventDefault();
+      if(e.key==='ArrowDown')sel=Math.min(sel+1,items.length-1);
+      else if(e.key==='ArrowUp')sel=Math.max(sel-1,0);
+      else if(e.key==='Enter'&&sel>=0&&items[sel]){location.href=items[sel].u;return;}
+      [...list.children].forEach((el,k)=>el.classList.toggle('sel',k===sel));
+      if(sel>=0)list.children[sel]&&list.children[sel].scrollIntoView({block:'nearest'});
+    }
+  });
+  input.addEventListener('input',()=>{sel=-1;paint()});
+})();
+// ---- diagram fullscreen ----
+document.querySelectorAll('.dg-frame, .mermaid, .steps, .scenario, .lab').forEach(el=>{
+  if(el.closest('.fs-wrap')||el.closest('.sc-pair'))return;
+  const w=document.createElement('div');w.className='fs-wrap';
+  el.parentNode.insertBefore(w,el);w.appendChild(el);
+  const b=document.createElement('button');b.className='fs-btn';b.setAttribute('aria-label','Fullscreen diagram');
+  b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
+  b.onclick=e=>{e.stopPropagation();document.fullscreenElement?document.exitFullscreen():w.requestFullscreen&&w.requestFullscreen()};
+  w.appendChild(b);
+});
 """
 
 MERMAID_JS = r"""
@@ -1460,11 +1588,13 @@ NAV = f"""<nav class="nav">
   <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <a class="logo" href="index.html">{LOGO}<span>Learn Data Platform Engineering</span></a>
   <div class="spacer"></div>
-  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <button class="search-box" data-search-open><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></button>
+  <button class="search-ico" data-search-open aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></button>
   <a class="home-link" href="index.html#vmap">🗺️ Path</a>
   <a class="home-link" href="review.html">🎴 Review</a>
   <a class="home-link" href="graph.html">🕸 Graph</a>
   <a class="home-link" href="cram.html">📋 Cram</a>
+  <a class="gh-link" href="https://github.com/thanhNt16/assessment-practice" target="_blank" rel="noopener" aria-label="GitHub repository"><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
   <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
 </nav>"""
 
@@ -1485,10 +1615,18 @@ def shell(title, body, section_attr="", active=-1, extra=""):
 {THEME_BOOT}
 </head>
 <body{section_attr}>
+<div class="read-progress" aria-hidden="true"></div>
+<div class="search-modal" id="searchModal" role="dialog" aria-label="Search" aria-modal="true">
+  <div class="sm-panel">
+    <div class="sm-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><input id="smInput" type="text" placeholder="Search sections, terms, questions…" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="sm-list" id="smList"></div>
+  </div>
+</div>
 {NAV}
 <div class="layout">
 {body}
 </div>
+<button class="top-btn" id="topBtn" aria-label="Back to top"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <script>{JS}</script>
 <script type="module">{MERMAID_JS}</script>
 {extra}
@@ -1587,14 +1725,15 @@ for s in sections:
     selfcheck = ""
     if cards:
         deck = "".join(sc_pair_html(c) for c in cards)
-        selfcheck = (f'<div class="selfcheck"><h3 class="sc-title">Self-check — {len(cards)} questions</h3>'
+        selfcheck = (f'<div class="selfcheck"><h3 class="sc-title">Practice — {len(cards)} questions</h3>'
                      f'<div class="sc-deck">{deck}</div></div>')
+    mtime = __import__('datetime').datetime.fromtimestamp(os.path.getmtime(RESEARCH / s["file"])).date().isoformat()
     inner = f"""{s['html']}{chip_row}
 {selfcheck}
 {outline_select(s)}
       <button class="mark-done" id="markDone">Mark section as done</button>
 {pager(s['i'])}
-      <div class="footer-note"><a href="index.html#vmap">← Back to course path</a></div>"""
+      <div class="footer-note"><span class="footer-meta">Last updated {mtime}</span> · <a href="index.html#vmap">← Back to course path</a></div>"""
     outline = f"""  <aside class="outline">
     <div class="outline-title">On this page</div>
     <ul>
@@ -1929,4 +2068,26 @@ def cram_body():
 print(f"  graph.html: {g['kept']} nodes ({g['total']} terms − {g['orphans']} orphans), {g['edges']} edges")
 print(f"  cram.html: {len(study['cards'])} cards, {len(study['tldr'])} TL;DRs")
 
+def build_search_index():
+    """Static search index: sections (body+headings), glossary terms, card questions."""
+    idx = []
+    for s in sections:
+        text = re.sub(r'<[^>]+>', ' ', s["html"])
+        text = html.unescape(re.sub(r'\s+', ' ', text)).strip()[:6000]
+        heads = "; ".join(t for t, _ in s["subs"])
+        idx.append({"k": "section", "t": strip(s["title"]), "u": s["url"], "h": heads, "x": text})
+        for t, hid in s["subs"]:
+            idx.append({"k": "heading", "t": strip(t), "u": f'{s["url"]}#{hid}', "h": "", "x": text})
+    for t in study["terms"]:
+        tgts = study["termRefs"].get(t["t"], [])
+        u = f's{tgts[0]:02d}.html' if tgts else "graph.html"
+        idx.append({"k": "term", "t": t["t"], "u": u, "h": "", "x": t["def"]})
+    for c in study["cards"]:
+        idx.append({"k": "question", "t": c["q"], "u": f's{c["sec"]:02d}.html', "h": "", "x": c["a"]})
+    (ROOT / "search-index.json").write_text(
+        json.dumps(idx, ensure_ascii=False, separators=(",", ":")))
+    return len(idx)
+
+si_n = build_search_index()
+print(f"  search-index.json: {si_n} entries")
 print(f"Done — index.html + {len(FILES)} section pages + review.html + graph.html + cram.html")
