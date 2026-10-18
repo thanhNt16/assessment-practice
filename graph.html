@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Concept Graph — EPAM A3 Senior Data Engineer assessment prep.">
+<title>Concept Graph | Learn Data Platform Engineering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --vp-c-brand-1:#D95C41;--vp-c-brand-2:#C14E36;--vp-c-brand-3:#A8412B;
+  --vp-c-brand-soft:rgba(217,92,65,.1);
+  --vp-c-bg:#FAF9F5;--vp-c-bg-alt:#F4F3EE;--vp-c-bg-elv:#FFFFFF;
+  --vp-c-divider:rgba(0,0,0,.08);--vp-c-text-1:#1A1A1A;--vp-c-text-2:#4A4A4A;
+  --vp-c-text-3:#757575;
+  --vp-code-bg:rgba(142,150,170,.14);--vp-code-color:#1A1A1A;
+  --vp-c-tip-1:#D95C41;
+  --nav-h:64px;--sidebar-w:272px;--outline-w:256px;
+  --font-body:"Inter",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Newsreader",serif;
+  --font-mono:"JetBrains Mono","Fira Code",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html.dark{
+  --vp-c-brand-1:#E07A64;--vp-c-brand-2:#E07A64;--vp-c-brand-3:#D95C41;
+  --vp-c-brand-soft:rgba(224,122,100,.15);
+  --vp-c-bg:#1A1A1A;--vp-c-bg-alt:#242424;--vp-c-bg-elv:#242424;
+  --vp-c-divider:rgba(255,255,255,.1);--vp-c-text-1:#E5E5E5;--vp-c-text-2:#B3B3B3;
+  --vp-c-text-3:#808080;
+  --vp-code-bg:rgba(101,117,133,.16);--vp-code-color:#E5E5E5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--nav-h) + 24px)}
+body{margin:0;font-family:var(--font-body);font-size:16px;line-height:1.7;color:var(--vp-c-text-1);background:var(--vp-c-bg);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:var(--vp-c-brand-2);text-decoration:none}
+a:hover{color:var(--vp-c-brand-1)}
+
+/* ---------- navbar ---------- */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--vp-c-divider);background:var(--vp-c-bg);z-index:100}
+.nav .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;color:var(--vp-c-text-1);text-decoration:none}
+.nav .logo svg{flex:none}
+.nav .spacer{flex:1}
+.nav .search-box{display:flex;align-items:center;gap:8px;border:1px solid var(--vp-c-divider);border-radius:8px;padding:6px 12px;color:var(--vp-c-text-3);font-size:13px;background:var(--vp-c-bg-alt);min-width:180px;cursor:text}
+.nav .search-box kbd{margin-left:auto;border:1px solid var(--vp-c-divider);border-radius:4px;padding:0 5px;font-size:11px;font-family:var(--font-mono);background:var(--vp-c-bg)}
+.nav .theme-btn{border:none;background:none;cursor:pointer;color:var(--vp-c-text-2);padding:8px;display:flex;border-radius:50%}
+.nav .theme-btn:hover{background:var(--vp-c-brand-soft);color:var(--vp-c-text-1)}
+.menu-toggle{display:none;border:none;background:none;color:var(--vp-c-text-2);cursor:pointer;padding:8px}
+.nav .home-link{color:var(--vp-c-text-2);font-size:14px;padding:8px;border-radius:8px;text-decoration:none}
+.nav .home-link:hover{color:var(--vp-c-text-1);background:var(--vp-c-brand-soft)}
+
+/* ---------- layout ---------- */
+.layout{display:flex;padding-top:var(--nav-h);overflow-x:clip}
+.sidebar{position:fixed;top:var(--nav-h);bottom:0;left:0;width:var(--sidebar-w);overflow-y:auto;padding:24px 8px 96px 32px;border-right:1px solid var(--vp-c-divider);background:var(--vp-c-bg)}
+.sidebar .group-title{font-weight:700;font-size:14px;padding:8px 12px 4px;display:flex;justify-content:space-between;align-items:center}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar-link{display:flex;gap:8px;align-items:baseline;padding:5px 12px;font-size:14px;color:var(--vp-c-text-2);border-left:2px solid transparent;border-radius:0 4px 4px 0;line-height:1.4;text-decoration:none}
+.sidebar-link:hover{color:var(--vp-c-text-1)}
+.sidebar-link.active{color:var(--vp-c-brand-2);font-weight:600;border-left-color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft)}
+.sl-num{font-size:11px;color:var(--vp-c-text-3);font-family:var(--font-mono);flex:none}
+.sidebar-link.active .sl-num{color:var(--vp-c-brand-2)}
+.main{flex:1;min-width:0;margin-left:var(--sidebar-w)}
+@media(min-width:1440px){.main{margin-right:var(--outline-w)}}
+.vp-doc{max-width:784px;margin:0 auto;padding:32px 24px 96px}
+
+/* ---------- outline ---------- */
+.outline{position:fixed;top:var(--nav-h);right:0;bottom:0;width:var(--outline-w);overflow-y:auto;padding:24px 16px 96px;border-left:1px solid var(--vp-c-divider);display:none}
+@media(min-width:1440px){.outline{display:block}}
+.outline .outline-title{font-weight:600;font-size:14px;padding:0 12px 8px}
+.outline ul{list-style:none;margin:0;padding:0;border-left:1px solid var(--vp-c-divider)}
+.outline-link{display:block;padding:4px 12px;font-size:13px;color:var(--vp-c-text-3);border-left:2px solid transparent;margin-left:-1px;line-height:1.4;text-decoration:none}
+.outline-link.lvl3{padding-left:26px}
+.outline-link:hover{color:var(--vp-c-text-1)}
+.outline-link.active{color:var(--vp-c-brand-2);border-left-color:var(--vp-c-brand-2)}
+
+/* ---------- typography ---------- */
+.vp-doc .kicker{font-size:13px;font-weight:700;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.vp-doc h1{font-family:var(--font-head);font-size:40px;font-weight:600;letter-spacing:-.02em;margin:4px 0 24px;line-height:1.1}
+.vp-doc h2{font-family:var(--font-head);font-size:32px;font-weight:600;letter-spacing:-.02em;margin:48px 0 16px;padding-top:24px;border-top:1px solid var(--vp-c-divider);line-height:1.2;position:relative}
+.vp-doc h3{font-family:var(--font-head);font-size:24px;font-weight:600;margin:32px 0 12px;line-height:1.25}
+.vp-doc h4{font-family:var(--font-body);font-size:16px;font-weight:700;margin:20px 0 8px;color:var(--vp-c-text-1)}
+.vp-doc p{margin:16px 0}
+.header-anchor{position:absolute;left:-0.7em;opacity:0;color:var(--vp-c-brand-2);font-weight:500;text-decoration:none;transition:opacity .2s}
+.vp-doc h2:hover .header-anchor,.header-anchor:focus{opacity:1}
+.header-anchor::before{content:"#"}
+.vp-doc strong{font-weight:600}
+.vp-doc code{font-family:var(--font-mono);font-size:.875em;background:var(--vp-code-bg);color:var(--vp-code-color);padding:.15em .35em;border-radius:4px}
+.vp-doc pre{position:relative;margin:16px 0;padding:20px 24px;border-radius:8px;background:var(--vp-code-bg);overflow-x:auto;font-size:14px;line-height:1.7}
+.vp-doc pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.vp-doc pre .copy-btn{position:absolute;top:8px;right:8px;border:1px solid var(--vp-c-divider);border-radius:4px;background:var(--vp-c-bg);color:var(--vp-c-text-3);font-size:11px;padding:2px 8px;cursor:pointer;opacity:0;transition:opacity .2s;font-family:var(--font-body)}
+.vp-doc pre:hover .copy-btn{opacity:1}
+.vp-doc blockquote{margin:16px 0;padding:8px 16px;border-left:4px solid var(--vp-c-divider);color:var(--vp-c-text-2)}
+.vp-doc blockquote p{margin:4px 0}
+.vp-doc ul,.vp-doc ol{padding-left:1.25rem;margin:16px 0}
+.vp-doc li{margin:4px 0}
+.vp-doc li::marker{color:var(--vp-c-text-3)}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px 0}
+.vp-doc table{border-collapse:collapse;width:100%;margin:0;font-size:14px}
+.vp-doc th,.vp-doc td{border:1px solid var(--vp-c-divider);padding:8px 16px;text-align:left;line-height:1.6}
+.vp-doc th{background:var(--vp-c-bg-alt);font-weight:600}
+.vp-doc tr:nth-child(2n) td{background:var(--vp-c-bg-alt)}
+
+/* tables: stacked cards on small screens */
+@media (max-width:768px){
+.table-wrap{overflow:visible;margin:16px 0}
+.vp-doc table{display:block;border-collapse:separate;font-size:13.5px}
+.vp-doc thead{display:none}
+.vp-doc tbody{display:block}
+.vp-doc tr{display:block;border:1px solid var(--vp-c-divider);border-radius:10px;
+  background:var(--vp-c-bg-elv);margin:0 0 10px;overflow:hidden}
+.vp-doc tr:nth-child(2n) td{background:transparent}
+.vp-doc td{display:flex;gap:10px;border:none;border-bottom:1px solid var(--vp-c-divider);
+  padding:8px 12px;align-items:baseline}
+.vp-doc td:last-child{border-bottom:none}
+.vp-doc td::before{content:attr(data-th);flex:0 0 38%;font-weight:600;font-size:11.5px;
+  color:var(--vp-c-text-3);text-transform:uppercase;letter-spacing:.4px;line-height:1.5}
+.vp-doc td>a,.vp-doc td code{font-size:inherit}
+}
+@media (min-width:769px){
+.vp-doc table{min-width:520px}
+}
+.vp-doc hr{border:none;border-top:1px solid var(--vp-c-divider);margin:40px 0}
+.vp-doc a{text-decoration:underline;text-underline-offset:2px}
+.vp-doc a:hover{text-decoration:none}
+.vp-doc a.vm-btn,.vp-doc a.pw-link,.vp-doc .pager a,.vp-doc .feature a,.vp-doc .btn,.vp-doc a.vm-go{text-decoration:none}
+.vp-doc pre.ascii{font-size:12.5px;line-height:1.5}
+
+/* hero */
+.hero{padding:24px 0 8px}
+.hero .kicker{font-size:14px;font-weight:600;color:var(--vp-c-brand-2);letter-spacing:.5px;text-transform:uppercase}
+.hero h1{font-family:var(--font-head);font-size:56px;font-weight:600;margin:8px 0 12px;line-height:1.1;color:var(--vp-c-brand-1)}
+.hero .tagline{font-size:18px;color:var(--vp-c-text-2);max-width:640px}
+.hero .actions{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid var(--vp-c-divider)}
+.btn.brand{background:#A8412B;color:#fff!important;border-color:#A8412B}
+.btn.brand:hover{background:#C14E36}
+.btn.alt{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)!important}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:36px 0 8px}
+.feature{border:1px solid var(--vp-c-divider);border-radius:12px;padding:20px;background:var(--vp-c-bg-elv);transition:border-color .2s}
+.feature:hover{border-color:var(--vp-c-brand-3)}
+.feature .icon{font-size:22px}
+.feature h3{margin:8px 0 6px;font-size:16px}
+.feature p{margin:0;font-size:13.5px;color:var(--vp-c-text-2);line-height:1.55}
+.feature a{font-size:13px;font-weight:600}
+
+/* mermaid */
+.mermaid{display:flex;justify-content:center;margin:24px 0;padding:16px;background:var(--vp-c-bg-alt);border:1px solid var(--vp-c-divider);border-radius:12px;overflow-x:auto}
+.mermaid svg{max-width:100%;height:auto}
+
+/* custom containers */
+.ct{margin:18px 0;padding:14px 18px;border:1px solid var(--vp-c-divider);border-radius:10px;background:var(--vp-c-bg-elv);font-size:14.5px;line-height:1.65}
+.ct p{margin:6px 0}
+.ct .ct-title{font-weight:700;font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.ct-info{border-left:4px solid var(--vp-c-brand-3)}
+.ct-info .ct-title{color:var(--vp-c-brand-2)}
+.ct-tip{border-left:4px solid #22a55b;background:rgba(34,165,91,.07)}
+.ct-tip .ct-title{color:#1d914e}
+.ct-warning{border-left:4px solid #e38407;background:rgba(227,132,7,.08)}
+.ct-warning .ct-title{color:#b4690e}
+html.dark .ct-tip{background:rgba(34,165,91,.12)}
+html.dark .ct-tip .ct-title{color:#4ccb7f}
+html.dark .ct-warning{background:rgba(227,132,7,.12)}
+html.dark .ct-warning .ct-title{color:#f0b45c}
+
+/* ---------- Duolingo path map ---------- */
+.vmap{margin:28px 0 8px;border:1px solid var(--vp-c-divider);border-radius:16px;background:var(--vp-c-bg-elv);overflow:hidden}
+.vmap-head{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid var(--vp-c-divider);font-weight:700;font-size:14px}
+.vm-progress{color:var(--vp-c-text-3);font-weight:600;font-size:13px}
+.vmap-body{position:relative;padding:8px 0 24px}
+.vm-svg{display:block;margin:0 auto;width:340px;height:auto}
+.nav-mod{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--vp-c-text-3);padding:14px 12px 3px}
+.vm-mod{position:absolute;left:12px;right:12px;border:1px dashed var(--vp-c-divider);border-radius:12px;pointer-events:none}
+.vm-mod span{position:absolute;top:-9px;left:14px;background:var(--vp-c-bg-elv);padding:0 8px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--vp-c-text-3)}
+.vm-path{stroke:var(--vp-c-divider);stroke-width:14;stroke-linecap:round;stroke-dasharray:0 18}
+.vm-node{position:absolute;width:72px;height:64px}
+.vm-btn{position:relative;width:64px;height:60px;border:none;border-radius:50%;background:var(--vp-c-bg-alt);border-bottom:5px solid var(--vp-c-divider);cursor:pointer;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .12s,filter .2s;padding:0;color:var(--vp-c-text-1)}
+.vm-btn:hover{transform:scale(1.08);filter:brightness(1.05)}
+.vm-btn:active{transform:translateY(3px);border-bottom-width:2px}
+.vm-check{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:#22a55b;color:#fff;font-size:13px;display:none;align-items:center;justify-content:center;border:2px solid var(--vp-c-bg-elv)}
+.vm-node.done .vm-btn{background:#e3f5e9;border-bottom-color:#1d914e}
+.vm-node.done .vm-check{display:flex}
+html.dark .vm-node.done .vm-btn{background:#12351f}
+.vm-node.current .vm-btn{background:var(--vp-c-brand-soft);border-bottom-color:var(--vp-c-brand-2);animation:vm-pulse 2s infinite}
+@keyframes vm-pulse{0%,100%{box-shadow:0 0 0 6px var(--vp-c-brand-soft)}50%{box-shadow:0 0 0 12px var(--vp-c-brand-soft)}}
+.vm-num{position:absolute;left:-26px;top:16px;font-size:12px;font-weight:700;color:var(--vp-c-text-3);width:20px;text-align:center}
+.vm-card{position:absolute;min-width:180px;max-width:230px;background:var(--vp-c-bg);border:1px solid var(--vp-c-divider);border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .15s;z-index:5;top:-18px;left:auto;right:calc(100% + 14px)}
+.vm-node:hover .vm-card,.vm-node.open .vm-card{opacity:1;pointer-events:auto}
+.vm-card-title{font-weight:700;font-size:14px}
+.vm-card-blurb{font-size:12.5px;color:var(--vp-c-text-2);line-height:1.5;margin:4px 0 8px}
+.vm-go{font-size:13px;font-weight:700}
+.vm-node[data-side="r"] .vm-card{right:auto;left:calc(100% + 14px)}
+
+/* compact path list (section pages) */
+.pathlist{list-style:none;margin:0 0 8px;padding:0}
+.pw-link{display:flex;align-items:center;gap:8px;padding:4px 12px;font-size:13px;color:var(--vp-c-text-2);border-radius:6px;text-decoration:none}
+.pw-link:hover{background:var(--vp-c-bg-alt);color:var(--vp-c-text-1)}
+.pw-ic{width:20px;flex:none}
+.pw-name{flex:1}
+.pw-check{color:#22a55b;font-weight:700;opacity:0}
+.pw-item.done .pw-check{opacity:1}
+.pw-item.done .pw-name{color:var(--vp-c-text-3);text-decoration:line-through}
+.pw-item.current .pw-link{color:var(--vp-c-brand-2);font-weight:600;background:var(--vp-c-brand-soft)}
+
+/* mark-as-read + pager */
+.mark-done{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:10px 18px;border-radius:20px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);color:var(--vp-c-text-1);font-weight:600;font-size:14px;cursor:pointer;font-family:var(--font-body)}
+.mark-done:hover{border-color:#22a55b}
+.mark-done.done{background:#e3f5e9;border-color:#1d914e;color:#1d914e}
+html.dark .mark-done.done{background:#12351f;color:#4ccb7f;border-color:#4ccb7f}
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:48px;padding-top:24px;border-top:1px solid var(--vp-c-divider)}
+.pager a{flex:1;max-width:48%;border:1px solid var(--vp-c-divider);border-radius:8px;padding:12px 16px;font-size:14px}
+.pager a .plabel{font-size:12px;color:var(--vp-c-text-3)}
+.pager a .ptitle{font-weight:600;color:var(--vp-c-brand-2)}
+.pager a.next{text-align:right;margin-left:auto}
+.footer-note{text-align:center;color:var(--vp-c-text-3);font-size:13px;margin-top:48px}
+
+@media(max-width:960px){
+  .sidebar{display:none}
+  .sidebar.open{display:block;position:fixed;z-index:99;top:var(--nav-h);left:0;bottom:0;background:var(--vp-c-bg);width:min(320px,85vw);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .nav{padding:0 16px}
+  .nav .search-box{display:none}
+  .vp-doc{padding:24px 16px 96px}
+  .hero h1{font-size:30px}
+  .vp-doc table{table-layout:fixed}
+  .vp-doc th{white-space:normal}
+  .vp-doc td,.vp-doc th{overflow-wrap:anywhere}
+  .vp-doc code{overflow-wrap:anywhere;word-break:break-word}
+  .vp-doc pre{font-size:12.5px;padding:14px 16px}
+  .vp-doc pre code{overflow-wrap:normal;word-break:normal}
+  .mermaid{padding:8px}
+  .vm-num{display:none}
+}
+@media(max-width:760px){
+  .vm-card{position:fixed;top:auto;bottom:16px;left:16px!important;right:16px!important;max-width:none;z-index:200}
+  .vm-node.open::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;pointer-events:none}
+  .vm-node.open .vm-btn{position:relative;z-index:160}
+  .vm-svg{width:min(340px,90vw)}
+}
+@media(max-width:640px){
+  .hero h1{font-size:26px}
+  .hero .tagline{font-size:16px}
+  .btn{padding:9px 14px;font-size:13px}
+  .features{grid-template-columns:1fr 1fr}
+  .vp-doc h1{font-size:26px}
+  .vp-doc h2{font-size:20px}
+  .vm-svg{width:min(300px,85vw)}
+}
+@media(max-width:420px){.features{grid-template-columns:1fr}}
+.dg-frame{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;overflow:hidden;background:var(--vp-c-bg-elv)}
+.dg-frame iframe{display:block;width:100%;height:640px;border:0}
+.dg-png img{display:block;width:100%;height:auto}
+.dg-dark{display:none}
+html.dark .dg-light{display:none}
+html.dark .dg-dark{display:block}
+.dg-png img{cursor:zoom-in}
+@font-face{font-family:Excalifont;src:url(fonts/Excalifont.woff2) format('woff2');font-display:swap}
+.scenario{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);overflow:hidden}
+.sc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--vp-c-divider);font-weight:600;font-size:14px}
+.sc-head .sc-ic{margin-right:6px}
+.sc-body{position:relative;height:420px;overflow:hidden;padding:0;cursor:grab;overscroll-behavior:contain;touch-action:none}
+.sc-body.dragging{cursor:grabbing;user-select:none}
+.sc-svg{display:block;position:absolute;top:0;left:0;transform-origin:0 0;font-family:Excalifont,cursive}
+.sc-svg .sc-node{cursor:pointer}
+.sc-svg text{font-family:Excalifont,cursive}
+.sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
+.sc-svg .sc-edge-lbl{paint-order:stroke;stroke:var(--vp-c-bg-elv);stroke-width:3.5px}
+html.dark .sc-svg text{fill:#e5e7eb}
+html.dark .sc-svg .sc-node text{stroke:#e5e7eb;stroke-width:.55px}
+html.dark .sc-node.hl text{stroke:#ffffff}
+html.dark .sc-svg .sc-edge-lbl{fill:#cbd5e1}
+html.dark .sc-node[data-k=def] rect{fill:#1e3a5f;stroke:#7dd3fc}
+html.dark .sc-node[data-k=start] rect{fill:#7c2d12;stroke:#fdba74}
+html.dark .sc-node[data-k=choice] rect{fill:#78350f;stroke:#fbbf24}
+html.dark .sc-node[data-k=ok] rect{fill:#064e3b;stroke:#34d399}
+html.dark .sc-node[data-k=bad] rect{fill:#7f1d1d;stroke:#f87171}
+html.dark .sc-edge[data-k=def]{stroke:#7dd3fc}
+html.dark .sc-edge[data-k=ok]{stroke:#34d399}
+html.dark .sc-edge[data-k=bad]{stroke:#f87171}
+html.dark .sc-svg marker[id^="scA"]:not([id*="g"]):not([id*="r"]) path{fill:#7dd3fc}
+html.dark .sc-svg marker[id*="Ag"] path{fill:#34d399}
+html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
+.sc-panel{border-top:1px solid var(--vp-c-divider);padding:12px 14px;min-height:52px}
+.sc-cap{font-size:14px;color:var(--vp-c-text-2);line-height:1.55}
+.sc-choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sc-btn{border:1.5px solid var(--vp-c-divider);border-radius:9px;background:var(--vp-c-bg);color:var(--vp-c-text-1);font-family:Excalifont,cursive;font-size:15px;padding:6px 14px;cursor:pointer}
+.sc-btn:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.sc-btn.ok{border-color:#047857;color:#047857}
+.sc-btn.bad{border-color:#dc2626;color:#dc2626}
+.sc-bar{position:absolute;top:8px;right:8px;left:auto;display:flex;gap:4px;justify-content:flex-end;width:auto;padding:0;z-index:5;pointer-events:none}
+.sc-bar>*{pointer-events:auto}
+.sc-node.hl rect{fill:#fde047 !important}
+html.dark .sc-node.hl rect{fill:#92400e !important}
+html.dark .sc-node.hl text{fill:#ffffff !important}
+.sc-bar button.on{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);font-size:13px;padding:4px 10px;cursor:pointer;font-family:var(--font-body);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
+html.dark .sc-btn{background:var(--vp-c-bg)}
+.lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
+.lb.open{display:block}
+.lb-vp{position:absolute;inset:0;overflow:auto;padding:64px 20px 20px;cursor:zoom-out}
+.lb-img{display:block;margin:0 auto;max-width:none;background:var(--vp-c-bg-elv);border-radius:10px}
+.lb-bar{position:fixed;top:12px;right:16px;display:flex;gap:8px;z-index:201;align-items:center}
+.lb-bar button{border:1px solid var(--vp-c-divider);border-radius:8px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-1);font-size:15px;padding:5px 12px;cursor:pointer;font-family:var(--font-body)}
+.lb-bar button:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+.lb-pct{color:#fff;font-family:var(--vp-font-family-mono);font-size:12px;min-width:52px;text-align:center}
+@media (max-width:640px){.dg-frame iframe{height:480px}}
+/* glossary terms, popups, related chips */
+.term{border-bottom:1px dotted var(--vp-c-brand-1);cursor:help}
+.term-pop{position:absolute;max-width:340px;background:var(--vp-c-bg-elv);border:1px solid var(--vp-c-divider);border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.12);font-size:13px;z-index:60;color:var(--vp-c-text-1)}
+.term-pop b{font-size:14px}
+.term-pop p{margin:6px 0 0;line-height:1.55}
+.term-pop .tp-links{margin-top:8px;font-size:12px;color:var(--vp-c-text-3)}
+.term-pop .tp-links a{color:var(--vp-c-brand-1)}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+a.chip{padding:6px 12px;border-radius:16px;border:1px solid var(--vp-c-divider);background:var(--vp-c-bg-alt);font-size:13px;color:var(--vp-c-text-1);text-decoration:none}
+a.chip:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
+
+/* ---------- self-check flipcards + review hub ---------- */
+.selfcheck{margin:28px 0 0;padding:20px;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt)}
+.sc-title{font-family:var(--font-head);font-size:20px;font-weight:600;margin:0 0 14px}
+.sc-deck{display:grid;gap:14px}
+.flipcard{perspective:1000px;cursor:pointer}
+.fc-inner{display:grid;transition:transform .35s,opacity .2s;transform-style:preserve-3d;position:relative}
+.flipcard.flipped .fc-inner{transform:rotateY(180deg)}
+.flipcard.gone .fc-inner{opacity:0}
+.fc-front,.fc-back{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--vp-c-divider);border-left:3px solid var(--vp-c-brand-1);border-radius:12px;background:var(--vp-c-bg-elv);padding:14px 18px;min-height:180px;display:flex;flex-direction:column}
+.fc-back{transform:rotateY(180deg);border-left-color:#047857}
+.fc-front p,.fc-back p{margin:10px 0 0;font-size:15px;line-height:1.6}
+.fc-sec{display:inline-block;font-size:12px;font-weight:600;color:var(--vp-c-brand-2);background:var(--vp-c-brand-soft);border-radius:12px;padding:2px 10px;align-self:flex-start}
+.fc-sec:hover{color:var(--vp-c-brand-1)}
+.fc-hint{margin-top:auto;padding-top:10px;font-size:11px;color:var(--vp-c-text-3)}
+.fc-grades{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.grade-btn{flex:1;border:1.5px solid;border-radius:8px;background:none;font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 4px;cursor:pointer}
+.g-again{color:#e5484d;border-color:#e5484d}
+.g-again:hover{background:#e5484d;color:#fff}
+.g-hard{color:#e38407;border-color:#e38407}
+.g-hard:hover{background:#e38407;color:#fff}
+.g-good{color:#047857;border-color:#047857}
+.g-good:hover{background:#047857;color:#fff}
+.g-easy{color:#5672cd;border-color:#5672cd}
+.g-easy:hover{background:#5672cd;color:#fff}
+html.dark .g-again{color:#ff6369;border-color:#ff6369}
+html.dark .g-again:hover{background:#ff6369;color:#1A1A1A}
+html.dark .g-hard{color:#f5a623;border-color:#f5a623}
+html.dark .g-good{color:#30a46c;border-color:#30a46c}
+html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
+/* review hub */
+.review-main{flex:1;min-width:0;width:100%;max-width:860px;margin:0 auto;padding:32px 24px 96px}
+.review-main h1{font-family:var(--font-head);font-size:36px;font-weight:600;margin:8px 0}
+.review-stats{color:var(--vp-c-text-2);font-size:15px}
+.review-stats b{color:var(--vp-c-text-1)}
+.review-pos{text-align:right;font-size:12.5px;color:var(--vp-c-text-3);min-height:16px;margin:-10px 0 4px}
+.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:0 0 28px;overflow:hidden}
+.review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
+.review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
+.review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+</style>
+<script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
+</head>
+<body>
+<nav class="nav">
+  <button class="menu-toggle" id="menuBtn" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <a class="logo" href="index.html"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#D95C41" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Learn Data Platform Engineering</span></a>
+  <div class="spacer"></div>
+  <div class="search-box"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>Search<kbd>⌘K</kbd></div>
+  <a class="home-link" href="index.html#vmap">🗺️ Path</a>
+  <a class="home-link" href="review.html">🎴 Review</a>
+  <a class="home-link" href="graph.html">🕸 Graph</a>
+  <a class="home-link" href="cram.html">📋 Cram</a>
+  <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+</nav>
+<div class="layout">
+  <main class="review-main graph-main">
+    <h1>Concept Graph</h1>
+    <p class="g-sub">117 terms · 70 relations across 5 modules. Click a term to focus its neighborhood — scroll to zoom, drag to pan, hover an edge for why it links.</p>
+    <div class="g-legend"><span class="gl"><span class="gl-dot" style="background:var(--c1)"></span>🎯 Goal &amp; Foundations</span><span class="gl"><span class="gl-dot" style="background:var(--c2)"></span>🏗️ Platform Design</span><span class="gl"><span class="gl-dot" style="background:var(--c3)"></span>⚙️ Technology Deep-Dive</span><span class="gl"><span class="gl-dot" style="background:var(--c4)"></span>🏁 Production &amp; Defense</span><span class="gl"><span class="gl-dot" style="background:var(--c5)"></span>🤖 GenAI &amp; ML Design</span></div>
+    <div class="graph-wrap">
+<svg class="gsvg" id="graphSvg" viewBox="0 0 960 960" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Concept graph"><g id="graphVp"><path class="ge" d="M 373.9 328.5 Q 404.7 337.3 424.3 312.0" data-a="Databricks" data-b="Delta Lake"><title>Databricks &#8596; Delta Lake: Delta Lake is the platform&#x27;s native table format.</title></path><path class="ge" d="M 364.0 291.9 Q 485.7 298.0 600.3 339.5" data-a="Snowflake" data-b="Iceberg"><title>Snowflake &#8596; Iceberg: Snowflake reads and writes Iceberg tables for open interop.</title></path><path class="ge" d="M 364.0 291.9 Q 528.2 394.6 708.5 465.2" data-a="Snowflake" data-b="Data contracts"><title>Snowflake &#8596; Data contracts: platform governance features publish contract-backed datasets.</title></path><path class="ge" d="M 683.8 649.3 Q 661.4 619.6 674.6 584.7" data-a="Checkpoint" data-b="Exactly-once"><title>Checkpoint &#8596; Exactly-once: exactly-once recovery replays from durable state snapshots.</title></path><path class="ge" d="M 750.5 516.6 Q 570.5 382.3 371.3 278.4" data-a="Medallion" data-b="Parquet"><title>Medallion &#8596; Parquet: lakehouse layers are stored in open columnar formats.</title></path><path class="ge" d="M 259.4 466.0 Q 258.4 402.7 292.1 349.1" data-a="RAG" data-b="Embedding"><title>RAG &#8596; Embedding: retrieval quality depends on embedding similarity.</title></path><path class="ge" d="M 669.8 608.1 Q 630.9 453.8 558.2 312.3" data-a="AQE" data-b="Skew"><title>AQE &#8596; Skew: AQE detects and rewrites skewed joins at runtime.</title></path><path class="ge" d="M 456.9 216.0 Q 455.4 196.0 472.1 207.1" data-a="Driver" data-b="Executor"><title>Driver &#8596; Executor: the driver schedules tasks; executors run them on partitions.</title></path><path class="ge" d="M 368.0 239.8 Q 464.0 438.0 591.0 617.8" data-a="DAG" data-b="Shuffle"><title>DAG &#8596; Shuffle: stage boundaries in the DAG are exactly where shuffles happen.</title></path><path class="ge" d="M 494.1 656.4 Q 508.4 481.1 558.2 312.3" data-a="Salting" data-b="Skew"><title>Salting &#8596; Skew: salted keys break up the hot partitions that skew stages.</title></path><path class="ge" d="M 581.2 334.8 Q 563.2 484.8 581.1 634.9" data-a="Kafka" data-b="Offset"><title>Kafka &#8596; Offset: consumer progress is tracked as per-partition offsets.</title></path><path class="ge" d="M 581.2 334.8 Q 590.9 514.6 564.7 692.8" data-a="Kafka" data-b="Consumer group"><title>Kafka &#8596; Consumer group: a group spreads a topic&#x27;s partitions across its consumers.</title></path><path class="ge" d="M 564.7 692.8 Q 583.3 456.8 565.9 220.9" data-a="Consumer group" data-b="Rebalancing"><title>Consumer group &#8596; Rebalancing: membership changes trigger partition reassignment.</title></path><path class="ge" d="M 553.0 734.7 Q 586.0 634.4 650.8 551.0" data-a="Outbox pattern" data-b="CDC"><title>Outbox pattern &#8596; CDC: the outbox table is the CDC source that publishes reliable domain events.</title></path><path class="ge" d="M 512.0 261.3 Q 565.2 413.9 650.8 551.0" data-a="OLTP" data-b="CDC"><title>OLTP &#8596; CDC: change capture streams the OLTP log into analytics.</title></path><path class="ge" d="M 649.4 531.3 Q 683.9 585.3 683.8 649.3" data-a="Flink" data-b="Checkpoint"><title>Flink &#8596; Checkpoint: barrier alignment snapshots operator state for consistent recovery.</title></path><path class="ge" d="M 704.0 338.5 Q 665.1 377.2 658.6 431.7" data-a="Structured Streaming" data-b="Micro-batch"><title>Structured Streaming &#8596; Micro-batch: Spark&#x27;s streaming API began as micro-batches before continuous mode.</title></path><path class="ge" d="M 632.0 262.9 Q 643.7 246.6 649.3 265.9" data-a="Kappa architecture" data-b="Lambda architecture"><title>Kappa architecture &#8596; Lambda architecture: kappa collapses the batch and speed layers onto one stream.</title></path><path class="ge" d="M 435.3 263.6 Q 528.3 408.7 649.4 531.3" data-a="Backpressure" data-b="Flink"><title>Backpressure &#8596; Flink: credit-based flow control propagates slow-consumer pressure through Flink.</title></path><path class="ge" d="M 376.0 623.2 Q 382.4 464.8 424.3 312.0" data-a="Lakehouse" data-b="Delta Lake"><title>Lakehouse &#8596; Delta Lake: ACID table formats are what turn a lake into a lakehouse.</title></path><path class="ge" d="M 424.3 312.0 Q 432.5 491.1 476.3 665.0" data-a="Delta Lake" data-b="Time travel"><title>Delta Lake &#8596; Time travel: the transaction log keeps snapshots queryable as of any version.</title></path><path class="ge" d="M 600.3 339.5 Q 644.9 435.4 654.8 540.7" data-a="Iceberg" data-b="Schema evolution"><title>Iceberg &#8596; Schema evolution: hidden partitioning and schema evolution are first-class in Iceberg metadata.</title></path><path class="ge" d="M 698.0 443.8 Q 687.1 462.4 708.5 465.2" data-a="SLO" data-b="Data contracts"><title>SLO &#8596; Data contracts: contracts pin the freshness and quality SLOs producers must meet.</title></path><path class="ge" d="M 708.5 465.2 Q 696.3 513.4 654.8 540.7" data-a="Data contracts" data-b="Schema evolution"><title>Data contracts &#8596; Schema evolution: contracts declare the compatibility rules schema changes must respect.</title></path><path class="ge" d="M 600.2 285.1 Q 569.9 253.7 526.3 255.7" data-a="CAP theorem" data-b="Quorum"><title>CAP theorem &#8596; Quorum: quorum reads and writes are how stores navigate the consistency-availability tradeoff.</title></path><path class="ge" d="M 548.6 224.0 Q 502.7 256.0 446.8 253.4" data-a="Raft" data-b="Consensus"><title>Raft &#8596; Consensus: Raft is the replicable-log consensus protocol most systems cite.</title></path><path class="ge" d="M 432.1 301.3 Q 574.7 347.3 724.2 357.9" data-a="Event time" data-b="Watermark"><title>Event time &#8596; Watermark: watermarks track event-time progress and decide when windows close.</title></path><path class="ge" d="M 724.2 357.9 Q 704.6 446.8 652.2 521.1" data-a="Watermark" data-b="Late data"><title>Watermark &#8596; Late data: allowed lateness is judged against the watermark.</title></path><path class="ge" d="M 270.9 551.5 Q 295.8 565.8 315.2 544.5" data-a="LLM" data-b="Transformer"><title>LLM &#8596; Transformer: decoder-only transformers scaled up.</title></path><path class="ge" d="M 270.9 551.5 Q 270.9 496.6 305.0 453.5" data-a="LLM" data-b="Autoregressive model"><title>LLM &#8596; Autoregressive model: LLMs generate token-by-token, each conditioned on the last.</title></path><path class="ge" d="M 315.2 544.5 Q 274.5 481.6 209.3 445.0" data-a="Transformer" data-b="Attention"><title>Transformer &#8596; Attention: self-attention replaces recurrence and enables parallel training.</title></path><path class="ge" d="M 264.6 402.1 Q 303.3 456.2 308.2 522.4" data-a="Tokenization" data-b="BPE"><title>Tokenization &#8596; BPE: BPE builds the subword vocabulary tokenizers use.</title></path><path class="ge" d="M 270.9 551.5 Q 309.9 410.3 313.3 263.8" data-a="LLM" data-b="Context window"><title>LLM &#8596; Context window: everything the model can use at inference must fit the window.</title></path><path class="ge" d="M 270.9 551.5 Q 249.6 571.1 225.7 554.7" data-a="LLM" data-b="Prompt"><title>LLM &#8596; Prompt: output quality is steered by instructions and few-shot examples.</title></path><path class="ge" d="M 270.6 409.4 Q 333.0 388.3 375.0 337.5" data-a="LoRA" data-b="Fine-tuning"><title>LoRA &#8596; Fine-tuning: low-rank adapters are the cheap fine-tuning path.</title></path><path class="ge" d="M 251.8 460.5 Q 279.0 502.3 270.9 551.5" data-a="RLHF" data-b="LLM"><title>RLHF &#8596; LLM: preference-trained alignment layered on pretrained LLMs.</title></path><path class="ge" d="M 312.2 402.2 Q 295.7 473.7 315.2 544.5" data-a="BERT" data-b="Transformer"><title>BERT &#8596; Transformer: encoder-only transformer for contextual embeddings.</title></path><path class="ge" d="M 332.4 304.9 Q 325.6 339.1 292.1 349.1" data-a="word2vec" data-b="Embedding"><title>word2vec &#8596; Embedding: the classic static embedding baseline.</title></path><path class="ge" d="M 292.1 349.1 Q 237.9 408.9 215.1 486.4" data-a="Embedding" data-b="ANN"><title>Embedding &#8596; ANN: retrieval runs ANN over embedding indexes.</title></path><path class="ge" d="M 215.1 486.4 Q 253.4 443.1 310.0 430.8" data-a="ANN" data-b="HNSW"><title>ANN &#8596; HNSW: HNSW is the graph index most vector search engines ship.</title></path><path class="ge" d="M 259.4 466.0 Q 285.7 423.7 276.6 374.7" data-a="RAG" data-b="Chunking"><title>RAG &#8596; Chunking: retrieval quality starts with chunk granularity.</title></path><path class="ge" d="M 259.4 466.0 Q 255.2 374.0 286.5 287.4" data-a="RAG" data-b="Re-ranking"><title>RAG &#8596; Re-ranking: a cross-encoder rerank stage fixes first-stage retrieval noise.</title></path><path class="ge" d="M 259.4 466.0 Q 323.7 390.2 356.8 296.5" data-a="RAG" data-b="Hallucination"><title>RAG &#8596; Hallucination: grounding in evidence reduces unsupported answers.</title></path><path class="ge" d="M 373.6 328.7 Q 338.6 447.6 270.9 551.5" data-a="Guardrails" data-b="LLM"><title>Guardrails &#8596; LLM: the policy layer that wraps LLM inputs and outputs.</title></path><path class="ge" d="M 281.6 382.7 Q 233.2 424.8 215.1 486.4" data-a="Candidate generation" data-b="ANN"><title>Candidate generation &#8596; ANN: ANN narrows millions of items to hundreds.</title></path><path class="ge" d="M 286.5 287.4 Q 302.0 336.0 281.6 382.7" data-a="Re-ranking" data-b="Candidate generation"><title>Re-ranking &#8596; Candidate generation: ranking refines what retrieval surfaces.</title></path><path class="ge" d="M 333.9 314.2 Q 339.9 285.9 313.7 273.7" data-a="WALS" data-b="Collaborative filtering"><title>WALS &#8596; Collaborative filtering: weighted ALS solves the matrix-factorization loss behind CF.</title></path><path class="ge" d="M 313.7 273.7 Q 291.2 321.6 243.3 344.0" data-a="Collaborative filtering" data-b="Cold start"><title>Collaborative filtering &#8596; Cold start: CF has no signal for new users or items.</title></path><path class="ge" d="M 266.0 323.8 Q 256.4 357.8 281.6 382.7" data-a="FoF" data-b="Candidate generation"><title>FoF &#8596; Candidate generation: social hops are a cheap candidate source for people recommendations.</title></path><path class="ge" d="M 323.8 380.9 Q 298.3 383.1 296.0 357.6" data-a="DCN" data-b="DeepFM"><title>DCN &#8596; DeepFM: both learn feature crosses over shared embeddings.</title></path><path class="ge" d="M 296.0 357.6 Q 236.9 428.3 209.4 516.2" data-a="DeepFM" data-b="CTR"><title>DeepFM &#8596; CTR: the classic click-through-rate model pair.</title></path><path class="ge" d="M 299.5 520.4 Q 279.8 511.3 295.7 496.5" data-a="Diffusion" data-b="U-Net"><title>Diffusion &#8596; U-Net: the denoiser predicts noise at every step.</title></path><path class="ge" d="M 295.7 496.5 Q 329.3 447.7 328.5 388.5" data-a="U-Net" data-b="Cross-attention"><title>U-Net &#8596; Cross-attention: the prompt enters the denoiser through cross-attention at every block.</title></path><path class="ge" d="M 328.5 388.5 Q 335.2 468.6 306.3 543.7" data-a="Cross-attention" data-b="CLIP"><title>Cross-attention &#8596; CLIP: text embeddings from CLIP condition generation.</title></path><path class="ge" d="M 303.4 424.8 Q 266.2 450.3 259.5 494.9" data-a="LDM" data-b="VAE"><title>LDM &#8596; VAE: latent diffusion runs in a VAE-compressed space.</title></path><path class="ge" d="M 303.4 424.8 Q 319.4 473.3 299.5 520.4" data-a="LDM" data-b="Diffusion"><title>LDM &#8596; Diffusion: same denoising objective, executed in latent space.</title></path><path class="ge" d="M 263.2 437.4 Q 264.8 486.1 299.5 520.4" data-a="DDIM" data-b="Diffusion"><title>DDIM &#8596; Diffusion: fewer sampling steps along the same trajectory.</title></path><path class="ge" d="M 303.0 476.5 Q 290.3 404.3 313.5 334.6" data-a="GAN" data-b="Mode collapse"><title>GAN &#8596; Mode collapse: the generator loops on one plausible output.</title></path><path class="ge" d="M 357.3 352.4 Q 340.1 340.6 338.0 361.4" data-a="StyleGAN" data-b="Latent space"><title>StyleGAN &#8596; Latent space: layered latent space enables attribute-level face editing.</title></path><path class="ge" d="M 251.2 490.5 Q 294.8 503.8 315.2 544.5" data-a="ViT" data-b="Transformer"><title>ViT &#8596; Transformer: image patches become tokens.</title></path><path class="ge" d="M 222.5 417.6 Q 307.1 393.5 375.0 337.5" data-a="DreamBooth" data-b="Fine-tuning"><title>DreamBooth &#8596; Fine-tuning: full per-subject finetuning buys identity preservation.</title></path><path class="ge" d="M 218.2 520.9 Q 266.7 514.8 306.3 543.7" data-a="CLIPScore" data-b="CLIP"><title>CLIPScore &#8596; CLIP: cosine of CLIP embeddings scores prompt-image alignment.</title></path><path class="ge" d="M 256.3 430.9 Q 220.7 468.9 218.2 520.9" data-a="DINO" data-b="CLIPScore"><title>DINO &#8596; CLIPScore: DINO catches visual detail that CLIP forgives.</title></path><path class="ge" d="M 254.6 520.3 Q 265.4 476.0 305.0 453.5" data-a="Beam search" data-b="Autoregressive model"><title>Beam search &#8596; Autoregressive model: decoding over the partial sequences of AR models.</title></path><path class="ge" d="M 261.7 549.3 Q 298.1 521.8 303.0 476.5" data-a="FID" data-b="GAN"><title>FID &#8596; GAN: distributional quality metric born for GAN outputs.</title></path><path class="ge" d="M 216.1 409.9 Q 256.1 474.0 261.7 549.3" data-a="FVD" data-b="FID"><title>FVD &#8596; FID: adds temporal modeling that per-frame metrics miss.</title></path><path class="ge" d="M 584.9 285.5 Q 610.7 483.9 671.6 674.5" data-a="Window functions" data-b="Catalyst"><title>Window functions &#8596; Catalyst: Spark plans SQL window aggregates through the same Catalyst optimizer.</title></path><path class="ge" d="M 600.3 339.5 Q 481.2 326.3 371.3 278.4" data-a="Iceberg" data-b="Parquet"><title>Iceberg &#8596; Parquet: Iceberg tables store data as Parquet files behind the metadata tree.</title></path><path class="ge" d="M 379.2 226.3 Q 471.7 296.4 581.2 334.8" data-a="Partitioning" data-b="Kafka"><title>Partitioning &#8596; Kafka: Kafka partitions topics for parallel consumption the way compute partitions data.</title></path><path class="ge" d="M 227.6 376.1 Q 281.8 316.8 356.5 287.1" data-a="mAP" data-b="Recall@k"><title>mAP &#8596; Recall@k: average precision aggregates precision across recall levels.</title></path><g class="gn term" data-term="A3 defense"><circle cx="216.5" cy="451.7" r="10" fill="var(--c5)"/><text x="202.5" y="455.7" text-anchor="end">A3 defense</text></g><g class="gn term" data-term="ANN"><circle cx="215.1" cy="486.4" r="12" fill="var(--c5)"/><text x="199.1" y="490.4" text-anchor="end">ANN</text></g><g class="gn term" data-term="AQE"><circle cx="669.8" cy="608.1" r="14" fill="var(--c3)"/><text x="687.8" y="612.1" text-anchor="start">AQE</text></g><g class="gn term" data-term="Attention"><circle cx="209.3" cy="445.0" r="10" fill="var(--c5)"/><text x="195.3" y="449.0" text-anchor="end">Attention</text></g><g class="gn term" data-term="Autoregressive model"><circle cx="305.0" cy="453.5" r="10" fill="var(--c5)"/><text x="291.0" y="457.5" text-anchor="end">Autoregressive model</text></g><g class="gn term" data-term="BERT"><circle cx="312.2" cy="402.2" r="8" fill="var(--c5)"/><text x="300.2" y="406.2" text-anchor="end">BERT</text></g><g class="gn term" data-term="BLEU"><circle cx="216.5" cy="551.2" r="16" fill="var(--c5)"/><text x="196.5" y="555.2" text-anchor="end">BLEU</text></g><g class="gn term" data-term="BPE"><circle cx="308.2" cy="522.4" r="16" fill="var(--c5)"/><text x="288.2" y="526.4" text-anchor="end">BPE</text></g><g class="gn term" data-term="Backfill"><circle cx="645.4" cy="417.0" r="10" fill="var(--c2)"/><text x="659.4" y="421.0" text-anchor="start">Backfill</text></g><g class="gn term" data-term="Backpressure"><circle cx="435.3" cy="263.6" r="10" fill="var(--c1)"/><text x="421.3" y="267.6" text-anchor="end">Backpressure</text></g><g class="gn term" data-term="Beam search"><circle cx="254.6" cy="520.3" r="14" fill="var(--c5)"/><text x="236.6" y="524.3" text-anchor="end">Beam search</text></g><g class="gn term" data-term="CAP theorem"><circle cx="600.2" cy="285.1" r="8" fill="var(--c1)"/><text x="612.2" y="289.1" text-anchor="start">CAP theorem</text></g><g class="gn term" data-term="CDC"><circle cx="650.8" cy="551.0" r="16" fill="var(--c3)"/><text x="670.8" y="555.0" text-anchor="start">CDC</text></g><g class="gn term" data-term="CIDEr"><circle cx="297.7" cy="448.3" r="10" fill="var(--c5)"/><text x="283.7" y="452.3" text-anchor="end">CIDEr</text></g><g class="gn term" data-term="CLIP"><circle cx="306.3" cy="543.7" r="16" fill="var(--c5)"/><text x="286.3" y="547.7" text-anchor="end">CLIP</text></g><g class="gn term" data-term="CLIPScore"><circle cx="218.2" cy="520.9" r="14" fill="var(--c5)"/><text x="200.2" y="524.9" text-anchor="end">CLIPScore</text></g><g class="gn term" data-term="CTR"><circle cx="209.4" cy="516.2" r="14" fill="var(--c5)"/><text x="191.4" y="520.2" text-anchor="end">CTR</text></g><g class="gn term" data-term="Candidate generation"><circle cx="281.6" cy="382.7" r="8" fill="var(--c5)"/><text x="269.6" y="386.7" text-anchor="end">Candidate generation</text></g><g class="gn term" data-term="Catalyst"><circle cx="671.6" cy="674.5" r="12" fill="var(--c3)"/><text x="687.6" y="678.5" text-anchor="start">Catalyst</text></g><g class="gn term" data-term="Checkpoint"><circle cx="683.8" cy="649.3" r="14" fill="var(--c3)"/><text x="701.8" y="653.3" text-anchor="start">Checkpoint</text></g><g class="gn term" data-term="Chunking"><circle cx="276.6" cy="374.7" r="8" fill="var(--c5)"/><text x="264.6" y="378.7" text-anchor="end">Chunking</text></g><g class="gn term" data-term="Classifier-free guidance"><circle cx="247.4" cy="353.0" r="8" fill="var(--c5)"/><text x="235.4" y="357.0" text-anchor="end">Classifier-free guidance</text></g><g class="gn term" data-term="Cold start"><circle cx="243.3" cy="344.0" r="8" fill="var(--c5)"/><text x="231.3" y="348.0" text-anchor="end">Cold start</text></g><g class="gn term" data-term="Collaborative filtering"><circle cx="313.7" cy="273.7" r="6" fill="var(--c5)"/><text x="303.7" y="277.7" text-anchor="end">Collaborative filtering</text></g><g class="gn term" data-term="Compaction"><circle cx="581.8" cy="676.2" r="8" fill="var(--c3)"/><text x="593.8" y="680.2" text-anchor="start">Compaction</text></g><g class="gn term" data-term="Consensus"><circle cx="446.8" cy="253.4" r="10" fill="var(--c1)"/><text x="432.8" y="257.4" text-anchor="end">Consensus</text></g><g class="gn term" data-term="Consumer group"><circle cx="564.7" cy="692.8" r="8" fill="var(--c3)"/><text x="576.7" y="696.8" text-anchor="start">Consumer group</text></g><g class="gn term" data-term="Context window"><circle cx="313.3" cy="263.8" r="6" fill="var(--c5)"/><text x="303.3" y="267.8" text-anchor="end">Context window</text></g><g class="gn term" data-term="Cross-attention"><circle cx="328.5" cy="388.5" r="8" fill="var(--c5)"/><text x="316.5" y="392.5" text-anchor="end">Cross-attention</text></g><g class="gn term" data-term="DAG"><circle cx="368.0" cy="239.8" r="16" fill="var(--c1)"/><text x="348.0" y="243.8" text-anchor="end">DAG</text></g><g class="gn term" data-term="DCN"><circle cx="323.8" cy="380.9" r="8" fill="var(--c5)"/><text x="311.8" y="384.9" text-anchor="end">DCN</text></g><g class="gn term" data-term="DDIM"><circle cx="263.2" cy="437.4" r="10" fill="var(--c5)"/><text x="249.2" y="441.4" text-anchor="end">DDIM</text></g><g class="gn term" data-term="DINO"><circle cx="256.3" cy="430.9" r="10" fill="var(--c5)"/><text x="242.3" y="434.9" text-anchor="end">DINO</text></g><g class="gn term" data-term="Data contracts"><circle cx="708.5" cy="465.2" r="8" fill="var(--c2)"/><text x="720.5" y="469.2" text-anchor="start">Data contracts</text></g><g class="gn term" data-term="Databricks"><circle cx="373.9" cy="328.5" r="16" fill="var(--c1)"/><text x="353.9" y="332.5" text-anchor="end">Databricks</text></g><g class="gn term" data-term="DeepFM"><circle cx="296.0" cy="357.6" r="8" fill="var(--c5)"/><text x="284.0" y="361.6" text-anchor="end">DeepFM</text></g><g class="gn term" data-term="Delta Lake"><circle cx="424.3" cy="312.0" r="12" fill="var(--c1)"/><text x="408.3" y="316.0" text-anchor="end">Delta Lake</text></g><g class="gn term" data-term="DiT"><circle cx="207.0" cy="480.6" r="12" fill="var(--c5)"/><text x="191.0" y="484.6" text-anchor="end">DiT</text></g><g class="gn term" data-term="Diffusion"><circle cx="299.5" cy="520.4" r="16" fill="var(--c5)"/><text x="279.5" y="524.4" text-anchor="end">Diffusion</text></g><g class="gn term" data-term="DreamBooth"><circle cx="222.5" cy="417.6" r="10" fill="var(--c5)"/><text x="208.5" y="421.6" text-anchor="end">DreamBooth</text></g><g class="gn term" data-term="Driver"><circle cx="456.9" cy="216.0" r="10" fill="var(--c1)"/><text x="442.9" y="220.0" text-anchor="end">Driver</text></g><g class="gn term" data-term="ELT"><circle cx="744.8" cy="489.2" r="8" fill="var(--c2)"/><text x="756.8" y="493.2" text-anchor="start">ELT</text></g><g class="gn term" data-term="ETL"><circle cx="639.7" cy="327.3" r="16" fill="var(--c2)"/><text x="659.7" y="331.3" text-anchor="start">ETL</text></g><g class="gn term" data-term="Embedding"><circle cx="292.1" cy="349.1" r="8" fill="var(--c5)"/><text x="280.1" y="353.1" text-anchor="end">Embedding</text></g><g class="gn term" data-term="Event time"><circle cx="432.1" cy="301.3" r="12" fill="var(--c1)"/><text x="416.1" y="305.3" text-anchor="end">Event time</text></g><g class="gn term" data-term="Exactly-once"><circle cx="674.6" cy="584.7" r="16" fill="var(--c3)"/><text x="694.6" y="588.7" text-anchor="start">Exactly-once</text></g><g class="gn term" data-term="Executor"><circle cx="472.1" cy="207.1" r="10" fill="var(--c1)"/><text x="458.1" y="211.1" text-anchor="end">Executor</text></g><g class="gn term" data-term="FID"><circle cx="261.7" cy="549.3" r="16" fill="var(--c5)"/><text x="241.7" y="553.3" text-anchor="end">FID</text></g><g class="gn term" data-term="FVD"><circle cx="216.1" cy="409.9" r="10" fill="var(--c5)"/><text x="202.1" y="413.9" text-anchor="end">FVD</text></g><g class="gn term" data-term="Fine-tuning"><circle cx="375.0" cy="337.5" r="6" fill="var(--c5)"/><text x="365.0" y="341.5" text-anchor="end">Fine-tuning</text></g><g class="gn term" data-term="Flink"><circle cx="649.4" cy="531.3" r="16" fill="var(--c3)"/><text x="669.4" y="535.3" text-anchor="start">Flink</text></g><g class="gn term" data-term="FoF"><circle cx="266.0" cy="323.8" r="8" fill="var(--c5)"/><text x="254.0" y="327.8" text-anchor="end">FoF</text></g><g class="gn term" data-term="GAN"><circle cx="303.0" cy="476.5" r="12" fill="var(--c5)"/><text x="287.0" y="480.5" text-anchor="end">GAN</text></g><g class="gn term" data-term="GBDT"><circle cx="263.1" cy="314.3" r="8" fill="var(--c5)"/><text x="251.1" y="318.3" text-anchor="end">GBDT</text></g><g class="gn term" data-term="GNN"><circle cx="341.7" cy="369.5" r="8" fill="var(--c5)"/><text x="329.7" y="373.5" text-anchor="end">GNN</text></g><g class="gn term" data-term="Guardrails"><circle cx="373.6" cy="328.7" r="6" fill="var(--c5)"/><text x="363.6" y="332.7" text-anchor="end">Guardrails</text></g><g class="gn term" data-term="HNSW"><circle cx="310.0" cy="430.8" r="10" fill="var(--c5)"/><text x="296.0" y="434.8" text-anchor="end">HNSW</text></g><g class="gn term" data-term="Hallucination"><circle cx="356.8" cy="296.5" r="6" fill="var(--c5)"/><text x="346.8" y="300.5" text-anchor="end">Hallucination</text></g><g class="gn term" data-term="Hudi"><circle cx="660.5" cy="339.0" r="14" fill="var(--c2)"/><text x="678.5" y="343.0" text-anchor="start">Hudi</text></g><g class="gn term" data-term="ISR"><circle cx="485.1" cy="303.1" r="10" fill="var(--c1)"/><text x="499.1" y="307.1" text-anchor="start">ISR</text></g><g class="gn term" data-term="Iceberg"><circle cx="600.3" cy="339.5" r="16" fill="var(--c2)"/><text x="620.3" y="343.5" text-anchor="start">Iceberg</text></g><g class="gn term" data-term="Idempotency"><circle cx="496.1" cy="295.7" r="10" fill="var(--c1)"/><text x="510.1" y="299.7" text-anchor="start">Idempotency</text></g><g class="gn term" data-term="Kafka"><circle cx="581.2" cy="334.8" r="16" fill="var(--c2)"/><text x="601.2" y="338.8" text-anchor="start">Kafka</text></g><g class="gn term" data-term="Kappa architecture"><circle cx="632.0" cy="262.9" r="6" fill="var(--c1)"/><text x="642.0" y="266.9" text-anchor="start">Kappa architecture</text></g><g class="gn term" data-term="LDM"><circle cx="303.4" cy="424.8" r="10" fill="var(--c5)"/><text x="289.4" y="428.8" text-anchor="end">LDM</text></g><g class="gn term" data-term="LLM"><circle cx="270.9" cy="551.5" r="16" fill="var(--c5)"/><text x="250.9" y="555.5" text-anchor="end">LLM</text></g><g class="gn term" data-term="Lakehouse"><circle cx="376.0" cy="623.2" r="12" fill="var(--c4)"/><text x="360.0" y="627.2" text-anchor="end">Lakehouse</text></g><g class="gn term" data-term="Lambda architecture"><circle cx="649.3" cy="265.9" r="6" fill="var(--c1)"/><text x="659.3" y="269.9" text-anchor="start">Lambda architecture</text></g><g class="gn term" data-term="Late data"><circle cx="652.2" cy="521.1" r="6" fill="var(--c2)"/><text x="662.2" y="525.1" text-anchor="start">Late data</text></g><g class="gn term" data-term="Latent space"><circle cx="338.0" cy="361.4" r="8" fill="var(--c5)"/><text x="326.0" y="365.4" text-anchor="end">Latent space</text></g><g class="gn term" data-term="LoRA"><circle cx="270.6" cy="409.4" r="10" fill="var(--c5)"/><text x="256.6" y="413.4" text-anchor="end">LoRA</text></g><g class="gn term" data-term="METEOR"><circle cx="304.1" cy="499.7" r="14" fill="var(--c5)"/><text x="286.1" y="503.7" text-anchor="end">METEOR</text></g><g class="gn term" data-term="MRR"><circle cx="295.2" cy="472.3" r="12" fill="var(--c5)"/><text x="279.2" y="476.3" text-anchor="end">MRR</text></g><g class="gn term" data-term="Medallion"><circle cx="750.5" cy="516.6" r="8" fill="var(--c2)"/><text x="762.5" y="520.6" text-anchor="start">Medallion</text></g><g class="gn term" data-term="Micro-batch"><circle cx="658.6" cy="431.7" r="10" fill="var(--c2)"/><text x="672.6" y="435.7" text-anchor="start">Micro-batch</text></g><g class="gn term" data-term="Mode collapse"><circle cx="313.5" cy="334.6" r="8" fill="var(--c5)"/><text x="301.5" y="338.6" text-anchor="end">Mode collapse</text></g><g class="gn term" data-term="OLTP"><circle cx="512.0" cy="261.3" r="10" fill="var(--c1)"/><text x="526.0" y="265.3" text-anchor="start">OLTP</text></g><g class="gn term" data-term="Offset"><circle cx="581.1" cy="634.9" r="10" fill="var(--c3)"/><text x="595.1" y="638.9" text-anchor="start">Offset</text></g><g class="gn term" data-term="Outbox pattern"><circle cx="553.0" cy="734.7" r="8" fill="var(--c3)"/><text x="565.0" y="738.7" text-anchor="start">Outbox pattern</text></g><g class="gn term" data-term="Parquet"><circle cx="371.3" cy="278.4" r="16" fill="var(--c1)"/><text x="351.3" y="282.4" text-anchor="end">Parquet</text></g><g class="gn term" data-term="Partitioning"><circle cx="379.2" cy="226.3" r="14" fill="var(--c1)"/><text x="361.2" y="230.3" text-anchor="end">Partitioning</text></g><g class="gn term" data-term="Prompt"><circle cx="225.7" cy="554.7" r="16" fill="var(--c5)"/><text x="205.7" y="558.7" text-anchor="end">Prompt</text></g><g class="gn term" data-term="Quantization"><circle cx="310.8" cy="325.7" r="8" fill="var(--c5)"/><text x="298.8" y="329.7" text-anchor="end">Quantization</text></g><g class="gn term" data-term="Quorum"><circle cx="526.3" cy="255.7" r="10" fill="var(--c1)"/><text x="540.3" y="259.7" text-anchor="start">Quorum</text></g><g class="gn term" data-term="RAG"><circle cx="259.4" cy="466.0" r="12" fill="var(--c5)"/><text x="243.4" y="470.0" text-anchor="end">RAG</text></g><g class="gn term" data-term="RLHF"><circle cx="251.8" cy="460.5" r="12" fill="var(--c5)"/><text x="235.8" y="464.5" text-anchor="end">RLHF</text></g><g class="gn term" data-term="ROC-AUC"><circle cx="288.2" cy="297.2" r="8" fill="var(--c5)"/><text x="276.2" y="301.2" text-anchor="end">ROC-AUC</text></g><g class="gn term" data-term="ROUGE"><circle cx="263.3" cy="523.6" r="16" fill="var(--c5)"/><text x="243.3" y="527.6" text-anchor="end">ROUGE</text></g><g class="gn term" data-term="Raft"><circle cx="548.6" cy="224.0" r="10" fill="var(--c1)"/><text x="562.6" y="228.0" text-anchor="start">Raft</text></g><g class="gn term" data-term="Re-ranking"><circle cx="286.5" cy="287.4" r="8" fill="var(--c5)"/><text x="274.5" y="291.4" text-anchor="end">Re-ranking</text></g><g class="gn term" data-term="Rebalancing"><circle cx="565.9" cy="220.9" r="10" fill="var(--c1)"/><text x="579.9" y="224.9" text-anchor="start">Rebalancing</text></g><g class="gn term" data-term="Recall@k"><circle cx="356.5" cy="287.1" r="6" fill="var(--c5)"/><text x="346.5" y="291.1" text-anchor="end">Recall@k</text></g><g class="gn term" data-term="Replication"><circle cx="545.3" cy="315.5" r="10" fill="var(--c1)"/><text x="559.3" y="319.5" text-anchor="start">Replication</text></g><g class="gn term" data-term="Retention"><circle cx="528.7" cy="748.6" r="8" fill="var(--c3)"/><text x="540.7" y="752.6" text-anchor="start">Retention</text></g><g class="gn term" data-term="SLO"><circle cx="698.0" cy="443.8" r="10" fill="var(--c2)"/><text x="712.0" y="447.8" text-anchor="start">SLO</text></g><g class="gn term" data-term="Salting"><circle cx="494.1" cy="656.4" r="8" fill="var(--c3)"/><text x="506.1" y="660.4" text-anchor="start">Salting</text></g><g class="gn term" data-term="Schema evolution"><circle cx="654.8" cy="540.7" r="6" fill="var(--c2)"/><text x="664.8" y="544.7" text-anchor="start">Schema evolution</text></g><g class="gn term" data-term="Shuffle"><circle cx="591.0" cy="617.8" r="12" fill="var(--c3)"/><text x="607.0" y="621.8" text-anchor="start">Shuffle</text></g><g class="gn term" data-term="Skew"><circle cx="558.2" cy="312.3" r="10" fill="var(--c1)"/><text x="572.2" y="316.3" text-anchor="start">Skew</text></g><g class="gn term" data-term="Snowflake"><circle cx="364.0" cy="291.9" r="16" fill="var(--c1)"/><text x="344.0" y="295.9" text-anchor="end">Snowflake</text></g><g class="gn term" data-term="Spark"><circle cx="370.2" cy="341.2" r="16" fill="var(--c1)"/><text x="350.2" y="345.2" text-anchor="end">Spark</text></g><g class="gn term" data-term="Structured Streaming"><circle cx="704.0" cy="338.5" r="14" fill="var(--c2)"/><text x="722.0" y="342.5" text-anchor="start">Structured Streaming</text></g><g class="gn term" data-term="StyleGAN"><circle cx="357.3" cy="352.4" r="8" fill="var(--c5)"/><text x="345.3" y="356.4" text-anchor="end">StyleGAN</text></g><g class="gn term" data-term="Temperature"><circle cx="354.7" cy="343.9" r="8" fill="var(--c5)"/><text x="342.7" y="347.9" text-anchor="end">Temperature</text></g><g class="gn term" data-term="Time travel"><circle cx="476.3" cy="665.0" r="8" fill="var(--c3)"/><text x="464.3" y="669.0" text-anchor="end">Time travel</text></g><g class="gn term" data-term="Tokenization"><circle cx="264.6" cy="402.1" r="10" fill="var(--c5)"/><text x="250.6" y="406.1" text-anchor="end">Tokenization</text></g><g class="gn term" data-term="Transformer"><circle cx="315.2" cy="544.5" r="16" fill="var(--c5)"/><text x="295.2" y="548.5" text-anchor="end">Transformer</text></g><g class="gn term" data-term="U-Net"><circle cx="295.7" cy="496.5" r="14" fill="var(--c5)"/><text x="277.7" y="500.5" text-anchor="end">U-Net</text></g><g class="gn term" data-term="VAE"><circle cx="259.5" cy="494.9" r="14" fill="var(--c5)"/><text x="241.5" y="498.9" text-anchor="end">VAE</text></g><g class="gn term" data-term="VQ-VAE"><circle cx="232.8" cy="384.5" r="10" fill="var(--c5)"/><text x="218.8" y="388.5" text-anchor="end">VQ-VAE</text></g><g class="gn term" data-term="ViT"><circle cx="251.2" cy="490.5" r="14" fill="var(--c5)"/><text x="233.2" y="494.5" text-anchor="end">ViT</text></g><g class="gn term" data-term="WALS"><circle cx="333.9" cy="314.2" r="8" fill="var(--c5)"/><text x="321.9" y="318.2" text-anchor="end">WALS</text></g><g class="gn term" data-term="Watermark"><circle cx="724.2" cy="357.9" r="12" fill="var(--c2)"/><text x="740.2" y="361.9" text-anchor="start">Watermark</text></g><g class="gn term" data-term="Window functions"><circle cx="584.9" cy="285.5" r="10" fill="var(--c1)"/><text x="598.9" y="289.5" text-anchor="start">Window functions</text></g><g class="gn term" data-term="mAP"><circle cx="227.6" cy="376.1" r="10" fill="var(--c5)"/><text x="213.6" y="380.1" text-anchor="end">mAP</text></g><g class="gn term" data-term="nDCG"><circle cx="317.8" cy="409.1" r="10" fill="var(--c5)"/><text x="303.8" y="413.1" text-anchor="end">nDCG</text></g><g class="gn term" data-term="word2vec"><circle cx="332.4" cy="304.9" r="8" fill="var(--c5)"/><text x="320.4" y="308.9" text-anchor="end">word2vec</text></g></g></svg>
+    </div>
+    <div class="footer-note">Layout computed at build time — deterministic across reloads.</div>
+  </main>
+</div>
+<script>
+// theme
+const root=document.documentElement;
+const stored=localStorage.getItem('vp-theme');
+const prefersDark=matchMedia('(prefers-color-scheme: dark)').matches;
+if(stored==='dark'||(!stored&&prefersDark)){root.classList.add('dark')}
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  root.classList.toggle('dark');
+  localStorage.setItem('vp-theme',root.classList.contains('dark')?'dark':'light');
+  setTimeout(()=>location.reload(),60);
+});
+document.getElementById('menuBtn')?.addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.querySelectorAll('.sidebar-link,.pw-link').forEach(a=>a.addEventListener('click',()=>document.getElementById('sidebar').classList.remove('open')));
+// copy buttons + ascii class
+document.querySelectorAll('.vp-doc pre').forEach(pre=>{
+  const code=pre.querySelector('code');
+  const m=/language-(\w+)/.exec(code?code.className:'');
+  if(m&&m[1]==='text')pre.classList.add('ascii');
+  const btn=document.createElement('button');btn.className='copy-btn';btn.textContent='Copy';
+  btn.onclick=e=>{e.stopPropagation();navigator.clipboard.writeText(pre.innerText.replace(/^Copy\n/,''));btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)};
+  pre.appendChild(btn);
+});
+// wrap tables for scroll
+document.querySelectorAll('.vp-doc table').forEach(t=>{
+  const heads=[...t.querySelectorAll('thead th')].map(h=>h.textContent.trim());
+  t.querySelectorAll('tbody td').forEach((td,i)=>{td.dataset.th=heads[i%heads.length]||''});
+  const w=document.createElement('div');w.className='table-wrap';
+  t.parentNode.insertBefore(w,t);w.appendChild(t);
+});
+// scrollspy outline
+const heads=[...document.querySelectorAll('.vp-doc h2,.vp-doc h3')];
+const outLinks={};document.querySelectorAll('.outline-link').forEach(a=>outLinks[a.getAttribute('href')]=a);
+function spy(){
+  let cur=null;
+  for(const h of heads){if(h.getBoundingClientRect().top<=100)cur=h;else break}
+  for(const k in outLinks)outLinks[k].classList.remove('active');
+  if(cur&&outLinks['#'+cur.id])outLinks['#'+cur.id].classList.add('active');
+  else if(!cur&&outLinks['#'])outLinks['#'].classList.add('active');
+}
+addEventListener('scroll',spy,{passive:true});spy();
+// progress tracking (localStorage set of section indices)
+const PROGRESS_KEY='ldp-visited';
+const visited=new Set(JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]'));
+function saveVisited(){localStorage.setItem(PROGRESS_KEY,JSON.stringify([...visited]))}
+function paintProgress(){
+  document.querySelectorAll('.vm-node,.pw-item').forEach(n=>{
+    const i=+n.dataset.n;
+    n.classList.toggle('done',visited.has(i));
+  });
+  // current = first unvisited node (path) or explicit current page
+  const cur=document.querySelector('.pw-item.current');
+  if(!cur){
+    for(let i=0;i<document.querySelectorAll('.vm-node').length;i++){if(!visited.has(i)){const n=document.querySelector(`.vm-node[data-n="${i}"]`);if(n)n.classList.add('current');break}}
+  }
+  const pct=document.getElementById('vmProgress');if(pct)pct.textContent=visited.size+' / '+document.querySelectorAll('.vm-node').length;
+  const p2=document.getElementById('vmProgress2');if(p2)p2.textContent=visited.size+' / '+document.querySelectorAll('.pw-item').length;
+}
+// section page: auto-mark visited + mark-as-read toggle
+const secIdx=document.body.dataset.section;
+if(secIdx!==undefined){
+  visited.add(+secIdx);saveVisited();
+  const item=document.querySelector(`.pw-item[data-n="${secIdx}"]`);if(item)item.classList.add('current');
+  const btn=document.getElementById('markDone');
+  if(btn){
+    const paint=()=>{btn.classList.toggle('done',visited.has(+secIdx));btn.textContent=visited.has(+secIdx)?'✓ Section done — nice':'Mark section as done'};
+    btn.onclick=()=>{visited.has(+secIdx)?visited.delete(+secIdx):visited.add(+secIdx);saveVisited();paint();paintProgress()};
+    paint();
+  }
+}
+paintProgress();
+// vmap popovers: click toggles card; Go link navigates
+const vmNodes=[...document.querySelectorAll('.vm-node')];
+vmNodes.forEach(n=>{
+  const b=n.querySelector('.vm-btn');
+  b.addEventListener('click',e=>{
+    if(n.classList.contains('open'))return; // second tap follows link
+    e.preventDefault();
+    e.stopPropagation();
+    vmNodes.forEach(m=>{if(m!==n)m.classList.remove('open')});
+    n.classList.add('open');
+  });
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.vm-node'))vmNodes.forEach(n=>n.classList.remove('open'))});
+// diagram zoom lightbox
+const lb=document.createElement('div');lb.className='lb';
+lb.innerHTML='<div class="lb-vp"><img class="lb-img" alt="diagram zoom"></div><div class="lb-bar"><span class="lb-pct">100%</span><button data-z="0.5" title="zoom out">−</button><button data-z="2" title="zoom in">+</button><button data-z="reset">1:1</button><button data-z="close">✕</button></div>';
+document.body.appendChild(lb);
+const lbVp=lb.querySelector('.lb-vp'),lbImg=lb.querySelector('.lb-img'),lbPct=lb.querySelector('.lb-pct');
+let lbW=0,lbZoom=1;
+const lbSteps=[0.25,0.5,0.75,1,1.5,2,3,4];
+function lbSet(z){lbZoom=z;lbImg.style.width=(lbW*z)+'px';lbPct.textContent=Math.round(z*100)+'%'}
+lbImg.onload=()=>{lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)};
+document.querySelectorAll('.dg-png img').forEach(img=>img.addEventListener('click',e=>{
+  e.stopPropagation();
+  lbImg.src=img.src;
+  lb.classList.add('open');document.body.style.overflow='hidden';
+  if(lbImg.complete&&lbImg.naturalWidth){lbW=lbImg.naturalWidth;lbSet(Math.min(1,(lbVp.clientWidth-40)/lbW)||1)}
+}));
+function lbClose(){lb.classList.remove('open');document.body.style.overflow=''}
+lbVp.addEventListener('click',e=>{if(e.target===lbVp)lbClose()});
+lb.querySelectorAll('.lb-bar button').forEach(b=>b.addEventListener('click',e=>{
+  e.stopPropagation();const a=b.dataset.z;
+  if(a==='close')return lbClose();
+  if(a==='reset')return lbSet(1);
+  const dz=parseFloat(a),n=lbSteps.filter(s=>dz>1?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(dz>1?(n[0]||4):(n[n.length-1]||0.25));
+}));
+lbVp.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();
+  const n=lbSteps.filter(s=>e.deltaY<0?s>lbZoom+0.01:s<lbZoom-0.01);
+  lbSet(e.deltaY<0?(n[0]||4):(n[n.length-1]||0.25));},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(!lb.classList.contains('open'))return;
+  if(e.key==='Escape')lbClose();
+  if(e.key==='+'||e.key==='='){const n=lbSteps.find(s=>s>lbZoom+0.01);lbSet(n||4)}
+  if(e.key==='-'){const n=lbSteps.filter(s=>s<lbZoom-0.01);lbSet(n[n.length-1]||0.25)}
+  if(e.key==='0')lbSet(1);
+});
+// === scenario engine ===
+const SC_FONT_OK=document.fonts?document.fonts.load('16px Excalifont'):Promise.resolve();
+const SK_ID='scSketch';
+function scLayout(d,W){
+  // ranks: BFS depth from start; loop edges (dst already seen at insert) excluded
+  const adj={};d.nodes.forEach(n=>adj[n.id]=[]);
+  d.edges.forEach(e=>{if(!e.loop&&e.src)adj[e.src].push(e)});
+  const depth={};const q=[d.start];depth[d.start]=0;
+  while(q.length){const u=q.shift();(adj[u]||[]).forEach(e=>{if(depth[e.dst]===undefined){depth[e.dst]=depth[u]+1;q.push(e.dst)}})}
+  d.nodes.forEach(n=>{if(depth[n.id]===undefined)depth[n.id]=Object.keys(depth).length}); // unreachable → tail
+  const rows={};Object.entries(depth).forEach(([id,dp])=>{(rows[dp]=rows[dp]||[]).push(id)});
+  // measure
+  const cv=document.createElement('canvas').getContext('2d');
+  cv.font='18px Excalifont';
+  const pos={};
+  const ROWH=162,PAD=60;
+  Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(160,cv.measureText(d.nodes.find(n=>n.id===id).label).width+64));
+    const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
+    let x=Math.max(PAD,(W-total)/2);
+    ids.forEach((id,i)=>{pos[id]={x:x,y:64+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
+  });
+  const maxY=64+Math.max(...Object.values(depth))*ROWH+110;
+  return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
+}
+function scPath(a,b){ // cubic connector bottom->top
+  const x1=a.x+a.w/2,y1=a.y+a.h,x2=b.x+b.w/2,y2=b.y;
+  const dy=Math.max(24,(y2-y1)*0.45);
+  return `M${x1} ${y1} C${x1} ${y1+dy} ${x2} ${y2-dy} ${x2} ${y2}`;
+}
+const NS='http://www.w3.org/2000/svg';
+function mountScenario(div,d,idx){
+  if(!d.start||!d.nodes.length){console.warn('scenario: empty payload, skipping mount',idx);return;}
+  const body=div.querySelector('.sc-body'),cap=div.querySelector('.sc-cap'),
+        ch=div.querySelector('.sc-choices');
+  const W=Math.min(1100,body.clientWidth||900);
+  const L=scLayout(d,W);
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('class','sc-svg');svg.setAttribute('viewBox',`0 0 ${L.W} ${L.H}`);
+  svg.setAttribute('width',L.W);svg.setAttribute('height',L.H);
+  svg.innerHTML=`<defs>
+   <filter id="${SK_ID}${idx}"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter>
+   <marker id="scA${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#1e3a5f"/></marker>
+   <marker id="scAg${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#047857"/></marker>
+   <marker id="scAr${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#dc2626"/></marker>
+  </defs>`;
+  const kindOf=id=>{
+    const out=d.edges.filter(e=>e.src===id&&e.choice).length;
+    if(id===d.start)return ['#fed7aa','#c2410c','start'];
+    if(out>0)return ['#fef3c7','#b45309','choice'];
+    const inbound=d.edges.find(e=>e.dst===id&&e.kind)||d.edges.find(e=>e.dst===id);
+    if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
+    if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
+    return ['#dbeafe','#1e3a5f','def'];};
+  const el={};
+  // edges first (under nodes)
+  d.edges.forEach((e,i)=>{
+    if(!e.src||!L.pos[e.src]||!L.pos[e.dst])return;
+    const p=document.createElementNS(NS,'path');
+    const a=L.pos[e.src],b=L.pos[e.dst];
+    let dstr;
+    if(e.loop||b.y<=a.y){ // back-edge: route right margin
+      const rx=L.W-24;
+      dstr=`M${a.x+a.w} ${a.y+a.h/2} C${rx} ${a.y} ${rx} ${b.y} ${b.x+b.w} ${b.y+b.h/2}`;
+      p.setAttribute('stroke-dasharray','7 5');
+    } else dstr=scPath(a,b);
+    p.setAttribute('d',dstr);p.setAttribute('fill','none');
+    const ekind=e.kind==='success'?'ok':e.kind==='fail'?'bad':'def';
+    const col=e.kind==='success'?'#047857':e.kind==='fail'?'#dc2626':'#1e3a5f';
+    p.setAttribute('stroke',col);p.setAttribute('stroke-width','2.5');
+    p.setAttribute('data-k',ekind);
+    p.setAttribute('marker-end',`url(#scA${e.kind==='success'?'g':e.kind==='fail'?'r':''}${idx})`);
+    p.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    p.classList.add('sc-edge');p.dataset.ei=i;svg.appendChild(p);
+    if(e.label){const t=document.createElementNS(NS,'text');
+      const mx=a.x+a.w/2+(b.x+b.w/2-(a.x+a.w/2))*0.3,my=a.y+a.h+(b.y-a.y-a.h)*0.32-8;
+      t.setAttribute('x',mx);t.setAttribute('y',my);t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','15');t.setAttribute('fill','#475569');t.textContent=e.label;
+      t.classList.add('sc-edge-lbl');t.dataset.ei=i;svg.appendChild(t);}
+  });
+  d.nodes.forEach(n=>{
+    const p=L.pos[n.id],[fill,stroke,nkind]=kindOf(n.id);
+    const g=document.createElementNS(NS,'g');g.classList.add('sc-node');g.dataset.nid=n.id;g.setAttribute('data-k',nkind);
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',p.x);r.setAttribute('y',p.y);r.setAttribute('width',p.w);r.setAttribute('height',p.h);
+    r.setAttribute('rx','10');r.setAttribute('fill',fill);r.setAttribute('stroke',stroke);
+    r.setAttribute('stroke-width','2');r.setAttribute('filter',`url(#${SK_ID}${idx})`);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',p.x+p.w/2);t.setAttribute('y',p.y+p.h/2+2);
+    t.setAttribute('text-anchor','middle');t.setAttribute('font-size','18');
+    t.setAttribute('fill','#1f2937');
+    // wrap label into ≤2 tspans
+    const words=n.label.split(' ');const lines=['',''];let li=0;
+    words.forEach(w=>{if((lines[li]+' '+w).trim().length>Math.max(10,(p.w-24)/8.4)&&li===0)li=1;lines[li]=(lines[li]+' '+w).trim()});
+    lines.forEach((ln,i)=>{if(!ln)return;const ts=document.createElementNS(NS,'tspan');
+      ts.setAttribute('x',p.x+p.w/2);ts.setAttribute('dy',i===0?(lines[1]?-8:0):18);
+      if(i===0)ts.setAttribute('y',p.y+p.h/2+2);ts.textContent=ln;t.appendChild(ts);});
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);el[n.id]={g,r,t};
+    g.addEventListener('click',()=>{if(hlMode){hl.has(n.id)?hl.delete(n.id):hl.add(n.id);g.classList.toggle('hl',hl.has(n.id));localStorage.setItem(hlKey,JSON.stringify([...hl]));return}enter(n.id)});
+  });
+  body.appendChild(svg);
+  // interaction state
+  const hlKey='sc-hl:'+location.pathname+':'+idx;
+  const hl=new Set(JSON.parse(localStorage.getItem(hlKey)||'[]'));
+  let hlMode=false;
+  d.nodes.forEach(n=>{if(hl.has(n.id))el[n.id].g.classList.add('hl')});
+  let cur=null;const visited=new Set();
+  function paint(){
+    d.nodes.forEach(n=>{const c=el[n.id];
+      c.g.style.opacity=visited.has(n.id)?1:(n.id===d.start?1:.45);
+      c.r.setAttribute('stroke-width',n.id===cur?4:2.5);});
+    svg.querySelectorAll('.sc-edge').forEach(p=>{
+      const e=d.edges[+p.dataset.ei];
+      const on=visited.has(e.src)&&visited.has(e.dst);
+      p.style.opacity=on?1:.3;});
+    svg.querySelectorAll('.sc-edge-lbl').forEach(t=>{
+      const e=d.edges[+t.dataset.ei];
+      t.style.opacity=(visited.has(e.src)&&visited.has(e.dst))?1:.35;});
+  }
+  function enter(id){
+    cur=id;visited.add(id);
+    const n=d.nodes.find(n=>n.id===id);
+    cap.textContent=n.cap;
+    ch.innerHTML='';
+    d.edges.filter(e=>e.src===id&&e.choice).forEach(e=>{
+      const b=document.createElement('button');b.className='sc-btn'+(e.kind==='success'?' ok':e.kind==='fail'?' bad':'');
+      b.textContent='? '+e.label;b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    const nx=d.edges.filter(e=>e.src===id&&!e.choice&&!e.loop);
+    nx.forEach(e=>{const b=document.createElement('button');b.className='sc-btn';b.textContent='→ '+(e.label||'continue');b.onclick=()=>enter(e.dst);ch.appendChild(b);});
+    if(!d.edges.some(e=>e.src===id&&!e.loop)){const s=document.createElement('div');
+      s.className='sc-cap';s.style.marginTop='6px';
+      const win=n.cap;s.style.color='#047857';s.textContent='◼ outcome — '+win;ch.appendChild(s);}
+    paint();
+  }
+  div.querySelector('[data-a="reset"]').onclick=()=>{visited.clear();enter(d.start)};
+  div.querySelector('[data-a="reveal"]').onclick=()=>{d.nodes.forEach(n=>visited.add(n.id));
+    d.edges.forEach(e=>e.src&&visited.add(e.src));paint();};
+  const hlBtn=div.querySelector('[data-a="hl"]');
+  hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
+    hlBtn.title=hlMode?'Highlight on — tap nodes':'Highlight'};
+  // zoom controls
+  // free-canvas pan/zoom (transform on svg inside clipped .sc-body)
+  const zPct=div.querySelector('[data-a="zpct"]');
+  let tx=0,ty=0,sc=1;
+  const apply=()=>{svg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+    if(zPct)zPct.textContent=Math.round(sc*100)+'%';};
+  const fit=()=>{const cw=body.clientWidth;
+    sc=Math.min(cw/L.W,1);tx=(cw-L.W*sc)/2;ty=16;apply();};
+  const zAt=(f,px,py)=>{const ns=Math.min(3,Math.max(.3,sc*f));
+    tx=px-(px-tx)*(ns/sc);ty=py-(py-ty)*(ns/sc);sc=ns;apply();};
+  const local=e=>{const r=body.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
+  if(zi)zi.onclick=()=>zAt(1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zo)zo.onclick=()=>zAt(1/1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zPct)zPct.onclick=fit;
+  // pointer pan + pinch
+  const ptrs=new Map();let pinched=false,moved=false;
+  body.addEventListener('pointerdown',e=>{
+    if(e.button!==0||hlMode)return;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    moved=false;if(ptrs.size>1)pinched=true;});
+  body.addEventListener('pointermove',e=>{
+    if(!ptrs.has(e.pointerId))return;
+    if(ptrs.size===2){const a=[...ptrs.entries()];const [id1,p1]=a[0],[id2,p2]=a[1];
+      const oldD=Math.hypot(p2.x-p1.x,p2.y-p1.y),oldM=[(p1.x+p2.x)/2,(p1.y+p2.y)/2];
+      ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const n1=ptrs.get(id1),n2=ptrs.get(id2);
+      const newD=Math.hypot(n2.x-n1.x,n2.y-n1.y),newM=[(n1.x+n2.x)/2,(n1.y+n2.y)/2];
+      const r=body.getBoundingClientRect();
+      tx+=newM[0]-oldM[0];ty+=newM[1]-oldM[1];
+      if(oldD)zAt(newD/oldD,newM[0]-r.left,newM[1]-r.top);
+      apply();return;}
+    const p=ptrs.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(Math.abs(dx)+Math.abs(dy)>0){tx+=dx;ty+=dy;
+      if(!moved){moved=true;body.classList.add('dragging');
+        try{body.setPointerCapture(e.pointerId)}catch(_){}}
+      apply();}});
+  const pEnd=e=>{ptrs.delete(e.pointerId);
+    if(ptrs.size===0){pinched=false;
+      if(moved)svg.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();},{capture:true,once:true});
+      moved=false;body.classList.remove('dragging');}};
+  body.addEventListener('pointerup',pEnd);
+  body.addEventListener('pointercancel',pEnd);
+  body.addEventListener('wheel',e=>{e.preventDefault();
+    if(e.ctrlKey||e.metaKey){const [px,py]=local(e);zAt(Math.pow(1.0015,-e.deltaY),px,py);
+    }else{tx-=e.deltaX;ty-=e.deltaY;apply();}},{passive:false});
+  fit();
+  enter(d.start);
+}
+SC_FONT_OK.then(()=>{
+  document.querySelectorAll('.scenario').forEach((dv,i)=>{
+    const data=JSON.parse(dv.querySelector('.sc-json').textContent);
+    mountScenario(dv,data,i);
+  });
+});
+// glossary term popups
+function closeTerm(){document.querySelectorAll('.term-pop').forEach(p=>p.remove())}
+function showTerm(el){
+  closeTerm();
+  const t=el.dataset.term, d=(window.STUDY_TERMS||{})[t]; if(!d) return;
+  const p=document.createElement('div'); p.className='term-pop';
+  const secs=(window.STUDY_TERMREFS||{})[t]||[];
+  p.innerHTML=`<b>${t}</b><p>${d}</p>`+(secs.length>1?`<div class="tp-links">Seen in: ${secs.map(s=>`<a href="s${String(s).padStart(2,'0')}.html">${s}</a>`).join(' · ')}</div>`:'');
+  document.body.appendChild(p);
+  const r=el.getBoundingClientRect(), w=Math.min(340,innerWidth-24);
+  p.style.width=w+'px';
+  p.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+scrollX+'px';
+  p.style.top=(r.bottom+8+scrollY)+'px';
+}
+document.addEventListener('click',e=>{const t=e.target.closest('.term'); t?showTerm(t):closeTerm()});
+if(matchMedia('(hover:hover)').matches){
+  document.addEventListener('mouseover',e=>{const t=e.target.closest('.term'); if(t)showTerm(t)});
+}
+
+// ---- study scheduler (SM-2 lite) ----
+const SCHED_KEY='study-sched';
+function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){try{localStorage.setItem(SCHED_KEY,'{}')}catch(_){}return{}}}
+function schedSave(o){localStorage.setItem(SCHED_KEY,JSON.stringify(o))}
+function schedGrade(id,g){
+  const o=schedAll(),c=o[id]||{e:2.3,iv:0};
+  if(g==='again'){c.e=Math.max(1.3,c.e-0.15);c.iv=10/1440;}
+  else if(g==='hard'){c.e=Math.max(1.3,c.e-0.05);c.iv=1;}
+  else if(g==='easy'){c.e=Math.min(2.8,c.e+0.1);c.iv=Math.max(c.iv*c.e,1)*1.3;}
+  else{c.iv=c.iv<1?1:c.iv*c.e;}
+  c.due=Date.now()+c.iv*864e5;
+  o[id]=c;schedSave(o);return c;
+}
+function dueList(all){const o=schedAll(),now=Date.now();return all.filter(c=>!(c.id in o)||o[c.id].due<=now);}
+function mastery(sec){const all=window.STUDY_ALL_CARDS||[],o=schedAll();
+  const mine=all.filter(c=>c.sec===sec),st=mine.filter(c=>c.id in o);
+  const mat=st.filter(c=>o[c.id].iv>=4);
+  return {studied:st.length,total:mine.length,mature:mat.length,pct:mine.length?Math.round(100*mat.length/mine.length):0};}
+// ---- flipcards ----
+function initFlipcards(root){
+  root.querySelectorAll('.flipcard').forEach(fc=>{
+    fc.addEventListener('click',e=>{if(e.target.closest('.grade-btn'))return;fc.classList.toggle('flipped');});
+    fc.addEventListener('graded',e=>schedGrade(fc.dataset.id,e.detail));
+  });
+  root.querySelectorAll('.grade-btn').forEach(b=>b.addEventListener('click',e=>{
+    e.stopPropagation();
+    const fc=b.closest('.flipcard');if(!fc)return;
+    fc.dispatchEvent(new CustomEvent('graded',{detail:b.dataset.g,bubbles:true}));
+    fc.classList.add('gone');setTimeout(()=>fc.remove(),200);
+  }));
+}
+document.addEventListener('keydown',e=>{
+  if(!/^[1-4]$/.test(e.key)&&e.key!==' ')return;
+  const fc=document.querySelector('.flipcard.flipped');if(!fc)return;
+  e.preventDefault();
+  if(e.key===' ')fc.classList.remove('flipped');
+  else fc.querySelector(`.grade-btn[data-g="${{1:'again',2:'hard',3:'good',4:'easy'}[e.key]}"]`)?.click();
+});
+initFlipcards(document);
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const isDark=document.documentElement.classList.contains('dark');
+mermaid.initialize({startOnLoad:false,theme:isDark?'dark':'neutral',flowchart:{htmlLabels:true,curve:'basis'},themeVariables:{fontFamily:'-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif',fontSize:'14px'}});
+const els=document.querySelectorAll('.mermaid');
+for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
+</script>
+<script>window.STUDY_TERMS={"Watermark":"Event-time progress marker; windows close and late data is judged against it.","Idempotency":"An operation safe to retry — same input, same final state, no duplicate effects.","Exactly-once":"Effect semantics built from at-least-once delivery + idempotent writes or transactional commits.","Medallion":"Bronze (raw) → silver (validated) → gold (business-ready) layering of lakehouse data.","RAG":"Retrieval-augmented generation — ground an LLM answer in retrieved documents.","Embedding":"Dense vector representation of text/image such that semantic similarity ≈ vector distance.","AQE":"Adaptive Query Execution — Spark re-plans joins/partitions at shuffle boundaries using runtime stats.","ISR":"In-sync replicas — Kafka followers caught up enough to acknowledge writes.","Parquet":"Columnar file format with per-column encoding and nested-type support.","CDC":"Change data capture — stream of row-level changes from an OLTP log.","SCD Type 2":"Slowly changing dimension keeping history as new versioned rows.","Backfill":"Reprocessing historical data with new logic into the same destination.","Lambda architecture":"Batch + speed layers serving merged views; Kappa collapses both onto one stream.","Shuffle":"Redistributing data across partitions between stages; the dominant Spark cost.","Skew":"Uneven key distribution making one partition dominate stage time.","Checkpoint":"Durable snapshot of Flink state enabling exactly-once recovery.","Compaction":"Merging small files into fewer large ones to restore read performance.","Z-ordering":"Multi-column clustering of lakehouse files to prune scans on any column.","Distributed join strategy":"Broadcast vs sort-merge vs shuffle-hash — picked by size + skew stats.","Feature store":"Versioned repository of point-in-time-correct features for training and serving.","Kafka":"Distributed log-based messaging system; topics are split into ordered, replicated partitions.","Spark":"Distributed compute engine executing a DAG of stages and tasks across executor JVMs.","Flink":"Streaming-first engine with event-time windows, keyed state, and checkpointed exactly-once pipelines.","Snowflake":"Fully managed cloud warehouse separating storage, virtual warehouses, and cloud services.","Databricks":"Lakehouse platform built on Spark with Delta Lake, collaborative notebooks, and managed ML tooling.","Delta Lake":"Open table format adding ACID transactions and a transaction log on top of Parquet.","Iceberg":"Open table format with hidden partitioning, snapshot metadata, and engine-neutral catalogs.","Hudi":"Open table format optimized for fast upserts and incremental pulls via merge-on-read or copy-on-write.","OLTP":"Row-oriented operational stores built for many short read/write transactions.","Lakehouse":"Lake storage plus ACID table formats and SQL engines — warehouse reliability at lake economics.","ELT":"Extract-load-transform; raw data lands first and transforms run inside the target engine.","ETL":"Extract-transform-load pipelines that shape data before it reaches the destination.","Window functions":"SQL functions computing aggregates over a row frame without collapsing rows (RANK, moving averages).","DAG":"Directed acyclic graph — Spark stages and orchestrator workflows are both modeled as DAGs.","Catalyst":"Spark's rule- and cost-based query optimizer producing the physical plan.","Driver":"The Spark JVM that builds the DAG, schedules tasks, and collects results.","Executor":"Worker JVM that runs Spark tasks on partitions and caches blocks.","Salting":"Adding a random prefix to hot keys so a skewed partition splits into manageable pieces.","Time travel":"Querying a table as of an earlier snapshot using table-format versioning.","CAP theorem":"Under a network partition, a distributed store must sacrifice either consistency or availability.","Quorum":"Majority acknowledgment rule (R+W greater than N) keeping reads and writes consistent through failures.","Consensus":"Getting nodes to agree on one value or log despite crashes and partitions.","Raft":"Leader-based consensus protocol replicating a log — the readable alternative to Paxos.","Replication":"Keeping copies of data on multiple nodes for durability and read scale.","Partitioning":"Splitting a dataset across nodes or partitions for parallel storage and processing.","Event time":"The timestamp embedded in a record (when it happened) — the basis for correct windowing.","Late data":"Records arriving after their window closed, handled via watermarks and allowed lateness.","Micro-batch":"Processing a stream as small bounded batches — Spark Structured Streaming's original model.","Structured Streaming":"Spark's streaming API that treats a stream as an unbounded table queried incrementally.","Kappa architecture":"Serving batch and realtime needs from one log-based stream pipeline.","Backpressure":"Flow control where slow consumers make upstream slow down instead of buffering without bound.","Consumer group":"Set of Kafka consumers that splits a topic's partitions among its members.","Offset":"Per-partition position marker recording how far a consumer has read.","Retention":"How long a log or topic keeps records before deletion — time- or size-based.","Outbox pattern":"Writing events to an outbox table in the same transaction as state, then CDC-publishing them.","Rebalancing":"Reassigning partitions when consumers join or leave a group (or when Flink rescales operators).","Schema evolution":"Changing record structure over time under backward/forward/full compatibility rules.","Data contracts":"Explicit producer-consumer agreements on schema, semantics, and SLOs for a dataset.","SLO":"Service level objective — the reliability or freshness target a pipeline commits to.","LLM":"Large language model — a transformer trained on next-token prediction over massive corpora.","Transformer":"Neural architecture built on self-attention instead of recurrence.","Attention":"Mechanism letting each token weigh every other token's representation — parallel and context-aware.","Tokenization":"Splitting text into subword units the model embeds and predicts.","BPE":"Byte-pair encoding — builds the subword vocabulary by iteratively merging frequent symbol pairs.","Prompt":"Input text conditioning the model; its design (instructions, few-shot examples) drives output quality.","Context window":"Maximum number of tokens a model can attend to in one request.","Temperature":"Sampling knob scaling logits — low is deterministic, high is diverse.","Fine-tuning":"Continued training of a pretrained model on task data to change its behavior.","LoRA":"Parameter-efficient fine-tuning that learns low-rank delta weights instead of updating the base model.","RLHF":"Reinforcement learning from human feedback — a reward model learned from preference rankings aligns an LLM.","word2vec":"Classic static embedding method trained with sliding-window prediction and negative sampling.","BERT":"Encoder-only transformer producing contextual text embeddings.","GNN":"Graph neural network producing node embeddings; dot products estimate edge likelihoods.","Autoregressive model":"Generates output token-by-token, each step conditioned on what came before.","ANN":"Approximate nearest-neighbor search — sublinear retrieval over embeddings by trading exactness for speed.","HNSW":"Hierarchical graph ANN index; the default in most vector search engines.","Quantization":"Compressing vectors to fewer bits per dimension so indexes fit in memory.","Chunking":"Splitting documents into retrieval-sized passages for embedding and indexing.","Hallucination":"Fluent model output unsupported by sources or training facts.","Guardrails":"Policy layer filtering or constraining model inputs and outputs for safety and compliance.","Candidate generation":"First serving stage narrowing millions of items to hundreds for the ranker.","Collaborative filtering":"Recommending from interaction patterns alone; discovers well, suffers cold start.","Cold start":"No interaction history for new users or items; handled with content features and heuristics.","WALS":"Weighted alternating least squares — matrix-factorization solver that weights unobserved pairs.","FoF":"Friends-of-friends — social-graph candidate source for people recommendations.","DCN":"Deep and Cross Network — learns feature crosses explicitly instead of manual crossing.","DeepFM":"Factorization machine plus shared-embedding DNN — the classic CTR model.","GBDT":"Gradient-boosted decision trees — strong tabular baseline but hard to fine-tune continually.","CTR":"Click-through rate — probability a shown item is clicked; the core ads prediction.","Re-ranking":"Final serving stage applying business logic and filters the model should not own.","Continual learning":"Continuous finetune-evaluate-deploy loop, shipped only on metric improvement.","Diffusion":"Generative model that iteratively denoises random noise toward data, guided by conditioning.","U-Net":"Conv downsampling and upsampling denoiser backbone where cross-attention injects the prompt.","Cross-attention":"Attention where queries come from image features and keys and values from text embeddings.","VAE":"Variational autoencoder — encoder-decoder latent generative model; fast and stable, lower fidelity.","VQ-VAE":"Discrete tokenizer — CNN encoder, codebook quantization, decoder; turns images into tokens.","LDM":"Latent diffusion model — diffusion run in a VAE-compressed latent space for tractability.","DiT":"Diffusion transformer — a transformer over latent patches replacing the U-Net denoiser.","DDIM":"Deterministic sampler cutting diffusion inference from 1000 steps to about 20.","Classifier-free guidance":"Sampling trick that strengthens prompt adherence without a separate classifier.","GAN":"Generator versus discriminator adversarial training — fast one-pass generation, unstable training.","StyleGAN":"GAN with a layered latent space enabling fine-grained facial attribute editing.","Mode collapse":"GAN failure where the generator produces one plausible output regardless of input.","ViT":"Vision transformer treating image patches as tokens.","CLIP":"Contrastively trained image-text encoder pair enabling zero-shot scoring and multimodal conditioning.","CLIPScore":"Cosine similarity of CLIP text and image embeddings; measures prompt-image alignment.","DINO":"Visual-detail similarity metric that flags changes CLIP forgives.","DreamBooth":"Full finetuning personalization — best identity preservation, heaviest per subject.","Latent space":"Learned continuous space where encodings live and interpolation or attribute editing happens.","Beam search":"Decoding that keeps the top partial sequences — deterministic, quality-leaning alternative to sampling.","FID":"Frechet inception distance — distributional image quality and diversity metric.","FVD":"Frechet video distance over I3D features — captures temporal coherence per-frame metrics miss.","BLEU":"N-gram precision metric for translation and captioning.","ROUGE":"N-gram recall metric for summarization.","METEOR":"Alignment-based translation metric adding recall and stemming to n-gram matching.","CIDEr":"TF-IDF-weighted n-gram consensus metric for captioning against multiple references.","mAP":"Mean average precision over classes or thresholds — standard detection and ranking metric.","nDCG":"Normalized discounted cumulative gain — ranking metric handling graded relevance.","MRR":"Mean reciprocal rank — for retrieval with exactly one relevant item.","Recall@k":"Fraction of relevant items present in the top k results.","ROC-AUC":"Threshold-independent ranking quality metric.","A3 defense":"EPAM committee-form system design defense probing objective framing, pipeline, and metric choices."};window.STUDY_TERMREFS={"Watermark":[6,10,14],"Idempotency":[4,14],"Exactly-once":[4,6,10,12,15],"Medallion":[5],"RAG":[16,19,21],"Embedding":[17],"AQE":[3,10,11,14],"ISR":[4,12],"Parquet":[1,3,7,9,15,16],"CDC":[1,5,9,10,12,14,15],"SCD Type 2":[],"Backfill":[6,13],"Lambda architecture":[],"Shuffle":[3,10,11],"Skew":[3,11],"Checkpoint":[6,9,10,15],"Compaction":[12],"Z-ordering":[],"Distributed join strategy":[],"Feature store":[],"Kafka":[1,4,5,6,8,10,12,13,14,15],"Spark":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"Flink":[4,6,7,9,10,12,14,15],"Snowflake":[1,2,4,5,7,8,9,14],"Databricks":[1,2,3,5,7,8,9,11,14],"Delta Lake":[1,8,9],"Iceberg":[4,5,6,7,8,9,10,14,15],"Hudi":[6,7,9,14],"OLTP":[4,5],"Lakehouse":[7,14,15],"ELT":[7],"ETL":[5,7,8,10,15,16,17],"Window functions":[2,14],"DAG":[1,3,9,10,14],"Catalyst":[10,11,14],"Driver":[3,10],"Executor":[3,11],"Salting":[10],"Time travel":[9],"CAP theorem":[4],"Quorum":[4,12],"Consensus":[4,20],"Raft":[4,12],"Replication":[4,12],"Partitioning":[3,4,11,14],"Event time":[4,6,10],"Late data":[],"Micro-batch":[6,10],"Structured Streaming":[4,6,8,10],"Kappa architecture":[],"Backpressure":[4,10],"Consumer group":[12],"Offset":[12,14],"Retention":[12],"Outbox pattern":[12],"Rebalancing":[4,12],"Schema evolution":[],"Data contracts":[5],"SLO":[5,13],"LLM":[8,14,16,17,19,20,21,24],"Transformer":[16,17,18,19,20,21,22,23,24,26],"Attention":[16,17],"Tokenization":[17,18],"BPE":[16,17,18,19,20],"Prompt":[16,17,19,21,24,26],"Context window":[],"Temperature":[19],"Fine-tuning":[],"LoRA":[16,25],"RLHF":[16,19,24],"word2vec":[17],"BERT":[17],"GNN":[17],"Autoregressive model":[22,24],"ANN":[16,17,21],"HNSW":[16,21],"Quantization":[23],"Chunking":[21],"Hallucination":[],"Guardrails":[],"Candidate generation":[17],"Collaborative filtering":[],"Cold start":[17],"WALS":[17],"FoF":[17],"DCN":[17],"DeepFM":[17],"GBDT":[17],"CTR":[16,17,24,26],"Re-ranking":[17],"Continual learning":[],"Diffusion":[16,22,23,24,26],"U-Net":[16,24,25,26],"Cross-attention":[24],"VAE":[16,22,23,26],"VQ-VAE":[16,23],"LDM":[16,26],"DiT":[16,24,26],"DDIM":[16,24],"Classifier-free guidance":[24],"GAN":[16,22,23],"StyleGAN":[22],"Mode collapse":[22],"ViT":[16,17,20,24],"CLIP":[16,17,20,21,22,23,24,25,26],"CLIPScore":[16,22,24,25],"DINO":[16,25],"DreamBooth":[16,25],"Latent space":[22],"Beam search":[16,17,18,20],"FID":[16,22,23,24,25,26],"FVD":[16,26],"BLEU":[16,17,18,20,21],"ROUGE":[16,17,18,20,21],"METEOR":[16,18,20,21],"CIDEr":[16,20],"mAP":[16,17],"nDCG":[16,17],"MRR":[16,17,21],"Recall@k":[],"ROC-AUC":[17],"A3 defense":[16,17]}</script><style>
+/* concept graph */
+:root{--c1:#5672cd;--c2:#047857;--c3:#D95C41;--c4:#8b5cf6;--c5:#e38407}
+html.dark{--c1:#8aa4e8;--c2:#30a46c;--c3:#E07A64;--c4:#b79cf7;--c5:#f5a623}
+.graph-main{max-width:1080px}
+.g-sub{color:var(--vp-c-text-2);font-size:15px;margin:4px 0 0}
+.g-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:14px 0 0;font-size:13px;color:var(--vp-c-text-2)}
+.g-legend .gl{display:inline-flex;align-items:center;gap:6px}
+.gl-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.graph-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-alt);margin:16px 0}
+.graph-wrap svg{display:block;width:100%;min-width:720px;height:auto}
+.gsvg{user-select:none;touch-action:pan-y}
+.gsvg .gn{cursor:pointer}
+.gsvg .gn circle{transition:opacity .2s}
+.gsvg .gn,.gsvg .ge{transition:opacity .2s}
+.gsvg .gn text{font-size:11px;fill:var(--vp-c-text-1);paint-order:stroke;stroke:var(--vp-c-bg-alt);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.gsvg .ge{fill:none;stroke:var(--vp-c-text-3);stroke-opacity:.35;stroke-width:1.2;pointer-events:stroke;transition:stroke-opacity .2s,stroke .2s}
+.gsvg .ge:hover{stroke:var(--vp-c-brand-1);stroke-opacity:.9;stroke-width:2}
+.gsvg.focusing .gn:not(.lit){opacity:.15}
+.gsvg.focusing .ge:not(.lit){opacity:.08}
+</style><script>
+(function(){
+  const svg=document.getElementById('graphSvg');if(!svg)return;
+  const vp=document.getElementById('graphVp');
+  let tx=0,ty=0,k=1,drag=null,moved=false;
+  const apply=()=>vp.setAttribute('transform','translate('+tx+' '+ty+') scale('+k+')');
+  const pt=e=>new DOMPoint(e.clientX,e.clientY).matrixTransform(svg.getScreenCTM().inverse());
+  svg.addEventListener('wheel',e=>{e.preventDefault();
+    const f=e.deltaY<0?1.15:1/1.15,p=pt(e);
+    tx=p.x-(p.x-tx)*f;ty=p.y-(p.y-ty)*f;k*=f;apply();},{passive:false});
+  svg.addEventListener('pointerdown',e=>{if(e.target.closest('.gn'))return;
+    drag={x:e.clientX,y:e.clientY,tx,ty};moved=false;svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',e=>{if(!drag)return;
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(Math.abs(dx)+Math.abs(dy)>3)moved=true;
+    const m=svg.getScreenCTM();tx=drag.tx+dx/m.a;ty=drag.ty+dy/m.d;apply();});
+  const end=()=>{drag=null};
+  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  svg.addEventListener('click',e=>{
+    if(moved){moved=false;return;}
+    const n=e.target.closest('.gn');
+    svg.querySelectorAll('.lit').forEach(x=>x.classList.remove('lit'));
+    if(!n){svg.classList.remove('focusing');return;}
+    svg.classList.add('focusing');n.classList.add('lit');
+    const t=n.dataset.term,nb=new Set([t]);
+    svg.querySelectorAll('.ge').forEach(p=>{
+      if(p.dataset.a===t||p.dataset.b===t){p.classList.add('lit');nb.add(p.dataset.a);nb.add(p.dataset.b);}});
+    svg.querySelectorAll('.gn').forEach(g=>g.classList.toggle('lit',nb.has(g.dataset.term)));
+
+  });
+})();
+</script>
+</body>
+</html>
