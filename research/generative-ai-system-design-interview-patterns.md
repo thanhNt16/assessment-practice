@@ -6,16 +6,16 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 
 | Pattern | When to use | One-line how | Ref |
 |---|---|---|---|
-| 7-step design framework | Every "design X" opener | Clarify → frame as ML task → data → model → evaluation → system design → deployment; user feedback loops back to data | [genai-overview](16-genai-overview.md) |
-| Modality-first task framing | Step 2 of any design | Define input/output modality, then split: class/value → discriminative; new content → pick family by output modality (text: autoregressive; image/video/audio: diffusion, AR, VAE, GAN, flow) | [genai-overview](16-genai-overview.md) |
-| Discriminative vs generative selection | Framing the ML task | P(Y\|X) classify/predict vs P(X)/P(X,Y) sample; generative trades cheap eval for new content | [genai-overview](16-genai-overview.md) |
-| Scaling-law justification | "Why is this model good enough?" | OpenAI 2020: scaling beats arch tweaks; DeepMind 2022: data scales ~linearly with params; post-o1: budget test-time compute | [genai-overview](16-genai-overview.md) |
-| Two-stage transfer training | Small task dataset | Pretrain on general text (next-token, cross-entropy) → finetune on task data (same objective); pretraining cost paid once, regularization free | [smart-compose](17-smart-compose.md), [machine-translation](18-machine-translation.md), [image-captioning](20-image-captioning.md) |
-| Three-stage LLM training | Any LLM product round | Pretraining (trillions tokens, 1000s GPUs, months) → SFT (10–100K demos) → reward modeling (100K–1M comparisons) → PPO/DPO alignment | [chatbot-assistant](19-chatbot-assistant.md), [genai-overview](16-genai-overview.md) |
+| 7-step design framework | Every "design X" opener | Clarify → frame as ML task → data → model → evaluation → system design → deployment; user feedback loops back to data | [genai-overview](16-genai-design.md) |
+| Modality-first task framing | Step 2 of any design | Define input/output modality, then split: class/value → discriminative; new content → pick family by output modality (text: autoregressive; image/video/audio: diffusion, AR, VAE, GAN, flow) | [genai-overview](16-genai-design.md) |
+| Discriminative vs generative selection | Framing the ML task | P(Y\|X) classify/predict vs P(X)/P(X,Y) sample; generative trades cheap eval for new content | [genai-overview](16-genai-design.md) |
+| Scaling-law justification | "Why is this model good enough?" | OpenAI 2020: scaling beats arch tweaks; DeepMind 2022: data scales ~linearly with params; post-o1: budget test-time compute | [genai-overview](16-genai-design.md) |
+| Two-stage transfer training | Small task dataset | Pretrain on general text (next-token, cross-entropy) → finetune on task data (same objective); pretraining cost paid once, regularization free | [smart-compose](17-ml-design.md), [machine-translation](18-machine-translation.md), [image-captioning](20-image-captioning.md) |
+| Three-stage LLM training | Any LLM product round | Pretraining (trillions tokens, 1000s GPUs, months) → SFT (10–100K demos) → reward modeling (100K–1M comparisons) → PPO/DPO alignment | [chatbot-assistant](19-chatbot-assistant.md), [genai-overview](16-genai-design.md) |
 | Four-layer evaluation | LLM quality questions | Perplexity baseline → task benchmarks (MMLU, HumanEval, GSM8K) → safety benchmarks (toxicity, bias, truthfulness) → human + online (Arena) | [chatbot-assistant](19-chatbot-assistant.md) |
 | Two-sided inference safety gates | Any generative serving path | Input safety filter rejects harmful prompts; output harm detector blocks unsafe generations; rejection generator handles both refusal paths | [chatbot-assistant](19-chatbot-assistant.md), [text-to-image](24-text-to-image.md), [text-to-video](26-text-to-video.md) |
 | Encoder-decoder seq2seq split | Input/output different lengths | Bidirectional encoder builds source context; causally-masked decoder emits target via cross-attention into encoder output | [machine-translation](18-machine-translation.md) |
-| Smart Compose serving pipeline | Keystroke-triggered LLM feature | Triggering service (min context + throttle) → phrase generator (beam top-k) → confidence/length filters → bias/NSFW post-processing → display | [smart-compose](17-smart-compose.md) |
+| Smart Compose serving pipeline | Keystroke-triggered LLM feature | Triggering service (min context + throttle) → phrase generator (beam top-k) → confidence/length filters → bias/NSFW post-processing → display | [smart-compose](17-ml-design.md) |
 | Captioning serving pipeline | Ambiguity-prone generation | Preprocess → beam-search generator → confidence-threshold gate disables suggestion → bias replacement/offense disable → output | [image-captioning](20-image-captioning.md) |
 | RAG two-pipeline shape | Knowledge changes, citations needed | Offline: parse → chunk → embed → index; online: query → embed → ANN → prompt assembly → LLM | [rag](21-rag.md) |
 | RAG triad evaluation | "The bot hallucinates" | Decompose: context relevance (hit rate, MRR, NDCG) → faithfulness (grounded in context) → answer relevance → answer correctness; fix differs per leg | [rag](21-rag.md) |
@@ -39,27 +39,27 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 
 | Pattern | When to use | One-line how | Ref |
 |---|---|---|---|
-| Cleaning pipeline (harm/NSFW/quality/dedup) | Internet-scale corpora | Harm detection, NSFW removal, low-quality filtering, deduplication before training | [genai-overview](16-genai-overview.md) |
-| Synthetic training data | Real data limited/imbalanced | Generate model-made samples for diversity; screen for inherited bias and distribution gaps | [genai-overview](16-genai-overview.md) |
-| Distributed storage + retrieval efficiency | Petabyte corpora | HDFS/S3 + Parquet/ORC; sharding, Lucene/Elasticsearch indexing, caching | [genai-overview](16-genai-overview.md) |
-| Scaled dot-product self-attention | Any Transformer answer | softmax(QKᵀ/√d_K)V with projected Q/K/V; multi-head attends in parallel subspaces | [genai-overview](16-genai-overview.md) |
-| Gradient checkpointing | GPU memory bound | Save subset of activations, recompute in backward pass | [genai-overview](16-genai-overview.md) |
-| Mixed precision (AMP) | Speed + memory without accuracy loss | Most math 16-bit, sensitive ops 32-bit | [genai-overview](16-genai-overview.md), [text-to-image](24-text-to-image.md) |
-| Data parallelism | Model fits one device | Full copy per device, split data; sync = consistent but waits for slowest, async = stale versions | [genai-overview](16-genai-overview.md) |
-| Pipeline parallelism | Very deep models | Split layers across devices (inter-layer) | [genai-overview](16-genai-overview.md) |
-| Tensor parallelism | One layer exceeds device memory | Split single layer's ops column/row-wise (intra-layer) | [genai-overview](16-genai-overview.md) |
-| Hybrid + ZeRO/FSDP | Largest models | Combine pipeline+tensor; shard optimizer state to cut redundancy | [genai-overview](16-genai-overview.md), [text-to-image](24-text-to-image.md) |
-| FLOP cost math aloud | Cost questions | ops × params ÷ GPU TFLOP/s → GPU-years; converts hand-wave into a number | [genai-overview](16-genai-overview.md) |
-| Subword tokenization (BPE/SentencePiece) | Any text model | ~50–150K vocab, unseen words decompose into known pieces; use Tiktoken/SentencePiece, don't hand-roll | [smart-compose](17-smart-compose.md), [machine-translation](18-machine-translation.md), [chatbot-assistant](19-chatbot-assistant.md) |
+| Cleaning pipeline (harm/NSFW/quality/dedup) | Internet-scale corpora | Harm detection, NSFW removal, low-quality filtering, deduplication before training | [genai-overview](16-genai-design.md) |
+| Synthetic training data | Real data limited/imbalanced | Generate model-made samples for diversity; screen for inherited bias and distribution gaps | [genai-overview](16-genai-design.md) |
+| Distributed storage + retrieval efficiency | Petabyte corpora | HDFS/S3 + Parquet/ORC; sharding, Lucene/Elasticsearch indexing, caching | [genai-overview](16-genai-design.md) |
+| Scaled dot-product self-attention | Any Transformer answer | softmax(QKᵀ/√d_K)V with projected Q/K/V; multi-head attends in parallel subspaces | [genai-overview](16-genai-design.md) |
+| Gradient checkpointing | GPU memory bound | Save subset of activations, recompute in backward pass | [genai-overview](16-genai-design.md) |
+| Mixed precision (AMP) | Speed + memory without accuracy loss | Most math 16-bit, sensitive ops 32-bit | [genai-overview](16-genai-design.md), [text-to-image](24-text-to-image.md) |
+| Data parallelism | Model fits one device | Full copy per device, split data; sync = consistent but waits for slowest, async = stale versions | [genai-overview](16-genai-design.md) |
+| Pipeline parallelism | Very deep models | Split layers across devices (inter-layer) | [genai-overview](16-genai-design.md) |
+| Tensor parallelism | One layer exceeds device memory | Split single layer's ops column/row-wise (intra-layer) | [genai-overview](16-genai-design.md) |
+| Hybrid + ZeRO/FSDP | Largest models | Combine pipeline+tensor; shard optimizer state to cut redundancy | [genai-overview](16-genai-design.md), [text-to-image](24-text-to-image.md) |
+| FLOP cost math aloud | Cost questions | ops × params ÷ GPU TFLOP/s → GPU-years; converts hand-wave into a number | [genai-overview](16-genai-design.md) |
+| Subword tokenization (BPE/SentencePiece) | Any text model | ~50–150K vocab, unseen words decompose into known pieces; use Tiktoken/SentencePiece, don't hand-roll | [smart-compose](17-ml-design.md), [machine-translation](18-machine-translation.md), [chatbot-assistant](19-chatbot-assistant.md) |
 | BPE `</w>` boundary token | Explaining BPE mechanics | Start from characters, iteratively merge most frequent adjacent pair; `</w>` marks full-word vs prefix | [machine-translation](18-machine-translation.md) |
-| Token ↔ ID vocab table | Tokenization step | Build vocabulary table mapping tokens to integer IDs | [smart-compose](17-smart-compose.md) |
-| Confidential-content placeholdering | Email/private text corpora | Replace names/URLs/emails/phones with placeholders (`john@gmail.com` → `##@gmail.com`) | [smart-compose](17-smart-compose.md) |
-| Format normalization | Inconsistent input formats | e.g. `(123) 456-7890` / `123-456-7890` → `1234567890` | [smart-compose](17-smart-compose.md) |
+| Token ↔ ID vocab table | Tokenization step | Build vocabulary table mapping tokens to integer IDs | [smart-compose](17-ml-design.md) |
+| Confidential-content placeholdering | Email/private text corpora | Replace names/URLs/emails/phones with placeholders (`john@gmail.com` → `##@gmail.com`) | [smart-compose](17-ml-design.md) |
+| Format normalization | Inconsistent input formats | e.g. `(123) 456-7890` / `123-456-7890` → `1234567890` | [smart-compose](17-ml-design.md) |
 | PII anonymization in corpus prep | Privacy-law compliance | Anonymize PII across all crawled sources before training | [chatbot-assistant](19-chatbot-assistant.md) |
 | Web corpus prep pipeline | Training on crawled data | Content extraction (Beautiful Soup, boilerplate detection) → URL/domain allow-blocklists → language ID (fastText) → quality filtering (readability, spam, ML) | [chatbot-assistant](19-chatbot-assistant.md) |
 | Entity placeholders (ENTITY_1) | Named entities break generation | Substitute entities pre-translation, reinsert after decoding | [machine-translation](18-machine-translation.md) |
 | Drop legacy NLP preprocessing | Modern Transformer input prep | No lowercasing, stop-word removal, stemming — they destroy grammatical/case signal | [machine-translation](18-machine-translation.md) |
-| Language ID filtering (FastText) | Language-scoped models | Classify and keep only target-language text | [smart-compose](17-smart-compose.md), [chatbot-assistant](19-chatbot-assistant.md) |
+| Language ID filtering (FastText) | Language-scoped models | Classify and keep only target-language text | [smart-compose](17-ml-design.md), [chatbot-assistant](19-chatbot-assistant.md) |
 | Perceptual-hash / CLIP dedup | Large image or video sets | Duplicate images via perceptual hashing or CLIP image encoder; duplicate captions via exact match or CLIP text-encoder similarity | [image-captioning](20-image-captioning.md), [text-to-image](24-text-to-image.md), [text-to-video](26-text-to-video.md) |
 | CLIP relevance scoring (~0.25 threshold) | Noisy image–caption pairs | Pretrained CLIP scores pair relevance; drop pairs below threshold | [image-captioning](20-image-captioning.md) |
 | LLM caption summarization | Captions longer than use case allows | Summarize long captions with an LLM (Llama) — training length imitates output length | [image-captioning](20-image-captioning.md) |
@@ -77,13 +77,13 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 | Upload data-quality gate | User-supplied training images | Face detection, blur/quality/expression assessors reject bad uploads; ask user rather than train anyway | [headshot-personalization](25-headshot-personalization.md) |
 | Pixel-range normalization matched to output activation | Image model input/output contract | Normalize to [-1,1] with Tanh output (GAN) or [0,1] — mismatch breaks training | [face-generation](22-face-generation.md), [text-to-image](24-text-to-image.md) |
 | LAION-400M augmentation | Self-supervised tokenizer training | Augment in-house images with LAION-400M for a richer codebook | [high-res-synthesis](23-high-resolution-image-synthesis.md) |
-| Prompt template for multi-field context | Structured inputs beyond body text | Tag and concatenate subject/recipient/previous emails into one sequence; decouples architecture from input structure | [smart-compose](17-smart-compose.md) |
-| Decoder-only for generation | Text/image generation tasks | Pick architecture by generation-vs-understanding: encoder-only = understanding, decoder-only = generation, enc-dec = transformation | [smart-compose](17-smart-compose.md), [image-captioning](20-image-captioning.md) |
+| Prompt template for multi-field context | Structured inputs beyond body text | Tag and concatenate subject/recipient/previous emails into one sequence; decouples architecture from input structure | [smart-compose](17-ml-design.md) |
+| Decoder-only for generation | Text/image generation tasks | Pick architecture by generation-vs-understanding: encoder-only = understanding, decoder-only = generation, enc-dec = transformation | [smart-compose](17-ml-design.md), [image-captioning](20-image-captioning.md) |
 | Cross-attention conditioning | Output steered by another sequence | Decoder attends to encoder output (translation) or text embeddings (U-Net: queries from image, K/V from text encoder) | [machine-translation](18-machine-translation.md), [text-to-image](24-text-to-image.md) |
 | Causal masking in decoder | Any autoregressive decoder | Mask future tokens so generation sees only already-generated prefixes | [machine-translation](18-machine-translation.md) |
 | MLM pretraining for encoder-decoder | Encoder-decoder pretraining | Mask input tokens, decoder predicts them — next-token lets encoder leak the answer | [machine-translation](18-machine-translation.md) |
 | Start from public checkpoints | Skip pretraining cost | Initialize from T5/BART (enc-dec), GPT-2/Llama (decoder), CLIP/ViT (encoder) | [machine-translation](18-machine-translation.md), [image-captioning](20-image-captioning.md) |
-| Fixed sine-cosine positional encoding | Fixed/short contexts, generalization wanted | No extra params, maps any position; Smart Compose's pick over learned | [smart-compose](17-smart-compose.md) |
+| Fixed sine-cosine positional encoding | Fixed/short contexts, generalization wanted | No extra params, maps any position; Smart Compose's pick over learned | [smart-compose](17-ml-design.md) |
 | RoPE | Long context (≥4096) | Rotate embeddings by position-derived angle; relative position encoded geometrically, generalizes to unseen positions | [chatbot-assistant](19-chatbot-assistant.md), [text-to-video](26-text-to-video.md) |
 | 1D vs 2D image positional encoding | Patch-based vision models | 1D = sequence position (ViT), 2D = row+col preserving spatial layout; no universal best — test combinations | [image-captioning](20-image-captioning.md) |
 | Patchify | Image/video as token sequence | Divide into fixed patches → flatten → linearly project (3D patches for video DiT); ViT 256²/64² → 16 patches | [image-captioning](20-image-captioning.md), [text-to-image](24-text-to-image.md), [text-to-video](26-text-to-video.md) |
@@ -118,7 +118,7 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 | Top-p/nucleus decoding | Open-ended generation default | Smallest set with cumulative probability > p — adaptive to sharp vs flat distributions | [chatbot-assistant](19-chatbot-assistant.md), [high-res-synthesis](23-high-resolution-image-synthesis.md) |
 | Temperature tuning | Output randomness dial | T scales logits pre-softmax; 0.1–1.5 modern practice, tune per task; T=0 deterministic | [chatbot-assistant](19-chatbot-assistant.md), [high-res-synthesis](23-high-resolution-image-synthesis.md) |
 | Repetition penalty knobs | Repetitive outputs | `no_repeat_ngram_size` (HF), `frequency_penalty` (ChatGPT API) | [chatbot-assistant](19-chatbot-assistant.md) |
-| Beam search | Short, consistency-critical outputs | Track top-k sequences, prune by cumulative probability, stop at EOS; deterministic — same input, same output | [smart-compose](17-smart-compose.md), [machine-translation](18-machine-translation.md), [image-captioning](20-image-captioning.md) |
+| Beam search | Short, consistency-critical outputs | Track top-k sequences, prune by cumulative probability, stop at EOS; deterministic — same input, same output | [smart-compose](17-ml-design.md), [machine-translation](18-machine-translation.md), [image-captioning](20-image-captioning.md) |
 | Multi-candidate sampling + selection | Quality-critical dialogue | Sample multiple responses, pick best by predefined criteria | [chatbot-assistant](19-chatbot-assistant.md) |
 | Hand-engineered prompt set | Users give no prompts | One curated prompt per output template ("A professional headshot of [V] smiling...") | [headshot-personalization](25-headshot-personalization.md) |
 | Textual inversion | Tiny budget, text-driven identity | Train one token embedding `S*` only; model/text encoder frozen; minimal storage, weak detail | [headshot-personalization](25-headshot-personalization.md) |
@@ -132,10 +132,10 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 | DiT for video | New video-generation builds | 3D patchify → positional encoding → Transformer w/ text cross-attention → unpatchify; scales with data+compute (Sora, Movie Gen) | [text-to-video](26-text-to-video.md) |
 | Spatial + temporal SR | Target resolution/FPS beyond generator | Generate low-res/low-FPS latents → spatial SR (720p→1080p/4K) + temporal SR (12→24 FPS interpolation) | [text-to-video](26-text-to-video.md) |
 | Efficient attention + MoE | Attention cost at video scale | Near-linear attention (HyperAttention); sparse expert compute; tensor parallelism across devices | [text-to-video](26-text-to-video.md) |
-| Triggering service | Keystroke-triggered suggestions | Activate only with enough context ("I hope" yes, "I" no); throttle suggestion frequency | [smart-compose](17-smart-compose.md) |
-| Confidence/length filters | Suggestion candidates | Drop long and low-confidence beam candidates before display; guards trust and acceptance rate | [smart-compose](17-smart-compose.md) |
+| Triggering service | Keystroke-triggered suggestions | Activate only with enough context ("I hope" yes, "I" no); throttle suggestion frequency | [smart-compose](17-ml-design.md) |
+| Confidence/length filters | Suggestion candidates | Drop long and low-confidence beam candidates before display; guards trust and acceptance rate | [smart-compose](17-ml-design.md) |
 | Confidence-threshold gate | Ambiguous inputs | Disable suggestion when cumulative beam probability falls below threshold — design the skip path | [image-captioning](20-image-captioning.md) |
-| Rule-based bias post-processing | Explicit fairness requirement | Pronoun neutralization (he/she→they), gender-neutral terms (chairman→chairperson), flagged-term lexical analysis, NSFW keywords; full disable on offense | [smart-compose](17-smart-compose.md), [image-captioning](20-image-captioning.md) |
+| Rule-based bias post-processing | Explicit fairness requirement | Pronoun neutralization (he/she→they), gender-neutral terms (chairman→chairperson), flagged-term lexical analysis, NSFW keywords; full disable on offense | [smart-compose](17-ml-design.md), [image-captioning](20-image-captioning.md) |
 | Prompt enhancer | Sparse user prompts | Expand acronyms, fix typos, add context before the LLM — cheap quality win | [chatbot-assistant](19-chatbot-assistant.md), [text-to-image](24-text-to-image.md), [text-to-video](26-text-to-video.md) |
 | Session management | Follow-up turns | Feed chat history with the enhanced prompt — the whole mechanism for follow-up coherence | [chatbot-assistant](19-chatbot-assistant.md) |
 | Rejection response generator | Unsafe input or output | Polite refusal path wired to both input filter and output evaluator | [chatbot-assistant](19-chatbot-assistant.md) |
@@ -148,8 +148,8 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 | CoT / few-shot / role / user-context prompting | Generation quality levers | CoT for multi-hop across docs; few-shot sets format; expert persona; user profile with "use only if relevant" | [rag](21-rag.md) |
 | Citation-format prompting | RAG trust requirement | "Answer sentences end with `[1]`", no References section; assembled with role + retrieved context + user context | [rag](21-rag.md) |
 | RAFT (distractor-penalty finetuning) | Noisy retrieval is unavoidable | Label retrieved docs golden vs distractor; finetune LLM with loss penalizing distractor use — after fixing retrieval + prompts first | [rag](21-rag.md) |
-| Perplexity | LLM offline baseline | exp of avg negative log-likelihood; lower = better next-token prediction; never sufficient alone | [smart-compose](17-smart-compose.md), [chatbot-assistant](19-chatbot-assistant.md) |
-| ExactMatch@N | Suggestion quality offline | % of generations matching first N ground-truth words, averaged across lengths | [smart-compose](17-smart-compose.md) |
+| Perplexity | LLM offline baseline | exp of avg negative log-likelihood; lower = better next-token prediction; never sufficient alone | [smart-compose](17-ml-design.md), [chatbot-assistant](19-chatbot-assistant.md) |
+| ExactMatch@N | Suggestion quality offline | % of generations matching first N ground-truth words, averaged across lengths | [smart-compose](17-ml-design.md) |
 | BLEU / ROUGE / METEOR trio | Seq2seq offline metrics | BLEU = precision + brevity penalty; ROUGE = recall; METEOR = harmonic mean w/ synonym/stem matching (best human correlation, slow) | [machine-translation](18-machine-translation.md) |
 | CIDEr | Captioning evaluation | TF-IDF vectors → cosine similarity vs each reference → mean; consensus-based, knows word-order and novelty blind spots | [image-captioning](20-image-captioning.md) |
 | Multi-reference validation data | Subjective outputs | Several annotators caption each held-out image — robust to phrasing variety, fairer evaluation | [image-captioning](20-image-captioning.md) |
@@ -163,7 +163,7 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 | Curated prompt benchmarks | Standardized offline eval | DrawBench (composition/interaction); VBench, Movie Gen Bench (motion coherence, temporal consistency) | [text-to-image](24-text-to-image.md), [text-to-video](26-text-to-video.md) |
 | LLM-as-judge + Ragas/ARES | Faithfulness at scale | Automated fact-checking and consistency checks across queries; LLM compares Q&A for relevance | [rag](21-rag.md) |
 | LMSYS Chatbot Arena | Online LLM ranking | Ranks on 800K+ crowdsourced pairwise comparisons | [chatbot-assistant](19-chatbot-assistant.md) |
-| Online business metrics | Product-value proof | Acceptance rate, completion time, response latency (17); CTR/conversion/churn (16, 24); satisfaction 1–5 + paid conversion (25) | [smart-compose](17-smart-compose.md), [genai-overview](16-genai-overview.md), [headshot-personalization](25-headshot-personalization.md) |
+| Online business metrics | Product-value proof | Acceptance rate, completion time, response latency (17); CTR/conversion/churn (16, 24); satisfaction 1–5 + paid conversion (25) | [smart-compose](17-ml-design.md), [genai-overview](16-genai-design.md), [headshot-personalization](25-headshot-personalization.md) |
 | Cost-per-user monitoring | Dissatisfaction proxy | Unhappy users re-roll prompts with new seeds; spend compounds — watch monthly cost per user | [text-to-image](24-text-to-image.md) |
 | Ops cost metrics | Unit economics | Time per image + cost per generation alongside latency budget | [high-res-synthesis](23-high-resolution-image-synthesis.md) |
 
@@ -171,26 +171,26 @@ Cross-note index of every framework, technique, and anti-pattern named in the 11
 
 | Anti-pattern | Symptom | Fix | Ref |
 |---|---|---|---|
-| Model = whole system | No answer to "how does this ship to millions safely?" | Design safety filters, eval, monitoring, feedback loops as components | [genai-overview](16-genai-overview.md) |
-| Synthetic data without scrutiny | Degraded output diversity | Screen source-model bias/errors and real-world distribution gaps | [genai-overview](16-genai-overview.md) |
-| Scaling params without data | Bigger model, no loss improvement | Compute-optimal: data scales ~linearly with params | [genai-overview](16-genai-overview.md) |
-| Confusing parameters with FLOPs | Wrong optimization target when cost-constrained | Run the FLOP math; dense layers cost more compute than sparse at equal params | [genai-overview](16-genai-overview.md) |
-| Deferring non-functional requirements | Architecture rework during tuning | Identify latency/throughput/fairness/security early; they drive performance work | [genai-overview](16-genai-overview.md) |
-| Single-metric generative evaluation | One FID score misses prompt alignment, safety, bias | Assess multiple angles: quality, alignment, safety, bias | [genai-overview](16-genai-overview.md) |
-| Sync data parallelism at scale | Every step waits for the slowest device | Async parallelism (accepting stale-parameter inconsistency) | [genai-overview](16-genai-overview.md) |
-| From-scratch training on task data | Great on training emails, poor generalization | Pretrain on general data → finetune on task data | [smart-compose](17-smart-compose.md) |
-| Body-only input | Never suggests "John" after "Dear" — useless greetings | Prompt-template the full context: subject, recipient, sender, previous emails | [smart-compose](17-smart-compose.md) |
-| No positional encoding | Bag-of-words behavior, order-blind predictions | Add positional encoding — attention is permutation-invariant without it | [smart-compose](17-smart-compose.md) |
-| Greedy search in production | Repetitive degenerate loops ("I'm not sure if I'll ever...") | Beam search for short consistency-critical outputs | [smart-compose](17-smart-compose.md) |
-| Learned positional encoding on varied lengths | Overfits training lengths, degrades on others | Fixed sine-cosine | [smart-compose](17-smart-compose.md) |
-| Character- or word-level tokenization | Poor performance, or a 300K+ vocab making training slow/costly | Subword BPE/SentencePiece | [smart-compose](17-smart-compose.md), [machine-translation](18-machine-translation.md) |
-| Skipping confidence/length filters | Users see long, half-confident guesses — trust collapses, acceptance drops | Filter beam candidates by length and score | [smart-compose](17-smart-compose.md) |
-| No post-processing | Biased or NSFW suggestions reach users | Rule-based bias control + NSFW keyword filtering | [smart-compose](17-smart-compose.md) |
+| Model = whole system | No answer to "how does this ship to millions safely?" | Design safety filters, eval, monitoring, feedback loops as components | [genai-overview](16-genai-design.md) |
+| Synthetic data without scrutiny | Degraded output diversity | Screen source-model bias/errors and real-world distribution gaps | [genai-overview](16-genai-design.md) |
+| Scaling params without data | Bigger model, no loss improvement | Compute-optimal: data scales ~linearly with params | [genai-overview](16-genai-design.md) |
+| Confusing parameters with FLOPs | Wrong optimization target when cost-constrained | Run the FLOP math; dense layers cost more compute than sparse at equal params | [genai-overview](16-genai-design.md) |
+| Deferring non-functional requirements | Architecture rework during tuning | Identify latency/throughput/fairness/security early; they drive performance work | [genai-overview](16-genai-design.md) |
+| Single-metric generative evaluation | One FID score misses prompt alignment, safety, bias | Assess multiple angles: quality, alignment, safety, bias | [genai-overview](16-genai-design.md) |
+| Sync data parallelism at scale | Every step waits for the slowest device | Async parallelism (accepting stale-parameter inconsistency) | [genai-overview](16-genai-design.md) |
+| From-scratch training on task data | Great on training emails, poor generalization | Pretrain on general data → finetune on task data | [smart-compose](17-ml-design.md) |
+| Body-only input | Never suggests "John" after "Dear" — useless greetings | Prompt-template the full context: subject, recipient, sender, previous emails | [smart-compose](17-ml-design.md) |
+| No positional encoding | Bag-of-words behavior, order-blind predictions | Add positional encoding — attention is permutation-invariant without it | [smart-compose](17-ml-design.md) |
+| Greedy search in production | Repetitive degenerate loops ("I'm not sure if I'll ever...") | Beam search for short consistency-critical outputs | [smart-compose](17-ml-design.md) |
+| Learned positional encoding on varied lengths | Overfits training lengths, degrades on others | Fixed sine-cosine | [smart-compose](17-ml-design.md) |
+| Character- or word-level tokenization | Poor performance, or a 300K+ vocab making training slow/costly | Subword BPE/SentencePiece | [smart-compose](17-ml-design.md), [machine-translation](18-machine-translation.md) |
+| Skipping confidence/length filters | Users see long, half-confident guesses — trust collapses, acceptance drops | Filter beam candidates by length and score | [smart-compose](17-ml-design.md) |
+| No post-processing | Biased or NSFW suggestions reach users | Rule-based bias control + NSFW keyword filtering | [smart-compose](17-ml-design.md) |
 | Encoder "cheating" in pretraining | Full-sentence input + next-token objective leaks the answer | MLM pretraining — masked tokens never visible during encoding | [machine-translation](18-machine-translation.md) |
 | Named entities mistranslated/dropped | Models choke on uncommon proper nouns | Placeholder-substitute (ENTITY_1), reinsert after decoding | [machine-translation](18-machine-translation.md) |
 | Unmasked decoder self-attention | Decoder attends to future positions, breaks generation | Causal masking — mandatory | [machine-translation](18-machine-translation.md) |
 | Trusting BLEU alone | Correct-but-different wording punished | Pair with METEOR + human/user feedback | [machine-translation](18-machine-translation.md) |
-| Stochastic sampling in translation | Inconsistent translations for identical input | Beam search — determinism is the feature | [machine-translation](18-machine-translation.md), [smart-compose](17-smart-compose.md), [image-captioning](20-image-captioning.md) |
+| Stochastic sampling in translation | Inconsistent translations for identical input | Beam search — determinism is the feature | [machine-translation](18-machine-translation.md), [smart-compose](17-ml-design.md), [image-captioning](20-image-captioning.md) |
 | Wrong language detected → wrong model routed | Detector failure silently degrades output | Treat the language detector as a load-bearing classifier | [machine-translation](18-machine-translation.md) |
 | Bilingual fleet sprawl | N-pair models multiply train/deploy/maintain cost | Choose deliberately via accuracy-vs-ops table; multilingual (mT5/mBART) is closing the gap | [machine-translation](18-machine-translation.md) |
 | Deploying the base model | Chatbot completes sentences, never responds | SFT — turns text-continuer into responder | [chatbot-assistant](19-chatbot-assistant.md) |

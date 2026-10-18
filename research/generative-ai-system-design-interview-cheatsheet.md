@@ -12,8 +12,8 @@
 | Text-to-video | Latent diffusion (not pixel: 7 min/video) + DiT + spatial SR (4×) + temporal SR (12→24 FPS) ([t2v](26-text-to-video.md)) |
 | Context window 4096 tokens | RoPE positional encoding; absolute breaks when trained at 512 ([chatbot](19-chatbot-assistant.md)) |
 | Decoding for open-ended chat | Top-p (nucleus) + tuned temperature (0.1–1.5); deterministic search = repetition loops ([chatbot](19-chatbot-assistant.md)) |
-| Decoding for typed-text completion / translation / captions | Deterministic: beam search — consistency wanted, diversity unwanted ([smart-compose](17-smart-compose.md), [mt](18-machine-translation.md), [captioning](20-image-captioning.md)) |
-| Output is new content, text modality | Autoregressive decoder-only; encoder-only = understanding, encoder-decoder = output transforms input ([smart-compose](17-smart-compose.md)) |
+| Decoding for typed-text completion / translation / captions | Deterministic: beam search — consistency wanted, diversity unwanted ([smart-compose](17-ml-design.md), [mt](18-machine-translation.md), [captioning](20-image-captioning.md)) |
+| Output is new content, text modality | Autoregressive decoder-only; encoder-only = understanding, encoder-decoder = output transforms input ([smart-compose](17-ml-design.md)) |
 | Seq2seq with variable-length I/O (translation, captioning) | Encoder-decoder: bidirectional encoder + causally-masked decoder + cross-attention ([mt](18-machine-translation.md), [captioning](20-image-captioning.md)) |
 | Pretraining an encoder-decoder | MLM objective, not next-token — full-sentence input lets the encoder "cheat" ([mt](18-machine-translation.md)) |
 | Knowledge changes (~20%/yr) AND answers must cite sources | RAG; finetuning only for behavior/style, never facts, never citations ([rag](21-rag.md)) |
@@ -32,18 +32,18 @@
 
 ### Quick rules
 
-- Answer skeleton: 2–3 clarifying questions (business goal, scale, quality-vs-speed) → modality → algorithm family, in the first 5 minutes ([overview](16-genai-overview.md)).
-- Scaling laws are the justification: scaling beats arch tweaks (OpenAI 2020); data ~linear with params (DeepMind 2022); budget test-time compute as a quality lever ([overview](16-genai-overview.md)).
-- Cost math aloud: ops × params ÷ GPU TFLOP/s → GPU-years; converts hand-wave into a number ([overview](16-genai-overview.md)).
-- Tokenization: always subword (BPE/SentencePiece), use existing libraries, never hand-roll; char-level ~100 vocab performs poorly, word-level 300K+ vocab is impractical ([smart-compose](17-smart-compose.md), [mt](18-machine-translation.md)).
-- Never train from scratch on task data: pretrain on general text → finetune on task data; or start from public checkpoints (T5/BART/GPT-2/Llama) to skip pretraining cost ([smart-compose](17-smart-compose.md), [mt](18-machine-translation.md), [captioning](20-image-captioning.md)).
+- Answer skeleton: 2–3 clarifying questions (business goal, scale, quality-vs-speed) → modality → algorithm family, in the first 5 minutes ([overview](16-genai-design.md)).
+- Scaling laws are the justification: scaling beats arch tweaks (OpenAI 2020); data ~linear with params (DeepMind 2022); budget test-time compute as a quality lever ([overview](16-genai-design.md)).
+- Cost math aloud: ops × params ÷ GPU TFLOP/s → GPU-years; converts hand-wave into a number ([overview](16-genai-design.md)).
+- Tokenization: always subword (BPE/SentencePiece), use existing libraries, never hand-roll; char-level ~100 vocab performs poorly, word-level 300K+ vocab is impractical ([smart-compose](17-ml-design.md), [mt](18-machine-translation.md)).
+- Never train from scratch on task data: pretrain on general text → finetune on task data; or start from public checkpoints (T5/BART/GPT-2/Llama) to skip pretraining cost ([smart-compose](17-ml-design.md), [mt](18-machine-translation.md), [captioning](20-image-captioning.md)).
 - Three-stage LLM training, data quality inverts: trillions of low-quality tokens → 10K–100K demonstrations → 100K–1M comparisons; pretraining is the only expensive stage ([chatbot](19-chatbot-assistant.md)).
 - Deploying the base model = it continues your prompt instead of answering; SFT turns continuer into responder, RLHF aligns ([chatbot](19-chatbot-assistant.md)).
-- Embed prompt context as tagged sequence via template (subject, recipient, history) — not just body ([smart-compose](17-smart-compose.md)).
+- Embed prompt context as tagged sequence via template (subject, recipient, history) — not just body ([smart-compose](17-ml-design.md)).
 - Legacy text preprocessing (lowercasing, stop-words, stemming) is dead — drop it; keep placeholder-substitution for named entities, restore after decode ([mt](18-machine-translation.md)).
 - Data cleaning constant across designs: language ID → NSFW/harm removal → PII anonymize → dedup (perceptual hash / CLIP) → quality filter → BPE ([chatbot](19-chatbot-assistant.md), [captioning](20-image-captioning.md), [t2v](26-text-to-video.md)).
 - Dedup is load-bearing: duplicates overexpose the model → overfitting, bias toward frequent images and samey outputs ([chatbot](19-chatbot-assistant.md), [t2i](24-text-to-image.md)).
-- Positional encoding: fixed sine-cosine for short sequences (Smart Compose), RoPE for long context (chat, video); ViT uses learnable 1D; no universal best — test ([smart-compose](17-smart-compose.md), [chatbot](19-chatbot-assistant.md), [captioning](20-image-captioning.md), [t2v](26-text-to-video.md)).
+- Positional encoding: fixed sine-cosine for short sequences (Smart Compose), RoPE for long context (chat, video); ViT uses learnable 1D; no universal best — test ([smart-compose](17-ml-design.md), [chatbot](19-chatbot-assistant.md), [captioning](20-image-captioning.md), [t2v](26-text-to-video.md)).
 - Diffusion training in 4 steps: sample t ∈ 1..1000 → add noise → condition (text + timestep) → predict ε with MSE; predict ε, never x₀ ([t2i](24-text-to-image.md)).
 - Diffusion sampling fixes: CFG for prompt alignment + DDIM (1000 → as few as 20 steps) for latency — volunteer both ([t2i](24-text-to-image.md)).
 - VQ-VAE tokenizer losses: reconstruction + quantization (stop-gradient) + perceptual (VGG) + adversarial (patch-based); MSE-only shows artifacts at high res ([hires](23-high-resolution-image-synthesis.md)).
@@ -57,32 +57,32 @@
 - Shared embedding space is the RAG invariant: same text encoder for docs and queries; images enter via CLIP or caption-then-embed ([rag](21-rag.md)).
 - Captioning encoder granularity: token sequence (per-patch), not single global vector — attention wants sequences, detail matters ([captioning](20-image-captioning.md)).
 - Multi-reference captions for training and eval — robust to phrasing variety, fairer evaluation ([captioning](20-image-captioning.md)).
-- Confidence gating at serving: beam-search cumulative probability below threshold → disable suggestion for ambiguous inputs ([captioning](20-image-captioning.md), [smart-compose](17-smart-compose.md)).
+- Confidence gating at serving: beam-search cumulative probability below threshold → disable suggestion for ambiguous inputs ([captioning](20-image-captioning.md), [smart-compose](17-ml-design.md)).
 - Pretrain latents, don't encode per step: run frames through the VAE once, cache — per-iteration VAE stalls training ([t2v](26-text-to-video.md)).
 - Video = image cost × frame count; collapse the multiplier with latent compression + low-res/low-FPS generation + spatial/temporal SR ([t2v](26-text-to-video.md)).
 - Video–text data scarcity: fold image–text pairs in as single-frame videos (one stage) or pretrain image → finetune video — state the trade-off ([t2v](26-text-to-video.md)).
 - FID lower = better; IS higher = better; neither replaces pairwise human evaluation — Inception/ImageNet artifacts misalign with judgment ([face-gen](22-face-generation.md)).
 - Metric coverage: FID/IS = frame quality, FVD = temporal consistency, CLIPScore = text alignment — no single metric covers the others; use the RAG triad (context relevance, faithfulness, answer relevance, correctness) for RAG ([t2v](26-text-to-video.md), [rag](21-rag.md)).
 - Watch cost per generation / cost per user, not just latency — unhappy users re-roll seeds, dissatisfaction compounds into compute spend ([t2i](24-text-to-image.md), [hires](23-high-resolution-image-synthesis.md)).
-- Non-functional requirements (latency, fairness, safety) drive tuning, rarely initial architecture — but name them early ([overview](16-genai-overview.md)).
+- Non-functional requirements (latency, fairness, safety) drive tuning, rarely initial architecture — but name them early ([overview](16-genai-design.md)).
 - Honest scope cuts read senior: "PPO/DPO internals beyond this round; loop is generate → score → update" ([chatbot](19-chatbot-assistant.md)).
 
 ### Numbers table
 
 | Number | Meaning | Ref |
 |---|---|---|
-| 15T tokens (~50 TB) | Llama 3 training data — self-supervised scale ([overview](16-genai-overview.md)) |
-| 1.8B image–text pairs | Flamingo training data ([overview](16-genai-overview.md)) |
-| 540B / 175B / 405B / 80B / 2B params | PaLM / GPT-3 / Llama 3 / Flamingo / Imagen ([overview](16-genai-overview.md)) |
-| 10²² FLOPs | PaLM-2 training compute ([overview](16-genai-overview.md)) |
-| ~5.5 years | One H100 (60 TFLOP/s ≈ 5.18 EFLOP/day) on PaLM-2's budget → thousands of GPUs ([overview](16-genai-overview.md)) |
-| >$100M | GPT-4 training cost ([overview](16-genai-overview.md)) |
-| 21 FLOPs | Fully connected 4→3 layer (3×(4+3)) — FLOP warm-up math ([overview](16-genai-overview.md)) |
-| ~100 ms | Smart Compose latency budget (imperceptible) ([smart-compose](17-smart-compose.md)) |
-| 1B emails | Smart Compose finetuning corpus ([smart-compose](17-smart-compose.md)) |
-| 1.8B users, ≤500 emails/day each | Smart Compose scale requirement ([smart-compose](17-smart-compose.md)) |
-| ~100 / 300K+ (267,735) / 50K–150K | Vocab size: char / word (Transformer-XL) / subword ([smart-compose](17-smart-compose.md)) |
-| O(n²) | Self-attention cost in sequence length → Flash Attention motivation ([smart-compose](17-smart-compose.md)) |
+| 15T tokens (~50 TB) | Llama 3 training data — self-supervised scale ([overview](16-genai-design.md)) |
+| 1.8B image–text pairs | Flamingo training data ([overview](16-genai-design.md)) |
+| 540B / 175B / 405B / 80B / 2B params | PaLM / GPT-3 / Llama 3 / Flamingo / Imagen ([overview](16-genai-design.md)) |
+| 10²² FLOPs | PaLM-2 training compute ([overview](16-genai-design.md)) |
+| ~5.5 years | One H100 (60 TFLOP/s ≈ 5.18 EFLOP/day) on PaLM-2's budget → thousands of GPUs ([overview](16-genai-design.md)) |
+| >$100M | GPT-4 training cost ([overview](16-genai-design.md)) |
+| 21 FLOPs | Fully connected 4→3 layer (3×(4+3)) — FLOP warm-up math ([overview](16-genai-design.md)) |
+| ~100 ms | Smart Compose latency budget (imperceptible) ([smart-compose](17-ml-design.md)) |
+| 1B emails | Smart Compose finetuning corpus ([smart-compose](17-ml-design.md)) |
+| 1.8B users, ≤500 emails/day each | Smart Compose scale requirement ([smart-compose](17-ml-design.md)) |
+| ~100 / 300K+ (267,735) / 50K–150K | Vocab size: char / word (Transformer-XL) / subword ([smart-compose](17-ml-design.md)) |
+| O(n²) | Self-attention cost in sequence length → Flash Attention motivation ([smart-compose](17-ml-design.md)) |
 | 4 languages, 1,000-word inputs, 300M sentence pairs | MT scope + training data ([mt](18-machine-translation.md)) |
 | ≥4096 tokens | Chatbot context window requirement → RoPE ([chatbot](19-chatbot-assistant.md)) |
 | 80,000 (instruction, answer) examples | Chatbot SFT dataset size from requirements ([chatbot](19-chatbot-assistant.md)) |
@@ -137,9 +137,9 @@
 
 | Need | Pick | Ref |
 |---|---|---|
-| Text generation | Decoder-only Transformer ([smart-compose](17-smart-compose.md)) |
+| Text generation | Decoder-only Transformer ([smart-compose](17-ml-design.md)) |
 | Output transforms input (translation, captioning) | Encoder-decoder + cross-attention ([mt](18-machine-translation.md), [captioning](20-image-captioning.md)) |
-| Understanding (classify, NER, language ID) | Encoder-only (BERT-style); language detector = encoder-only classifier ([smart-compose](17-smart-compose.md), [mt](18-machine-translation.md)) |
+| Understanding (classify, NER, language ID) | Encoder-only (BERT-style); language detector = encoder-only classifier ([smart-compose](17-ml-design.md), [mt](18-machine-translation.md)) |
 | Image tokens ↔ image | VQ-VAE: CNN encoder + codebook quantizer + ConvTranspose decoder; deploy decoder only ([hires](23-high-resolution-image-synthesis.md)) |
 | Denoising backbone | U-Net (Imagen, Stable Diffusion) or DiT (Sora, Movie Gen — newer bet, scales) ([t2i](24-text-to-image.md), [t2v](26-text-to-video.md)) |
 | Faces, <1s, latent control | GAN + StyleGAN (ConvT generator, stride-2 discriminator, alternating freeze-train) ([face-gen](22-face-generation.md)) |
@@ -149,10 +149,10 @@
 
 | Task | Offline metrics | Ref |
 |---|---|---|
-| Text generation | Perplexity, BLEU, METEOR, ROUGE, CIDEr; ExactMatch@N | [overview](16-genai-overview.md), [smart-compose](17-smart-compose.md), [captioning](20-image-captioning.md) |
+| Text generation | Perplexity, BLEU, METEOR, ROUGE, CIDEr; ExactMatch@N | [overview](16-genai-design.md), [smart-compose](17-ml-design.md), [captioning](20-image-captioning.md) |
 | Machine translation | BLEU (precision+brevity), ROUGE (recall), METEOR (synonyms, best human correlation) | [mt](18-machine-translation.md) |
 | Chatbot | 4 layers: perplexity → task benchmarks (MMLU, GSM8K, HumanEval) → safety (RealToxicityPrompts, CrowS-Pairs, TruthfulQA) → human + Arena | [chatbot](19-chatbot-assistant.md) |
-| Image generation | FID (lower better), IS (higher better), KID, CLIPScore (alignment), DrawBench, pairwise human | [overview](16-genai-overview.md), [face-gen](22-face-generation.md), [t2i](24-text-to-image.md) |
+| Image generation | FID (lower better), IS (higher better), KID, CLIPScore (alignment), DrawBench, pairwise human | [overview](16-genai-design.md), [face-gen](22-face-generation.md), [t2i](24-text-to-image.md) |
 | RAG | Triad: context relevance (HitRate/MRR/NDCG/P@k), faithfulness (Ragas/ARES), answer relevance (LLM-judge), correctness (BLEU/ROUGE/METEOR) | [rag](21-rag.md) |
 | Personalization | CLIPScore (text), FID/IS (quality), DINO + facial similarity (identity); DINO for img-img, CLIP for img-text | [headshot](25-headshot-personalization.md) |
-| Text-to-video | FID/IS per-frame + FVD (temporal, lower better) + CLIP similarity (alignment) + VBench/Movie Gen Bench + pairwise human | [overview](16-genai-overview.md), [t2v](26-text-to-video.md) |
+| Text-to-video | FID/IS per-frame + FVD (temporal, lower better) + CLIP similarity (alignment) + VBench/Movie Gen Bench + pairwise human | [overview](16-genai-design.md), [t2v](26-text-to-video.md) |
