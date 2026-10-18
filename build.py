@@ -120,7 +120,7 @@ md = MarkdownIt("commonmark", {"html": True, "linkify": True, "breaks": False})
 md.enable("table")
 
 MERMAID_FENCE_RE = re.compile(r'```mermaid\n(.*?)```', re.S)
-CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario|tldr|cards)\s*(.*)$')
+CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario|tldr|cards|lab)\s*(.*)$')
 STUDY_SLOT_RE = re.compile(r'^(TLDRSLOT|CARDSLOT)\d+X$')
 SC_NODE_RE  = re.compile(r'^@(\w+)\s+(.*?)\s*::\s*(.+)$')
 SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(?:(.*?)\s*=>\s*)?@(\w+)(\s*\|\s*(success|fail))?$')
@@ -165,6 +165,12 @@ def preprocess(src):
                     out.append(f'<div class="dg-frame"><iframe src="diagrams/{s}.html" title="{s} diagram" loading="lazy"></iframe></div>')
                 in_c = "skip"
                 continue
+            if typ == "lab":
+                if title not in ("skew", "watermark"):
+                    raise ValueError(f"unknown lab {title!r}")
+                out.append(f'<div class="lab" id="lab-{title}">')
+                in_c, lines_acc = "lab", []
+                continue
             t = f'<div class="ct-title">{html.escape(title)}</div>' if title else ""
             out += [f'<div class="ct ct-{typ}">', t, ""]
             in_c = True
@@ -179,26 +185,27 @@ def preprocess(src):
             elif in_c == "cards":
                 cardss.append([l for l in lines_acc if l.strip()])
                 out.append(f"\nCARDSLOT{len(cardss)-1}X\n")
+            elif in_c == "lab":
+                out += [md.render("\n".join(lines_acc)), "</div>"]
             elif in_c == "skip":
                 pass
             else:
                 out += ["", "</div>"]
             in_c = False
             continue
-        if in_c in ("scenario", "tldr", "cards"):
+        if in_c in ("scenario", "tldr", "cards", "lab"):
             lines_acc.append(line)
             continue
         if not in_c and not s.startswith('#') and '`' not in line and '|' not in line:
             line = term_wrap(line)
         out.append(line)
-    if in_c in ("scenario", "tldr", "cards"):
+    if in_c in ("scenario", "tldr", "cards", "lab"):
         raise ValueError(f"Unclosed :::{in_c} block")
     return "\n".join(out), mer, scenarios, tldrs, cardss
 
 def scenario_parse(title, lines):
     nodes, edges, order, last = [], [], [], None
     for ln in lines:
-        ln = ln.strip()
         if not ln: continue
         m = SC_NODE_RE.match(ln)
         if m:
@@ -801,6 +808,25 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+.lab{--lab-ok:#2F6FEB;--lab-good:#1F883D;--lab-bad:#D93025;border:1px solid var(--vp-c-divider);border-radius:14px;padding:16px;background:var(--vp-c-bg-alt);margin:20px 0}
+html.dark .lab{--lab-ok:#7CA9F5;--lab-good:#57B76A;--lab-bad:#F2766B}
+.lab input[type=range]{width:100%}
+.lab .lab-row{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;margin:6px 0}
+.lab .lab-row label{flex:1 1 240px;min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 8px;align-items:center;font-size:14px;color:var(--vp-c-text-2)}
+.lab .lab-row label>b{color:var(--vp-c-text-1);font-variant-numeric:tabular-nums}
+.sk-bars{display:flex;align-items:flex-end;gap:2px;height:120px;margin:12px 0 4px}
+.sk-bars div{flex:1 1 0;background:var(--lab-ok);border-radius:2px 2px 0 0;min-height:2px}
+.sk-bars div.sk-hot{background:var(--lab-bad)}
+.lab .sk-verdict{margin:8px 0 0}
+.lab .sk-verdict b.v-warn{color:var(--lab-bad)}
+.lab .sk-verdict b.v-good{color:var(--lab-good)}
+.lab .lab-stats{font-size:13.5px;color:var(--vp-c-text-2)}
+.lab svg text{font-size:11px;fill:var(--vp-c-text-2)}
+.lab svg .wm-win{fill:var(--vp-code-bg);stroke:var(--vp-c-divider)}
+.lab svg .wm-emitted{fill:var(--vp-c-brand-soft)}
+.lab svg .wm-axis{stroke:var(--vp-c-divider)}
+.lab svg .wm-line{stroke:var(--vp-c-text-2);stroke-dasharray:4 3}
+.lab .lab-verdict{margin:6px 0 0;font-size:14.5px}
 """
 
 JS = r"""
@@ -1184,6 +1210,93 @@ const els=document.querySelectorAll('.mermaid');
 for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toString(36).slice(2),el.textContent.trim());el.innerHTML=svg}catch(e){el.innerHTML='<pre>'+el.textContent+'</pre>'}}
 """
 
+LAB_SKEW_JS = r"""
+(function(){
+  var el=document.getElementById('lab-skew');if(!el)return;
+  function $(id){return el.querySelector('#'+id)}
+  var p=$('sk-p'),s=$('sk-s'),r=$('sk-r');
+  function fmt(B){return B>=1e9?(B/1e9).toFixed(2)+' GB':B>=1e6?(B/1e6).toFixed(1)+' MB':(B/1e3).toFixed(1)+' KB'}
+  function draw(){
+    var P=+p.value,sk=+s.value,rows=Math.pow(10,6+ +r.value/10),w=100;
+    var hot=rows*sk*w, rest=rows*(1-sk)*w/(P-1);
+    var bars=$('sk-bars'),n=Math.min(P,20),h='';
+    for(var i=0;i<n;i++){
+      var idx=n===P?i:Math.round(i*(P-1)/(n-1));
+      var mx=Math.max(hot,rest), b=idx===0?hot:rest;
+      h+='<div'+(idx===0?' class="sk-hot"':'')+' style="height:'+Math.max(2,b/mx*100).toFixed(1)+'%" title="partition '+(idx+1)+': '+fmt(b)+'"></div>';
+    }
+    bars.innerHTML=h;
+    var avg=(hot+rest*(P-1))/P, ratio=hot/avg, secs=hot/1e8;
+    $('sk-pv').textContent=P;
+    $('sk-sv').textContent=Math.round(sk*100)+'%';
+    $('sk-rv').textContent=rows>=1e9?(rows/1e9).toFixed(1)+'B':(rows/1e6)+'M';
+    $('sk-stats').innerHTML='hot '+fmt(hot)+' · median ≈ '+fmt(rest)+' · avg '+fmt(avg)+' · max/avg <b>'+ratio.toFixed(1)+'×</b> · stage time ≈ hot/100 MB/s = <b>'+(secs>=60?(secs/60).toFixed(1)+' min':secs.toFixed(0)+' s')+'</b>';
+    var aqe=hot>268435456&&hot>5*rest;
+    $('sk-verdict').innerHTML=aqe
+      ?'<b class="v-warn">AQE skew join will split this key</b> — set <code>spark.sql.adaptive.skewJoin.enabled=true</code>'
+      :'<b class="v-good">below AQE threshold</b> — increase shuffle partitions';
+  }
+  [p,s,r].forEach(function(x){x.addEventListener('input',draw)});
+  draw();
+})();
+""";
+
+LAB_WM_JS = r"""
+(function(){
+  var el=document.getElementById('lab-watermark');if(!el)return;
+  function $(id){return el.querySelector('#'+id)}
+  var EVT=[1,3,7,9,12,2,11,15,8,16], scr=$('wm-i'), late=$('wm-late'), svg=$('wm-svg');
+  var X=function(t){return 20+t*28};
+  function draw(){
+    var k=+scr.value, lat=late.checked?2:0, i, st=[], acc=0, drop=0;
+    for(i=0;i<=k;i++){
+      var ms=i?Math.max.apply(null,EVT.slice(0,i)):-Infinity, W=ms-5;
+      var lateEv=EVT[i]<W, dropped=lateEv&&EVT[i]<W-lat;
+      if(dropped)drop++;else acc++;
+      st.push({et:EVT[i],late:lateEv,dropped:dropped});
+    }
+    var ms=k?Math.max.apply(null,EVT.slice(0,k)):-Infinity, W=ms-5;
+    var g='';
+    [[0,10],[10,20]].forEach(function(wd){
+      var emitted=W>=wd[1];
+      g+='<rect class="wm-win'+(emitted?' wm-emitted':'')+'" x="'+X(wd[0])+'" y="14" width="'+(X(wd[1])-X(wd[0]))+'" height="34" rx="3"/>';
+      g+='<text x="'+(X(wd[0])+8)+'" y="30">['+wd[0]+'s,'+wd[1]+'s)'+(emitted?' — EMITTED':'')+'</text>';
+    });
+    g+='<line class="wm-axis" x1="20" y1="104" x2="580" y2="104"/>';
+    [0,5,10,15,20].forEach(function(t){g+='<text x="'+X(t)+'" y="118" text-anchor="middle">'+t+'s</text>'});
+    if(W>-5){
+      var wx=Math.max(20,X(W));
+      g+='<line class="wm-line" x1="'+wx+'" y1="14" x2="'+wx+'" y2="104"/><text x="'+(wx+4)+'" y="24">W='+W+'s</text>';
+    }
+    for(i=0;i<=k;i++){
+      var c=st[i].dropped?'var(--lab-bad)':st[i].late?'var(--lab-good)':'var(--lab-ok)';
+      g+='<circle cx="'+X(st[i].et)+'" cy="70" r="5" fill="'+c+'"/>';
+      if(st[i].dropped)g+='<text x="'+X(st[i].et)+'" y="60" text-anchor="middle" style="fill:var(--lab-bad)">✕</text>';
+    }
+    svg.innerHTML=g;
+    $('wm-kv').textContent='#'+(k+1)+' · t='+EVT[k]+'s';
+    $('wm-wv').textContent=(W===-Infinity?'−∞':W)+' s';
+    $('wm-acc').textContent=acc;
+    $('wm-drop').textContent=drop;
+    var cur=st[k];
+    $('wm-msg').innerHTML=cur.dropped
+      ?'<span style="color:var(--lab-bad)">late beyond allowed lateness — dropped to side output</span>'
+      :cur.late
+        ?'<span style="color:var(--lab-good)">late within allowed lateness — accepted, window re-fires (upsert)</span>'
+        :'<span style="color:var(--lab-ok)">on-time</span>';
+  }
+  scr.addEventListener('input',draw);
+  late.addEventListener('change',draw);
+  draw();
+})();
+""";
+
+LAB_JS = {"skew": LAB_SKEW_JS, "watermark": LAB_WM_JS}
+LAB_PAGES = {5: "watermark", 10: "skew"}
+def lab_extra(i):
+    slug = LAB_PAGES.get(i)
+    return f"<script>{LAB_JS[slug]}</script>" if slug else ""
+
 FEATURES = [
     ("🧭", "Assessment Map", "EPAM's 6-round loop, A3 competency matrix, and what senior signals graders score.", "s01.html"),
     ("🧮", "Core Skills", "SQL window functions, PySpark live-coding patterns, distributed-systems fundamentals.", "s02.html"),
@@ -1347,7 +1460,7 @@ for s in sections:
     body = main_with_sidebar(s["i"], inner, outline)
     (ROOT / s["url"]).write_text(
         shell(s["title"], body, section_attr=f' data-section="{s["i"]}"', active=s["i"],
-              extra=study_extra(s["i"])))
+              extra=study_extra(s["i"]) + lab_extra(s["i"])))
     print(f"  wrote {s['url']}: '{s['title']}' +{len(s['subs'])} subs")
 
 # ---------------- review hub ----------------

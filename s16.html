@@ -354,6 +354,25 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
+.lab{--lab-ok:#2F6FEB;--lab-good:#1F883D;--lab-bad:#D93025;border:1px solid var(--vp-c-divider);border-radius:14px;padding:16px;background:var(--vp-c-bg-alt);margin:20px 0}
+html.dark .lab{--lab-ok:#7CA9F5;--lab-good:#57B76A;--lab-bad:#F2766B}
+.lab input[type=range]{width:100%}
+.lab .lab-row{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;margin:6px 0}
+.lab .lab-row label{flex:1 1 240px;min-width:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 8px;align-items:center;font-size:14px;color:var(--vp-c-text-2)}
+.lab .lab-row label>b{color:var(--vp-c-text-1);font-variant-numeric:tabular-nums}
+.sk-bars{display:flex;align-items:flex-end;gap:2px;height:120px;margin:12px 0 4px}
+.sk-bars div{flex:1 1 0;background:var(--lab-ok);border-radius:2px 2px 0 0;min-height:2px}
+.sk-bars div.sk-hot{background:var(--lab-bad)}
+.lab .sk-verdict{margin:8px 0 0}
+.lab .sk-verdict b.v-warn{color:var(--lab-bad)}
+.lab .sk-verdict b.v-good{color:var(--lab-good)}
+.lab .lab-stats{font-size:13.5px;color:var(--vp-c-text-2)}
+.lab svg text{font-size:11px;fill:var(--vp-c-text-2)}
+.lab svg .wm-win{fill:var(--vp-code-bg);stroke:var(--vp-c-divider)}
+.lab svg .wm-emitted{fill:var(--vp-c-brand-soft)}
+.lab svg .wm-axis{stroke:var(--vp-c-divider)}
+.lab svg .wm-line{stroke:var(--vp-c-text-2);stroke-dasharray:4 3}
+.lab .lab-verdict{margin:6px 0 0;font-size:14.5px}
 </style>
 <script>if(localStorage.getItem('vp-theme')==='dark'||(!localStorage.getItem('vp-theme')&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')</script>
 </head>
