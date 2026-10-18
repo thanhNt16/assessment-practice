@@ -136,7 +136,7 @@ def preprocess(src):
     def term_wrap(line):
         for t in GLOSS_TERMS:
             if t.lower() in used_terms: continue
-            m = re.search(r'\b' + re.escape(t) + r's?\b', line, re.I)
+            m = re.search(r'\b' + re.escape(t) + r's?\b', line, 0 if re.search(r'[A-Z]', t) else re.I)
             if m:
                 used_terms.add(t.lower())
                 return (line[:m.start()] + f'<span class="term" data-term="{html.escape(t)}">'
@@ -363,7 +363,7 @@ for s in sections:
     if s["tldr"]: study["tldr"][s["i"] + 1] = s["tldr"]
     study["cards"] += parse_study((RESEARCH / s["file"]).read_text(), s["i"] + 1)[1]
 for t in study["terms"]:
-    pat = re.compile(rf'\b{re.escape(t["t"])}\b', re.I)
+    pat = re.compile(rf'\b{re.escape(t["t"])}s?\b', 0 if re.search(r'[A-Z]', t["t"]) else re.I)
     study["termRefs"][t["t"]] = [s["i"] + 1 for s in sections
                                  if pat.search((RESEARCH / s["file"]).read_text())]
 validate_study(study)

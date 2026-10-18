@@ -142,12 +142,13 @@ ROC-AUC :: Threshold-independent ranking quality metric.
 A3 defense :: EPAM committee-form system design defense probing objective framing, pipeline, and metric choices.
 
 ## Edges
+Databricks > Delta Lake :: Delta Lake is the platform's native table format.
+Snowflake > Iceberg :: Snowflake reads and writes Iceberg tables for open interop.
+Snowflake > Data contracts :: platform governance features publish contract-backed datasets.
 Checkpoint > Exactly-once :: exactly-once recovery replays from durable state snapshots.
-Idempotency > exactly-once :: exactly-once is engineered from idempotent writes.
 Medallion > Parquet :: lakehouse layers are stored in open columnar formats.
 RAG > Embedding :: retrieval quality depends on embedding similarity.
 AQE > Skew :: AQE detects and rewrites skewed joins at runtime.
-Shuffle > Skew :: skew only matters where a shuffle redistributes keys.
 Driver > Executor :: the driver schedules tasks; executors run them on partitions.
 DAG > Shuffle :: stage boundaries in the DAG are exactly where shuffles happen.
 Salting > Skew :: salted keys break up the hot partitions that skew stages.
@@ -181,7 +182,6 @@ BERT > Transformer :: encoder-only transformer for contextual embeddings.
 word2vec > Embedding :: the classic static embedding baseline.
 Embedding > ANN :: retrieval runs ANN over embedding indexes.
 ANN > HNSW :: HNSW is the graph index most vector search engines ship.
-Quantization > ANN :: compressed vectors cut index memory at some recall cost.
 RAG > Chunking :: retrieval quality starts with chunk granularity.
 RAG > Re-ranking :: a cross-encoder rerank stage fixes first-stage retrieval noise.
 RAG > Hallucination :: grounding in evidence reduces unsupported answers.
@@ -208,7 +208,7 @@ DINO > CLIPScore :: DINO catches visual detail that CLIP forgives.
 Beam search > Autoregressive model :: decoding over the partial sequences of AR models.
 FID > GAN :: distributional quality metric born for GAN outputs.
 FVD > FID :: adds temporal modeling that per-frame metrics miss.
-CIDEr > BLEU :: captioning consensus versus plain n-gram precision.
-METEOR > BLEU :: adds recall and stemming to n-gram matching.
+Window functions > Catalyst :: Spark plans SQL window aggregates through the same Catalyst optimizer.
+Iceberg > Parquet :: Iceberg tables store data as Parquet files behind the metadata tree.
+Partitioning > Kafka :: Kafka partitions topics for parallel consumption the way compute partitions data.
 mAP > Recall@k :: average precision aggregates precision across recall levels.
-nDCG > MRR :: graded-relevance ranking versus single-hit reciprocal rank.
