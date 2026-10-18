@@ -206,6 +206,7 @@ def preprocess(src):
 def scenario_parse(title, lines):
     nodes, edges, order, last = [], [], [], None
     for ln in lines:
+        ln = ln.strip()
         if not ln: continue
         m = SC_NODE_RE.match(ln)
         if m:
@@ -1229,7 +1230,7 @@ LAB_SKEW_JS = r"""
     var avg=(hot+rest*(P-1))/P, ratio=hot/avg, secs=hot/1e8;
     $('sk-pv').textContent=P;
     $('sk-sv').textContent=Math.round(sk*100)+'%';
-    $('sk-rv').textContent=rows>=1e9?(rows/1e9).toFixed(1)+'B':(rows/1e6)+'M';
+    $('sk-rv').textContent=rows>=1e9?(rows/1e9).toFixed(1)+'B':(rows/1e6).toFixed(0)+'M';
     $('sk-stats').innerHTML='hot '+fmt(hot)+' · median ≈ '+fmt(rest)+' · avg '+fmt(avg)+' · max/avg <b>'+ratio.toFixed(1)+'×</b> · stage time ≈ hot/100 MB/s = <b>'+(secs>=60?(secs/60).toFixed(1)+' min':secs.toFixed(0)+' s')+'</b>';
     var aqe=hot>268435456&&hot>5*rest;
     $('sk-verdict').innerHTML=aqe
