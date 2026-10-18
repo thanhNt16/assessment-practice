@@ -53,7 +53,7 @@ Q: question text :: answer text
 
 ### Content promotion
 
-- s18–s26 built from existing research files (16-genai-overview, 17-smart-compose, 18-machine-translation, 19-chatbot-assistant, 20-image-captioning, 21-rag, 22-face-generation, 23-high-resolution-image-synthesis, 24-text-to-image, 25-headshot-personalization, 26-text-to-video — final mapping fixes 26 numbered pages; leftover files fold in as extras where noted in the plan).
+- Page mapping (explicit, 9 new pages): s18 = `18-machine-translation`, s19 = `19-chatbot-assistant`, s20 = `20-image-captioning`, s21 = `21-rag`, s22 = `22-face-generation`, s23 = `23-high-resolution-image-synthesis`, s24 = `24-text-to-image`, s25 = `25-headshot-personalization`, s26 = `26-text-to-video`. The two leftover surveys merge into existing pages at build time: `16-genai-overview` folds into s16 (genai-design) as its overview section; `17-smart-compose` folds into s17 (ml-design) as a worked example. Neither becomes its own page.
 - New module on path map + sidebar: **GenAI & ML Design** covering s16–s26.
 - 9 new scenario trees for files that lack one (same DSL, 8–12 nodes).
 
