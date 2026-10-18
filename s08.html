@@ -235,9 +235,9 @@ html.dark .dg-dark{display:block}
 .scenario{margin:18px 0;border:1px solid var(--vp-c-divider);border-radius:12px;background:var(--vp-c-bg-elv);overflow:hidden}
 .sc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--vp-c-divider);font-weight:600;font-size:14px}
 .sc-head .sc-ic{margin-right:6px}
-.sc-body{overflow:auto;padding:14px;cursor:grab;overscroll-behavior:contain}
+.sc-body{position:relative;height:420px;overflow:hidden;padding:0;cursor:grab;overscroll-behavior:contain;touch-action:none}
 .sc-body.dragging{cursor:grabbing;user-select:none}
-.sc-svg{display:block;margin:0 auto;font-family:Excalifont,cursive}
+.sc-svg{display:block;position:absolute;top:0;left:0;transform-origin:0 0;font-family:Excalifont,cursive}
 .sc-svg .sc-node{cursor:pointer}
 .sc-svg text{font-family:Excalifont,cursive}
 .sc-svg .sc-node text{stroke:#1f2937;stroke-width:.55px;paint-order:stroke fill;letter-spacing:.2px}
@@ -264,7 +264,7 @@ html.dark .sc-svg marker[id*="Ar"] path{fill:#f87171}
 .sc-btn:hover{border-color:var(--vp-c-brand-1);color:var(--vp-c-brand-1)}
 .sc-btn.ok{border-color:#047857;color:#047857}
 .sc-btn.bad{border-color:#dc2626;color:#dc2626}
-.sc-bar{position:sticky;top:8px;left:0;display:flex;gap:4px;justify-content:flex-end;width:100%;padding:0 8px;z-index:5;pointer-events:none}
+.sc-bar{position:absolute;top:8px;right:8px;left:auto;display:flex;gap:4px;justify-content:flex-end;width:auto;padding:0;z-index:5;pointer-events:none}
 .sc-bar>*{pointer-events:auto}
 .sc-node.hl rect{fill:#fde047 !important}
 html.dark .sc-node.hl rect{fill:#92400e !important}
@@ -273,7 +273,6 @@ html.dark .sc-node.hl text{fill:#ffffff !important}
 .sc-bar button{border:1px solid var(--vp-c-divider);border-radius:7px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);font-size:13px;padding:4px 10px;cursor:pointer;font-family:var(--font-body);box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .sc-bar button:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
 .sc-pct{min-width:52px;text-align:center;font-family:var(--vp-font-family-mono);font-size:11px}
-.sc-body{position:relative}
 html.dark .sc-btn{background:var(--vp-c-bg)}
 .lb{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.72);display:none}
 .lb.open{display:block}
@@ -914,40 +913,53 @@ function mountScenario(div,d,idx){
   hlBtn.onclick=()=>{hlMode=!hlMode;hlBtn.classList.toggle('on',hlMode);
     hlBtn.title=hlMode?'Highlight on — tap nodes':'Highlight'};
   // zoom controls
+  // free-canvas pan/zoom (transform on svg inside clipped .sc-body)
   const zPct=div.querySelector('[data-a="zpct"]');
-  const zSteps=[0.5,0.67,0.8,1,1.25,1.5,2,2.5,3];
-  let zl=1;
-  const zSet=v=>{const r=v/zl||1;
-    const cx=body.scrollLeft+body.clientWidth/2,cy=body.scrollTop+body.clientHeight/2;
-    zl=v;svg.style.width=(L.W*v)+'px';svg.style.height=(L.H*v)+'px';
-    body.scrollLeft=cx*r-body.clientWidth/2;body.scrollTop=cy*r-body.clientHeight/2;
-    if(zPct)zPct.textContent=Math.round(v*100)+'%';};
-  const zIn=d=>{const n=zSteps.filter(s=>d>0?s>zl+0.001:s<zl-0.001);
-    zSet(d>0?(n[0]||3):(n[n.length-1]||0.5))};
+  let tx=0,ty=0,sc=1;
+  const apply=()=>{svg.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;
+    if(zPct)zPct.textContent=Math.round(sc*100)+'%';};
+  const fit=()=>{const cw=body.clientWidth;
+    sc=Math.min(cw/L.W,1);tx=(cw-L.W*sc)/2;ty=16;apply();};
+  const zAt=(f,px,py)=>{const ns=Math.min(3,Math.max(.3,sc*f));
+    tx=px-(px-tx)*(ns/sc);ty=py-(py-ty)*(ns/sc);sc=ns;apply();};
+  const local=e=>{const r=body.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
   const zi=div.querySelector('[data-a="zin"]'),zo=div.querySelector('[data-a="zout"]');
-  if(zi)zi.onclick=()=>zIn(1);
-  if(zo)zo.onclick=()=>zIn(-1);
-  if(zPct)zPct.onclick=()=>zSet(1);
-  // drag-to-pan on the scroll body
-  let drag=null;
-  svg.addEventListener('pointerdown',e=>{
+  if(zi)zi.onclick=()=>zAt(1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zo)zo.onclick=()=>zAt(1/1.3,body.clientWidth/2,body.clientHeight/2);
+  if(zPct)zPct.onclick=fit;
+  // pointer pan + pinch
+  const ptrs=new Map();let pinched=false,moved=false;
+  body.addEventListener('pointerdown',e=>{
     if(e.button!==0||hlMode)return;
-    drag={x:e.clientX,y:e.clientY,l:body.scrollLeft,t:body.scrollTop,moved:false};
-    window.addEventListener('pointermove',dragMove);
-    window.addEventListener('pointerup',dragEnd,{once:true});
-    window.addEventListener('pointercancel',dragEnd,{once:true});});
-  const dragMove=e=>{
-    if(!drag)return;
-    const dx=drag.x-e.clientX,dy=drag.y-e.clientY;
-    if(Math.abs(dx)+Math.abs(dy)>4){drag.moved=true;body.classList.add('dragging');}
-    if(drag.moved){body.scrollLeft=drag.l+dx;body.scrollTop=drag.t+dy;}};
-  const dragEnd=()=>{window.removeEventListener('pointermove',dragMove);
-    window.removeEventListener('pointerup',dragEnd);
-    window.removeEventListener('pointercancel',dragEnd);
-    if(drag&&drag.moved){
-      svg.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();},{capture:true,once:true});}
-    drag=null;body.classList.remove('dragging');};
-  svg.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zIn(e.deltaY<0?1:-1)},{passive:false});
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    moved=false;if(ptrs.size>1)pinched=true;});
+  body.addEventListener('pointermove',e=>{
+    if(!ptrs.has(e.pointerId))return;
+    if(ptrs.size===2){const a=[...ptrs.entries()];const [id1,p1]=a[0],[id2,p2]=a[1];
+      const oldD=Math.hypot(p2.x-p1.x,p2.y-p1.y),oldM=[(p1.x+p2.x)/2,(p1.y+p2.y)/2];
+      ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const n1=ptrs.get(id1),n2=ptrs.get(id2);
+      const newD=Math.hypot(n2.x-n1.x,n2.y-n1.y),newM=[(n1.x+n2.x)/2,(n1.y+n2.y)/2];
+      const r=body.getBoundingClientRect();
+      tx+=newM[0]-oldM[0];ty+=newM[1]-oldM[1];
+      if(oldD)zAt(newD/oldD,newM[0]-r.left,newM[1]-r.top);
+      apply();return;}
+    const p=ptrs.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(Math.abs(dx)+Math.abs(dy)>0){tx+=dx;ty+=dy;
+      if(!moved){moved=true;body.classList.add('dragging');
+        try{body.setPointerCapture(e.pointerId)}catch(_){}}
+      apply();}});
+  const pEnd=e=>{ptrs.delete(e.pointerId);
+    if(ptrs.size===0){pinched=false;
+      if(moved)svg.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();},{capture:true,once:true});
+      moved=false;body.classList.remove('dragging');}};
+  body.addEventListener('pointerup',pEnd);
+  body.addEventListener('pointercancel',pEnd);
+  body.addEventListener('wheel',e=>{e.preventDefault();
+    if(e.ctrlKey||e.metaKey){const [px,py]=local(e);zAt(Math.pow(1.0015,-e.deltaY),px,py);
+    }else{tx-=e.deltaX;ty-=e.deltaY;apply();}},{passive:false});
+  fit();
   enter(d.start);
 }
 SC_FONT_OK.then(()=>{
