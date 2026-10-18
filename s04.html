@@ -671,7 +671,7 @@ flowchart TD
 <li><strong>Leader–follower replication:</strong> <em>sync</em> (follower acks before commit — no loss, higher latency) vs <em>async</em> (fast, but failover loses recent writes and lagging followers serve stale reads). Semi-sync is the middle ground.</li>
 <li><strong>Quorum rule:</strong> <code>R + W &gt; N</code> forces read and write sets to overlap; <code>W &gt; N/2</code> prevents two write quorums (split-brain).</li>
 </ul>
-<pre><code class="language-text">&lt;span class=&quot;term&quot; data-term=&quot;Quorum&quot;&gt;Quorum&lt;/span&gt;: N=5 replicas, W=3 writers, R=3 readers  -&gt;  R+W=6 &gt; 5
+<pre><code class="language-text">Quorum: N=5 replicas, W=3 writers, R=3 readers  -&gt;  R+W=6 &gt; 5
 
   write W=3              read R=3            forced overlap
  +----+----+----+       +----+----+----+

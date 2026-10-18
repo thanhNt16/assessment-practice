@@ -659,7 +659,7 @@ flowchart LR
     P --> A[Stage 2 agg and write]
 </div></p>
 <pre><code class="language-text">        DRIVER (1 JVM process)
-        - builds &lt;span class=&quot;term&quot; data-term=&quot;DAG&quot;&gt;DAG&lt;/span&gt;, schedules tasks
+        - builds DAG, schedules tasks
         - collect()/toPandas() RESULTS land HERE   &lt;-- OOM source
         +---------------------------+
 EXEC 1  | partition rows (columnar) |  shuffle write/read

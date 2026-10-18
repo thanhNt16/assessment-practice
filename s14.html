@@ -890,7 +890,7 @@ flowchart LR
 <pre><code class="language-text">Build spine every drill attaches to (one repo, layers added weekly):
 
   [API/DB source] --&gt; [ingest: batch | CDC] --&gt; [lake: S3/MinIO + Iceberg]
-        --&gt; [transform: &lt;span class=&quot;term&quot; data-term=&quot;Spark&quot;&gt;Spark&lt;/span&gt;/dbt + DQ gates] --&gt; [serve: warehouse/BI]
+        --&gt; [transform: Spark/dbt + DQ gates] --&gt; [serve: warehouse/BI]
         --&gt; [ops: Airflow + retries + backfill + CI] --&gt; README + walkthrough
 </code></pre>
 
@@ -900,7 +900,7 @@ flowchart LR
 <li>Replicate <a href="https://www.startdataengineering.com/post/local-dev/">Local development setup</a> + <a href="https://www.startdataengineering.com/post/docker-for-de/">Docker for DE</a>: Postgres + MinIO + Spark containers, one <code>make up</code>. <em>[03]</em></li>
 <li>Sessionize a clickstream with 30-min gaps using window functions from the <a href="https://www.startdataengineering.com/post/6-concepts-to-clearly-understand-window-functions/">window-functions post</a>. <em>[02]</em></li>
 <li>Solve 10 questions from <a href="https://www.dataexpert.io/questions">dataexpert.io/questions</a> under a 20-minute timer; redo the two slowest in pure CTE form. <em>[02, 15]</em></li>
-<li>Run a groupBy + broadcast join in the <a href="https://www.startdataengineering.com/post/spark-local-setup/">Spark local setup</a> container; screenshot the <span class="term" data-term="DAG">DAG</span> and explain each stage. <em>[03, 11]</em></li>
+<li>Run a groupBy + broadcast join in the <a href="https://www.startdataengineering.com/post/spark-local-setup/"><span class="term" data-term="Spark">Spark</span> local setup</a> container; screenshot the DAG and explain each stage. <em>[03, 11]</em></li>
 <li>Apply the <a href="https://www.startdataengineering.com/post/how-to-optimize-your-spark-jobs/">three Spark optimization techniques</a>: salt a hot key, re-measure stage time, record the delta in the README. <em>[11]</em></li>
 <li>Test a Spark job with <a href="https://www.startdataengineering.com/post/test-pyspark/">pytest for PySpark</a>: fixture data, one transform test, one schema assertion. <em>[13]</em></li>
 <li>Run a 3-topic <span class="term" data-term="Kafka">Kafka</span> per the <a href="https://www.startdataengineering.com/post/what-why-and-how-apache-kafka/">Kafka what/why/how post</a>; Python consumer with manual offset commit, kill and resume mid-partition. <em>[12]</em></li>

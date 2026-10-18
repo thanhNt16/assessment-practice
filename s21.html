@@ -721,12 +721,12 @@ flowchart LR
 
 <h2 id="end-to-end-design" tabindex="-1">End-to-End Design<a class="header-anchor" href="#end-to-end-design">&ZeroWidthSpace;</a></h2>
 <pre><code class="language-text">PDFs --&gt; parsing+chunking --&gt; CLIP text/image encoders --&gt; index (text, images)
-user query --&gt; safety filter --&gt; query expansion --&gt; text encoder --&gt; &lt;span class=&quot;term&quot; data-term=&quot;ANN&quot;&gt;ANN&lt;/span&gt; search
+user query --&gt; safety filter --&gt; query expansion --&gt; text encoder --&gt; ANN search
       --&gt; top-k chunks + query --&gt; prompt assembly (role/citations/CoT) --&gt; LLM (top-p) --&gt; answer
 </code></pre>
 <ul>
 <li>Pre-generation <strong>safety filtering</strong> screens harmful queries (ch4 patterns); indexing runs offline, retrieval+generation online with a few seconds' latency budget (ch6 §Overall ML System Design).</li>
-<li>Interview extension points: tabular detection in parsing (<a href="https://arxiv.org/abs/2001.01469">TableNet</a>), ANN internals, user-uploaded docs, <strong>dynamic retrieval</strong> (<a href="https://arxiv.org/abs/2305.06983">FLARE</a>, <a href="https://arxiv.org/abs/2310.11511">Self-RAG</a> — decide when/what to retrieve), query rewriting, test-time scaling (ch6 §Other Talking Points).</li>
+<li>Interview extension points: tabular detection in parsing (<a href="https://arxiv.org/abs/2001.01469">TableNet</a>), <span class="term" data-term="ANN">ANN</span> internals, user-uploaded docs, <strong>dynamic retrieval</strong> (<a href="https://arxiv.org/abs/2305.06983">FLARE</a>, <a href="https://arxiv.org/abs/2310.11511">Self-RAG</a> — decide when/what to retrieve), query rewriting, test-time scaling (ch6 §Other Talking Points).</li>
 </ul>
 
 <h2 id="failure-modes-anti-patterns" tabindex="-1">Failure modes &amp; anti-patterns<a class="header-anchor" href="#failure-modes-anti-patterns">&ZeroWidthSpace;</a></h2>

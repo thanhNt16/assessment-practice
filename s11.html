@@ -645,7 +645,7 @@ flowchart LR
 <li><strong>Whole-stage codegen</strong> fuses all operators of one stage into a single Java function — no per-row virtual dispatch; falls back above <code>spark.sql.codegen.maxFields</code> (100).</li>
 <li>Read it in <code>explain(&quot;formatted&quot;)</code>: look for <code>PushedFilters</code>, the <code>ReadSchema</code> column list, the number of <code>Exchange</code> nodes, and the <code>*</code> codegen marker — abridged:</li>
 </ul>
-<pre><code class="language-text">== Physical Plan ==                     &lt;- isFinalPlan=true means &lt;span class=&quot;term&quot; data-term=&quot;AQE&quot;&gt;AQE&lt;/span&gt; re-planned
+<pre><code class="language-text">== Physical Plan ==                     &lt;- isFinalPlan=true means AQE re-planned
 AdaptiveSparkPlan (6)
 +- Sort (5)
    +- Exchange hashpartitioning(customer_id, 4096)   &lt;- each Exchange = a stage cut
@@ -721,7 +721,7 @@ AdaptiveSparkPlan (6)
 </tbody>
 </table>
 <ul>
-<li>SMJ wins when neither side is reliably small, inputs are unsorted, or you need predictable spill behavior at 3 a.m. — SHJ needs a hint or config; BHJ needs honest stats or AQE runtime rescue.</li>
+<li>SMJ wins when neither side is reliably small, inputs are unsorted, or you need predictable spill behavior at 3 a.m. — SHJ needs a hint or config; BHJ needs honest stats or <span class="term" data-term="AQE">AQE</span> runtime rescue.</li>
 <li><strong>Use cases:</strong></li>
 <li>Broadcast: star-schema dimensions (MBs to low GBs), enrichment joins in streaming micro-batches, repeated small-lookup joins.</li>
 <li>SMJ: TB-scale fact-fact joins, unknown cardinality, skewed keys (AQE splits apply); SHJ: medium build side where sorting is the bottleneck.</li>
@@ -749,7 +749,7 @@ spark.conf.set(&quot;spark.sql.shuffle.partitions&quot;, &quot;4096&quot;)      
 </ul>
 
 <h2 id="memory-spill-gc" tabindex="-1">Memory, Spill &amp; GC<a class="header-anchor" href="#memory-spill-gc">&ZeroWidthSpace;</a></h2>
-<pre><code class="language-text">&lt;span class=&quot;term&quot; data-term=&quot;Executor&quot;&gt;Executor&lt;/span&gt; JVM heap, say 20 GB
+<pre><code class="language-text">Executor JVM heap, say 20 GB
 +---------------------------------------------------------------+
 | reserved 300 MB                                                 |
 | unified = spark.memory.fraction 0.6 -&gt; 11.8 GB                  |

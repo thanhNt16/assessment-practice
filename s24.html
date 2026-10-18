@@ -692,12 +692,12 @@ html{scrollbar-width:thin;scrollbar-color:var(--vp-c-brand-soft) transparent}
 <li><strong>U-Net:</strong> downsampling blocks (Conv2D → BatchNorm → ReLU → MaxPool, spatial↓ channels↑) mirrored by upsampling blocks (TransposedConv → BatchNorm → ReLU). Both insert <strong>cross-attention</strong>: queries from image features, keys/values from text-encoder embeddings — this is where the prompt steers the prediction (ch9 §U-Net).</li>
 <li><strong>DiT:</strong> ViT-style — patchify → positional encoding → <span class="term" data-term="Transformer">Transformer</span> (conditions folded in) → unpatchify (ch9 §DiT).</li>
 </ul>
-<pre><code class="language-text">noisy image ─[U-Net or &lt;span class=&quot;term&quot; data-term=&quot;DiT&quot;&gt;DiT&lt;/span&gt;]─&gt; predicted noise      output size = input size
+<pre><code class="language-text">noisy image ─[U-Net or DiT]─&gt; predicted noise      output size = input size
                      ^
-text prompt ─&gt; Text Encoder (&lt;span class=&quot;term&quot; data-term=&quot;CLIP&quot;&gt;CLIP&lt;/span&gt; / T5) ─&gt; embeddings (cross-attention K,V)
+text prompt ─&gt; Text Encoder (CLIP / T5) ─&gt; embeddings (cross-attention K,V)
 timestep t  ─&gt; Timestep Encoder ─────────&gt; conditioning signal
 </code></pre>
-<p>Both perform well; U-Net backed Imagen and Stable Diffusion, DiT is the newer bet (details deferred to ch11). For interviews, know the block inventory, not every variant (ch9 §DiT).</p>
+<p>Both perform well; U-Net backed Imagen and Stable Diffusion, <span class="term" data-term="DiT">DiT</span> is the newer bet (details deferred to ch11). For interviews, know the block inventory, not every variant (ch9 §DiT).</p>
 
 <h2 id="training-four-steps-on-one-image" tabindex="-1">Training = Four Steps on One Image<a class="header-anchor" href="#training-four-steps-on-one-image">&ZeroWidthSpace;</a></h2>
 <ul>
@@ -811,7 +811,7 @@ flowchart TD
 <h2 id="failure-modes-anti-patterns" tabindex="-1">Failure Modes &amp; Anti-Patterns<a class="header-anchor" href="#failure-modes-anti-patterns">&ZeroWidthSpace;</a></h2>
 <ul>
 <li><strong>Skipping dedup:</strong> model biased toward images that appear more frequently. Symptom: same compositions across prompts.</li>
-<li><strong>Trusting raw web captions:</strong> poorly matched pairs dilute prompt–image alignment. Symptom: good images, wrong content. Fix: CLIP-score gating + BLIP-3 recaptioning.</li>
+<li><strong>Trusting raw web captions:</strong> poorly matched pairs dilute prompt–image alignment. Symptom: good images, wrong content. Fix: <span class="term" data-term="CLIP">CLIP</span>-score gating + BLIP-3 recaptioning.</li>
 <li><strong>Naive sampling in an interview:</strong> both prompt fidelity and latency fail. Always volunteer CFG + DDIM.</li>
 <li><strong>Generating at 1024 directly:</strong> diffusion doesn't do high-res natively; you'll blow the SLA. Cascade super-resolution instead.</li>
 <li><strong>One safety gate only:</strong> prompt filtering alone misses model-generated harm (the model can produce unsafe images from a benign-ish prompt); output-side harm detection is the second gate.</li>

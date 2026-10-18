@@ -173,7 +173,7 @@ def preprocess(src):
                         + m.group(0) + '</span>' + line[m.end():])
         return line
     tldrs, cardss = [], []
-    out, in_c, lines_acc = [], False, []
+    out, in_c, lines_acc, in_fence = [], False, [], False
     for line in src.split("\n"):
         s = line.strip()
         mo = CONTAINER_OPEN_RE.match(s)
@@ -232,7 +232,9 @@ def preprocess(src):
         if in_c in ("scenario", "tldr", "cards", "steps", "lab"):
             lines_acc.append(line)
             continue
-        if not in_c and not s.startswith('#') and '`' not in line and '|' not in line:
+        if not in_c and re.match(r'^`{3,}', s):
+            in_fence = not in_fence
+        if not in_c and not in_fence and not s.startswith('#') and '`' not in line and '|' not in line:
             line = term_wrap(line)
         out.append(line)
     if in_c in ("scenario", "tldr", "cards", "steps", "lab"):

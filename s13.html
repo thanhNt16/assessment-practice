@@ -720,7 +720,7 @@ src ---&gt;| BRONZE  |----&gt;| SILVER  |----&gt;|  GOLD   |--&gt; dashboards
         +---------+     +---------+     +---------+
   schema validity   not_null/unique  recon vs source
   volume anomaly    relationships    business bounds
-  quarantine DLQ    freshness lag    freshness &lt;span class=&quot;term&quot; data-term=&quot;SLO&quot;&gt;SLO&lt;/span&gt;
+  quarantine DLQ    freshness lag    freshness SLO
   circuit breaker   row-count gate   test-gated publish
         +------ OpenLineage events ---&gt; Marquez ------+
 </code></pre>
@@ -730,7 +730,7 @@ src ---&gt;| BRONZE  |----&gt;| SILVER  |----&gt;|  GOLD   |--&gt; dashboards
 </ul>
 
 <h2 id="slos-for-data-products" tabindex="-1">SLOs for Data Products<a class="header-anchor" href="#slos-for-data-products">&ZeroWidthSpace;</a></h2>
-<p>Treat datasets as products with contracts — SLI/SLO/SLA map cleanly onto data (<a href="https://sre.google/workbook/implementing-slos/">Google SRE Workbook</a>):</p>
+<p>Treat datasets as products with contracts — SLI/<span class="term" data-term="SLO">SLO</span>/SLA map cleanly onto data (<a href="https://sre.google/workbook/implementing-slos/">Google SRE Workbook</a>):</p>
 <table>
 <thead>
 <tr>

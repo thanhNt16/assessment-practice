@@ -765,7 +765,7 @@ html{scrollbar-width:thin;scrollbar-color:var(--vp-c-brand-soft) transparent}
 <p>Metrics: BLEU, ROUGE, <span class="term" data-term="METEOR">METEOR</span> (ch3) plus <strong>CIDEr</strong>, built specifically for captioning (ch5 §CIDEr). CIDEr steps:</p>
 <pre><code class="language-text">1. TF-IDF: caption + each reference -&gt; numerical vectors
 2. Cosine similarity: generated vs each reference   (1 = close, 0 = far)
-3. Aggregate: average similarities; final &lt;span class=&quot;term&quot; data-term=&quot;CIDEr&quot;&gt;CIDEr&lt;/span&gt; = mean over validation set
+3. Aggregate: average similarities; final CIDEr = mean over validation set
 
 Worked example: scores 0.688, 0.257, 0.766 vs 3 refs
   CIDEr = (0.688 + 0.257 + 0.766) / 3 = 0.570
@@ -816,7 +816,7 @@ flowchart LR
 </ul>
 
 <h2 id="other-talking-points" tabindex="-1">Other Talking Points<a class="header-anchor" href="#other-talking-points">&ZeroWidthSpace;</a></h2>
-<p>If time remains (ch5 §Other Talking Points): extend to <strong>VQA</strong>; adapt to other domains; multilingual captions via multilingual data + cross-lingual transfer; edge-device optimization for caption generation; generate-and-rank multiple candidate captions; BLIP-2/BLIP-3 architectures and auxiliary losses. Alternative model families: <a href="https://arxiv.org/abs/2301.12597">BLIP-2</a>, <a href="https://www.arxiv.org/abs/2408.08872">BLIP-3</a>, <a href="https://arxiv.org/abs/2312.14238">InternVL</a>; key papers: <a href="https://arxiv.org/abs/2010.11929">ViT</a>, <a href="https://arxiv.org/abs/2103.00020">CLIP</a>, <a href="https://arxiv.org/abs/1411.5726">CIDEr</a>, <a href="https://arxiv.org/abs/2210.08402">LAION-5B</a>.</p>
+<p>If time remains (ch5 §Other Talking Points): extend to <strong>VQA</strong>; adapt to other domains; multilingual captions via multilingual data + cross-lingual transfer; edge-device optimization for caption generation; generate-and-rank multiple candidate captions; BLIP-2/BLIP-3 architectures and auxiliary losses. Alternative model families: <a href="https://arxiv.org/abs/2301.12597">BLIP-2</a>, <a href="https://www.arxiv.org/abs/2408.08872">BLIP-3</a>, <a href="https://arxiv.org/abs/2312.14238">InternVL</a>; key papers: <a href="https://arxiv.org/abs/2010.11929">ViT</a>, <a href="https://arxiv.org/abs/2103.00020">CLIP</a>, <a href="https://arxiv.org/abs/1411.5726"><span class="term" data-term="CIDEr">CIDEr</span></a>, <a href="https://arxiv.org/abs/2210.08402">LAION-5B</a>.</p>
 
 <h2 id="failure-modes-anti-patterns" tabindex="-1">Failure modes &amp; anti-patterns<a class="header-anchor" href="#failure-modes-anti-patterns">&ZeroWidthSpace;</a></h2>
 <ul>
