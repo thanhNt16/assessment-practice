@@ -194,6 +194,22 @@ Q: Storage vs execution memory under pressure? :: Storage evicts blocks; executi
 Q: What does max task time ≫ p50 in the UI mean? :: Skew; uniformly slow tasks point to sizing, spill, or GC instead.
 :::
 
+:::lab skew
+Try it: shuffle-skew tuner — drag the sliders and watch the AQE verdict flip at hot > 256 MB **and** hot > 5× median. Rows are log-scale; row width is fixed at 100 B.
+
+<div class="lab-row">
+<label>partitions <input type="range" id="sk-p" min="4" max="200" value="8" aria-label="shuffle partitions"> <b id="sk-pv">8</b></label>
+<label>hottest share <input type="range" id="sk-s" min="0" max="0.95" step="0.05" value="0.5" aria-label="hottest partition share of rows"> <b id="sk-sv">50%</b></label>
+<label>rows <input type="range" id="sk-r" min="0" max="30" value="20" aria-label="total rows, log scale"> <b id="sk-rv">100M</b></label>
+</div>
+
+<div class="sk-bars" id="sk-bars" role="img" aria-label="partition sizes, hottest partition in red"></div>
+
+<p class="lab-stats" id="sk-stats"></p>
+
+<p class="sk-verdict" id="sk-verdict"></p>
+:::
+
 ### Key Takeaways
 
 - Catalyst = rule-based logical optimization + cost-based physical planning; Tungsten = off-heap binary rows + whole-stage codegen; `explain("formatted")` proves pushdown, pruning, codegen actually happened.

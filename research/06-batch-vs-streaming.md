@@ -185,6 +185,21 @@ Q: Fraud SLA under 5 s — batch or streaming? :: True streaming; an hourly dash
 Q: Name the three layers that must align for exactly-once. :: Replayable source, exactly-once checkpointed state, transactional or idempotent sink.
 :::
 
+:::lab watermark
+Try it: event-time vs processing-time — scrub through arrivals in order and watch the watermark `W = maxSeen − 5 s` advance over tumbling windows [0,10s) and [10,20s). Events land blue (on-time), green (late but accepted) or red ✕ (dropped). Flip allowed lateness to rescue borderline events.
+
+<div class="lab-row">
+<label>arrival <input type="range" id="wm-i" min="0" max="9" value="0" aria-label="arrival index"> <b id="wm-kv"></b></label>
+<label><input type="checkbox" id="wm-late"> allowed lateness 2 s</label>
+</div>
+
+<svg id="wm-svg" viewBox="0 0 600 120" width="100%" height="120" role="img" aria-label="event-time axis with watermark line and tumbling windows"></svg>
+
+<p class="lab-stats">W = maxSeen − 5 s = <b id="wm-wv"></b> · accepted <b id="wm-acc">0</b> · late-dropped <b id="wm-drop">0</b></p>
+
+<p class="lab-verdict" id="wm-msg"></p>
+:::
+
 ### Key Takeaways
 
 - Batch = bounded input, deterministic reruns, cheapest per byte; streaming's hard problems are **event time, watermarks, state** — never throughput.
