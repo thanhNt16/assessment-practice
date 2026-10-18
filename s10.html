@@ -458,13 +458,15 @@ html{scrollbar-width:thin;scrollbar-color:var(--vp-c-brand-soft) transparent}
 .pager-mid{margin-top:4px}
 .study-pager.pager-static{position:static;border-radius:12px;border:1px solid var(--vp-c-divider);border-top:1px solid var(--vp-c-divider);margin-top:20px;background:var(--vp-c-bg-alt)}
 /* ---------- diagram fullscreen ---------- */
-.fs-wrap{position:relative}
+.fs-wrap{position:relative;overflow:hidden}
 .fs-wrap:fullscreen{background:var(--vp-c-bg);display:flex;align-items:center;justify-content:center;overflow:auto}
 .fs-wrap:fullscreen>*{max-width:96vw;max-height:96vh}
 .fs-wrap:fullscreen .mermaid{width:auto}
-.fs-btn{position:absolute;top:8px;right:8px;z-index:6;border:1px solid var(--vp-c-divider);border-radius:6px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
-.fs-wrap:hover .fs-btn,.fs-btn:focus-visible,.fs-wrap:fullscreen .fs-btn{opacity:1}
+.fs-tools{position:absolute;top:8px;right:8px;z-index:6;display:flex;gap:4px;opacity:0;transition:opacity .2s}
+.fs-wrap:hover .fs-tools,.fs-tools:focus-within,.fs-wrap:fullscreen .fs-tools{opacity:1}
+.fs-btn{border:1px solid var(--vp-c-divider);border-radius:6px;background:var(--vp-c-bg-elv);color:var(--vp-c-text-2);width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;font-family:var(--font-mono);padding:0}
 .fs-btn:hover{color:var(--vp-c-brand-1);border-color:var(--vp-c-brand-1)}
+.fs-wrap.dragging{cursor:grabbing;user-select:none}
 .fs-wrap:fullscreen .sc-body{cursor:default}
 /* ---------- footer meta + print ---------- */
 .footer-meta{font-size:12.5px;color:var(--vp-c-text-3);margin-top:6px}
@@ -1342,15 +1344,34 @@ topBtn&&topBtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}))
   });
   input.addEventListener('input',()=>{sel=-1;paint()});
 })();
-// ---- diagram fullscreen ----
+// ---- diagram zoom / pan / fullscreen ----
 document.querySelectorAll('.dg-frame, .mermaid, .steps, .scenario, .lab').forEach(el=>{
-  if(el.closest('.fs-wrap')||el.closest('.sc-pair'))return;
+  if(el.closest('.fs-wrap')||el.closest('.sc-pair')||(el.classList.contains('mermaid')&&el.closest('.steps')))return;
   const w=document.createElement('div');w.className='fs-wrap';
   el.parentNode.insertBefore(w,el);w.appendChild(el);
-  const b=document.createElement('button');b.className='fs-btn';b.setAttribute('aria-label','Fullscreen diagram');
-  b.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
-  b.onclick=e=>{e.stopPropagation();document.fullscreenElement?document.exitFullscreen():w.requestFullscreen&&w.requestFullscreen()};
-  w.appendChild(b);
+  const own=el.classList.contains('scenario'); // scenario has its own zoom/pan bar — only add fullscreen
+  const tools=document.createElement('div');tools.className='fs-tools';
+  const mk=(lbl,aria,fn)=>{const b=document.createElement('button');b.className='fs-btn';b.textContent=lbl;b.setAttribute('aria-label',aria);b.onclick=e=>{e.stopPropagation();fn()};tools.appendChild(b);return b;};
+  const tgt=el.classList.contains('steps')?el.querySelector('.mermaid'):(el.querySelector('iframe')||el);
+  let z=1,px=0,py=0;
+  const paint=()=>{tgt.style.zoom=z;tgt.style.transform=`translate(${px}px,${py}px)`;};
+  if(!own){
+    mk('−','Zoom out',()=>{z=Math.max(.4,z/1.25);paint()});
+    mk('⌖','Reset zoom',()=>{z=1;px=py=0;paint()});
+    mk('+','Zoom in',()=>{z=Math.min(4,z*1.25);paint()});
+    // drag to pan (pointer), Ctrl/⌘+wheel or fullscreen wheel to zoom
+    let drag=null;
+    w.addEventListener('pointerdown',e=>{if(e.button!==0||e.target.closest('.fs-tools'))return;
+      if(el.closest('.dg-frame'))return; // iframe eats drags
+      drag={x:e.clientX,y:e.clientY,px,py};w.classList.add('dragging');w.setPointerCapture(e.pointerId);});
+    w.addEventListener('pointermove',e=>{if(!drag)return;px=drag.px+e.clientX-drag.x;py=drag.py+e.clientY-drag.y;paint();});
+    const end=()=>{drag=null;w.classList.remove('dragging')};
+    w.addEventListener('pointerup',end);w.addEventListener('pointercancel',end);
+    w.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey&&!document.fullscreenElement)return;e.preventDefault();
+      z=Math.max(.4,Math.min(4,z*(e.deltaY<0?1.1:0.9)));paint();},{passive:false});
+  }
+  mk('⛶','Fullscreen diagram',()=>{document.fullscreenElement?document.exitFullscreen():w.requestFullscreen&&w.requestFullscreen()});
+  w.appendChild(tools);
 });
 </script>
 <script type="module">
