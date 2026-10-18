@@ -35,7 +35,7 @@ Data embedded as `<script type="application/json" class="sc-json">` inside a `.s
 - **Layout:** topological ranks → rows (y), per-row sibling spread → x. Node width from `ctx.measureText` (Excalifont loaded via `FontFace`). Curved `C` connectors with arrowhead marker; `success`/`fail` edges in green/red; `loop` edges dashed, routed on the canvas right margin.
 - **Sketchiness:** `<filter id="sk">` feTurbulence 0.02 / feDisplacementMap scale 3 applied to node rects + edge paths. Nodes = hand-rounded rects; decision nodes = amber fill, start = orange, terminal outcome nodes = green/red.
 - **Interaction:** start lit. Panel under SVG shows active node's caption + choice buttons (labels from `?` edges). Click a choice → next node lights, edge trail stays lit, caption panel updates. Terminal nodes show outcome caption tinted. Buttons: **Reset**, **Reveal all** (lights full graph). Back-edges allowed — path can revisit.
-- **Mobile:** `viewBox` + `preserveAspectRatio="xMidYMin meet"`; horizontal scroll if >viewport; min font 12px.
+- **Mobile:** fixed `width`/`height` attributes + `.sc-body{overflow-x:auto}` — page never overflows, the SVG scrolls inside its card.
 
 ## CSS
 
@@ -58,7 +58,6 @@ Copy `Excalifont-Regular-*.woff2` (largest single file covers full latin) → `f
 ## Verification
 
 - Prototype s11 (skew-diagnosis — most naturally branched) before mass-conversion; if free-DAG layout fails, fall back to fixed two-column grid layout
-- Geometric collision check in build (warn on overlapping node rects)
 - Browser verify: click-through one scenario light+dark, mobile 390px no overflow
 
 ## Non-goals

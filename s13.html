@@ -720,7 +720,7 @@ function scLayout(d,W){
   // measure
   const cv=document.createElement('canvas').getContext('2d');
   cv.font='16px Excalifont';
-  const pos={},NW=[];
+  const pos={};
   const ROWH=110,PAD=26;
   Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
     const ids=rows[dp];const ws=ids.map(id=>Math.max(120,cv.measureText(d.nodes.find(n=>n.id===id).label).width+44));
@@ -752,11 +752,11 @@ function mountScenario(div,d,idx){
    <marker id="scAg${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#047857"/></marker>
    <marker id="scAr${idx}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="#dc2626"/></marker>
   </defs>`;
-  const kindOf=id=>{const n=d.nodes.find(n=>n.id===id);
+  const kindOf=id=>{
     const out=d.edges.filter(e=>e.src===id&&e.choice).length;
     if(id===d.start)return ['#fed7aa','#c2410c','start'];
     if(out>0)return ['#fef3c7','#b45309','choice'];
-    const inbound=d.edges.find(e=>e.dst===id);
+    const inbound=d.edges.find(e=>e.dst===id&&e.kind)||d.edges.find(e=>e.dst===id);
     if(inbound&&inbound.kind==='success')return ['#a7f3d0','#047857','ok'];
     if(inbound&&inbound.kind==='fail')return ['#fee2e2','#dc2626','bad'];
     return ['#dbeafe','#1e3a5f','def'];};
