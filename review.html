@@ -349,7 +349,8 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-main h1{font-family:var(--font-head);font-size:36px;font-weight:600;margin:8px 0}
 .review-stats{color:var(--vp-c-text-2);font-size:15px}
 .review-stats b{color:var(--vp-c-text-1)}
-.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:16px 0 28px;overflow:hidden}
+.review-pos{text-align:right;font-size:12.5px;color:var(--vp-c-text-3);min-height:16px;margin:-10px 0 4px}
+.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:0 0 28px;overflow:hidden}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
@@ -370,6 +371,7 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
   <main class="review-main">
     <h1>Review</h1>
     <div class="review-stats">Due today: <b id="rvDue">–</b> · deck: <b>175</b> · streak: <b id="rvStreak">0</b></div>
+    <div class="review-pos" id="rvPos"></div>
     <div class="review-bar"><div class="review-bar-fill" id="rvBar"></div></div>
     <div id="queue"></div>
     <div class="review-done" id="rvDone" hidden>
@@ -712,7 +714,7 @@ if(matchMedia('(hover:hover)').matches){
 
 // ---- study scheduler (SM-2 lite) ----
 const SCHED_KEY='study-sched';
-function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){localStorage.setItem(SCHED_KEY,'{}');return{}}}
+function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){try{localStorage.setItem(SCHED_KEY,'{}')}catch(_){}return{}}}
 function schedSave(o){localStorage.setItem(SCHED_KEY,JSON.stringify(o))}
 function schedGrade(id,g){
   const o=schedAll(),c=o[id]||{e:2.3,iv:0};
@@ -783,7 +785,7 @@ for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toSt
     const o=schedAll(),now=Date.now(),len=queue.length;
     $('rvDue').textContent=all.filter(c=>!(c.id in o)||o[c.id].due<=now).length;
     $('rvStreak').textContent=streak().n;
-    $('rvBar').style.width=len?Math.round(100*Math.min(pos,len)/len)+'%':'0%';
+    $('rvBar').style.width=len?Math.round(100*Math.min(pos,len)/len)+'%':'0%';$('rvPos').textContent=len?pos+'/'+len:'';
     $('rvDone').hidden=!(pos>=len);
   }
   function render(){paintStats();q.innerHTML=pos<queue.length?flipcardHtml(queue[pos]):'';if(q.firstElementChild)initFlipcards(q);}
@@ -791,9 +793,7 @@ for(const el of els){try{const {svg}=await mermaid.render('m'+Math.random().toSt
     const o=schedAll(),now=Date.now();
     queue=all.filter(c=>!(c.id in o)||o[c.id].due<=now)
       .sort((a,b)=>((o[a.id]&&o[a.id].due)||0)-((o[b.id]&&o[b.id].due)||0)).slice(0,40);
-    pos=JSON.parse(sessionStorage.getItem('review-pos')||'0');
-    if(!Number.isInteger(pos)||pos<0)pos=0;
-    if(pos>queue.length)pos=queue.length;
+    pos=0; // queue excludes graded cards; persisted index over-advances on reload — resume at 0
     render();
   }
   q.addEventListener('graded',e=>{

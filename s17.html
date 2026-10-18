@@ -349,7 +349,8 @@ html.dark .g-easy{color:#8aa4e8;border-color:#8aa4e8}
 .review-main h1{font-family:var(--font-head);font-size:36px;font-weight:600;margin:8px 0}
 .review-stats{color:var(--vp-c-text-2);font-size:15px}
 .review-stats b{color:var(--vp-c-text-1)}
-.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:16px 0 28px;overflow:hidden}
+.review-pos{text-align:right;font-size:12.5px;color:var(--vp-c-text-3);min-height:16px;margin:-10px 0 4px}
+.review-bar{height:6px;border-radius:3px;background:var(--vp-c-divider);margin:0 0 28px;overflow:hidden}
 .review-bar-fill{height:100%;width:0;background:var(--vp-c-brand-1);border-radius:3px;transition:width .3s}
 .review-done{text-align:center;color:var(--vp-c-text-2);padding:32px 0}
 .review-done .grade-btn{flex:none;padding:8px 18px;margin-top:8px}
@@ -1352,7 +1353,7 @@ if(matchMedia('(hover:hover)').matches){
 
 // ---- study scheduler (SM-2 lite) ----
 const SCHED_KEY='study-sched';
-function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){localStorage.setItem(SCHED_KEY,'{}');return{}}}
+function schedAll(){try{const o=JSON.parse(localStorage.getItem(SCHED_KEY));return o&&typeof o==='object'?o:{}}catch(e){try{localStorage.setItem(SCHED_KEY,'{}')}catch(_){}return{}}}
 function schedSave(o){localStorage.setItem(SCHED_KEY,JSON.stringify(o))}
 function schedGrade(id,g){
   const o=schedAll(),c=o[id]||{e:2.3,iv:0};
