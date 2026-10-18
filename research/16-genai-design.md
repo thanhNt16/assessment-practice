@@ -1,5 +1,22 @@
 ## Generative AI System Design (Aminian & Sheng)
 
+:::tldr
+- The skeleton is the transferable asset: clarify requirements → frame as ML task → data → model → eval → system design + deployment/monitoring — one rehearsal covers any prompt.
+- Model choice is requirements arithmetic, not fashion: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → AR, video economics → latent diffusion.
+- Exhaust retrieval + prompts before finetuning: finetuning can't cite sources and needs constant retraining; RAFT only when retrieval is fixed and answers are still bad.
+- RAG pipeline: parse → chunk (500 chars, 200 overlap) → embed → ANN-index; size it explicitly — 5M pages → 40M chunks, +20%/yr.
+- Retrieval quality is the ceiling: a better LLM cannot fix bad chunks.
+- Pair offline metrics (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) with online business metrics (CTR, adoption, cost per user) — naming both unprompted is the scoring behavior.
+- Deployment is a named stage: safety chain, serving, monitoring, retraining loops — users re-rolling seeds quietly multiplies GPU spend.
+:::
+
+:::cards
+Q: What is the repeating framework across all 11 GenAI design chapters? :: Clarify requirements → frame as ML task → data preparation → model development → evaluation → overall system design, with deployment + monitoring on top.
+Q: How do you pick the generative model family? :: Requirements arithmetic: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → autoregressive tokens, video economics → latent diffusion.
+Q: Why retrieval (RAG) before finetuning for knowledge injection? :: Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness — RAFT finetuning only after retrieval is fixed.
+Q: What must accompany offline metrics in a GenAI evaluation answer? :: Online business metrics — CTR, adoption, cost per user per month — because users re-roll failed generations and burn GPU money; name both unprompted.
+:::
+
 Your A3 defense treats your pipeline as Scenario 0 and hypothetical extensions as the follow-up round - when the committee asks "where would GenAI plug into your system?", this note is the vocabulary and decision framework. One repeating skeleton across all 11 designs; density here favors the chapters that map to data-engineering work (RAG, LLM serving) over the image/video ones.
 
 :::scenario Scenario — Where GenAI Plugs In

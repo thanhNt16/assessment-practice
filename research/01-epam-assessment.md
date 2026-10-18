@@ -1,5 +1,20 @@
 ## The EPAM A3 Senior Data Engineer Assessment
 
+:::tldr
+- Internal committee defense of YOUR project work — not external-style puzzles.
+- Bring: problem → constraints → 2–3 design options → tradeoff rationale → measured outcome.
+- Competency matrix is the rubric: map every claim to a matrix line.
+- Manager sponsorship + readiness review gate the attempt.
+- [WARN] Process details are reported, not officially documented.
+:::
+
+:::cards
+Q: What replaces coding puzzles in the internal A3 assessment? :: A committee defense of your real project work, scored against the competency matrix.
+Q: Name the 5-part structure for presenting your project. :: Problem, constraints, 2–3 design options with tradeoffs, chosen design rationale, measured outcome.
+Q: Who gates the assessment attempt? :: Your manager (sponsorship) plus a readiness review.
+Q: What is the single biggest defense mistake? :: Describing team achievements with "we" and never owning a decision with "I".
+:::
+
 You are already inside EPAM. "Assessment" here is not a hiring loop — it is EPAM's formal internal process for evaluating whether an existing employee's demonstrated work justifies a title/grade change (e.g., A3 confirmation or A3→A4 promotion). The currency is not quiz answers: it is a **narrative presentation of your progression**, delivered to a peer/expert committee and scored against the competency matrix ([EPAM careers blog](https://www.epam.com/careers/blog/assessment-at-epam-what-it-means-for-your-career-growth)). Employees still billable on client engagements (~56,600 of ~62,850 staff; [FY2025 results](https://investors.epam.com/news/news-details/2026/EPAM-Reports-Results-for-Fourth-Quarter-and-Full-Year-2025/default.aspx)) — the bar is "your delivered project proves the next grade," not "did you pass a test."
 
 :::scenario Scenario — From Nomination to Matrix Verdict

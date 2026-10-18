@@ -120,7 +120,8 @@ md = MarkdownIt("commonmark", {"html": True, "linkify": True, "breaks": False})
 md.enable("table")
 
 MERMAID_FENCE_RE = re.compile(r'```mermaid\n(.*?)```', re.S)
-CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario)\s*(.*)$')
+CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|diagram|scenario|tldr|cards)\s*(.*)$')
+STUDY_SLOT_RE = re.compile(r'^(TLDRSLOT|CARDSLOT)\d+X$')
 SC_NODE_RE  = re.compile(r'^@(\w+)\s+(.*?)\s*::\s*(.+)$')
 SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(?:(.*?)\s*=>\s*)?@(\w+)(\s*\|\s*(success|fail))?$')
 def preprocess(src):
@@ -130,12 +131,16 @@ def preprocess(src):
         mer.append(m.group(1).strip())
         return f"\nMERMAIDPLOT{len(mer)-1}X\n"
     src = MERMAID_FENCE_RE.sub(stash, src)
+    tldrs, cardss = [], []
     out, in_c, lines_acc = [], False, []
     for line in src.split("\n"):
         s = line.strip()
         mo = CONTAINER_OPEN_RE.match(s)
         if mo and not in_c:
             typ, title = mo.group(1), mo.group(2).strip()
+            if typ in ("tldr", "cards"):
+                in_c, lines_acc, sc_title = typ, [], title
+                continue
             if typ == "scenario":
                 in_c, lines_acc, sc_title = "scenario", [], title
                 continue
@@ -157,19 +162,25 @@ def preprocess(src):
             if in_c == "scenario":
                 scenarios.append(scenario_parse(sc_title, lines_acc))
                 out.append(f"\nSCENARIOPLOT{len(scenarios)-1}X\n")
+            elif in_c == "tldr":
+                tldrs.append([l.strip("- ").strip() for l in lines_acc if l.strip()])
+                out.append(f"\nTLDRSLOT{len(tldrs)-1}X\n")
+            elif in_c == "cards":
+                cardss.append([l for l in lines_acc if l.strip()])
+                out.append(f"\nCARDSLOT{len(cardss)-1}X\n")
             elif in_c == "skip":
                 pass
             else:
                 out += ["", "</div>"]
             in_c = False
             continue
-        if in_c == "scenario":
+        if in_c in ("scenario", "tldr", "cards"):
             lines_acc.append(line)
             continue
         out.append(line)
     if in_c == "scenario":
         raise ValueError("Unclosed :::scenario block")
-    return "\n".join(out), mer, scenarios
+    return "\n".join(out), mer, scenarios, tldrs, cardss
 
 def scenario_parse(title, lines):
     nodes, edges, order, last = [], [], [], None
@@ -207,7 +218,7 @@ def scenario_html(g, idx):
 
 def render_page(src, sec_no):
     """Render a section file: ## → h1, ### → h2 with anchors."""
-    src, mer, scenarios = preprocess(src)
+    src, mer, scenarios, tldrs, cardss = preprocess(src)
     lines = src.split("\n")
     subs = []
     h1_title = None
@@ -240,6 +251,7 @@ def render_page(src, sec_no):
             parts.append(f'<h2 id="{hid}" tabindex="-1">{md.renderInline(t)}'
                          f'<a class="header-anchor" href="#{hid}">&ZeroWidthSpace;</a></h2>')
             continue
+        if STUDY_SLOT_RE.match(line.strip()): continue
         buf.append(line)
     parts.append(flush())
     out = "\n".join(parts)
@@ -247,15 +259,83 @@ def render_page(src, sec_no):
         out = out.replace(f"MERMAIDPLOT{i}X", f'<div class="mermaid">\n{m}\n</div>')
     for i, g in enumerate(scenarios):
         out = out.replace(f"SCENARIOPLOT{i}X", scenario_html(g, i))
-    return out, h1_title, subs
+    return out, h1_title, subs, tldrs, cardss
 
 # ---------------- collect sections ----------------
 sections = []
 for idx, fname in enumerate(FILES):
     src = (RESEARCH / fname).read_text()
-    rendered, title, subs = render_page(src, idx + 1)
+    rendered, title, subs, tldrs, cardss = render_page(src, idx + 1)
+    if len(tldrs) > 1 or len(cardss) > 1:
+        raise SystemExit(f"duplicate tldr/cards block in section {idx+1}")
     sections.append({"i": idx, "file": fname, "title": title, "url": page_url(idx),
-                     "subs": subs, "html": rendered})
+                     "subs": subs, "html": rendered,
+                     "tldr": tldrs[0] if tldrs else [], "cards": cardss[0] if cardss else []})
+
+# ---------------- study.json ----------------
+def parse_glossary(text):
+    terms, edges = [], []
+    for ln in text.split("\n"):
+        s = ln.strip()
+        if not s or s.startswith("#") or s.startswith("- "): continue
+        m = re.match(r'^(.+?)\s*>\s*(.+?)\s*::\s*(.+)$', s)
+        if m: edges.append({"a": m.group(1).strip(), "b": m.group(2).strip(), "why": m.group(3).strip()}); continue
+        m = re.match(r'^(.+?)\s*::\s*(.+)$', s)
+        if m: terms.append({"t": m.group(1).strip(), "def": m.group(2).strip()})
+    return terms, edges
+
+def parse_study(src, sec_no):
+    """Extract tldr bullets + flashcards from one section's raw markdown."""
+    _, _, _, tldrs, cardss = preprocess(src)
+    cards = []
+    for k, ln in enumerate([l for blk in cardss for l in blk], 1):
+        q, _, a = ln.partition(" :: ")
+        if q.startswith("Q: "): q = q[len("Q: "):]
+        cards.append({"id": f"s{sec_no:02d}-{k}", "sec": sec_no, "q": q.strip(), "a": a.strip()})
+    return (tldrs[0] if tldrs else []), cards
+
+def validate_study(study):
+    errs = []
+    seen_id, seen_t = set(), set()
+    for c in study["cards"]:
+        if not c["q"].strip() or not c["a"].strip(): errs.append(f"empty card {c['id']}")
+        if c["id"] in seen_id: errs.append(f"duplicate card id {c['id']}")
+        seen_id.add(c["id"])
+    for t in study["terms"]:
+        if t["t"].lower() in seen_t: errs.append(f"duplicate term {t['t']}")
+        seen_t.add(t["t"].lower())
+    names = {t["t"].lower() for t in study["terms"]}
+    for e in study["edges"]:
+        for side in (e["a"], e["b"]):
+            if side.lower() not in names: errs.append(f"edge references unknown term {side}")
+    if errs: raise SystemExit("study validation failed:\n  " + "\n  ".join(errs))
+
+if "--selftest" in __import__("sys").argv:
+    bad = [
+        ({"cards":[{"id":"x","sec":1,"q":"","a":"a"}],"terms":[],"edges":[]}, "empty card"),
+        ({"cards":[{"id":"x","sec":1,"q":"q","a":"a"},{"id":"x","sec":1,"q":"q","a":"a"}],"terms":[],"edges":[]}, "duplicate card id"),
+        ({"cards":[],"terms":[{"t":"A","def":"d"},{"t":"a","def":"d"}],"edges":[]}, "duplicate term"),
+        ({"cards":[],"terms":[{"t":"A","def":"d"}],"edges":[{"a":"A","b":"B","why":"w"}]}, "unknown term"),
+    ]
+    for study, why in bad:
+        try: validate_study(study)
+        except SystemExit as ex: assert why in str(ex), why; continue
+        raise SystemExit(f"selftest failed: {why} not caught")
+    print("selftest OK"); __import__("sys").exit(0)
+
+study = {"cards": [], "terms": [], "edges": [], "termRefs": {}, "tldr": {}}
+for s in sections:
+    if s["tldr"]: study["tldr"][s["i"] + 1] = s["tldr"]
+    study["cards"] += parse_study((RESEARCH / s["file"]).read_text(), s["i"] + 1)[1]
+glossary_path = RESEARCH / "glossary.md"
+if glossary_path.exists():
+    study["terms"], study["edges"] = parse_glossary(glossary_path.read_text())
+for t in study["terms"]:
+    pat = re.compile(rf'\b{re.escape(t["t"])}\b', re.I)
+    study["termRefs"][t["t"]] = [s["i"] + 1 for s in sections
+                                 if pat.search((RESEARCH / s["file"]).read_text())]
+validate_study(study)
+(ROOT / "study.json").write_text(json.dumps(study, ensure_ascii=False, indent=1))
 
 # ---------------- nav pieces ----------------
 def strip(t):

@@ -1,0 +1,303 @@
+{
+ "cards": [
+  {
+   "id": "s01-1",
+   "sec": 1,
+   "q": "What replaces coding puzzles in the internal A3 assessment?",
+   "a": "A committee defense of your real project work, scored against the competency matrix."
+  },
+  {
+   "id": "s01-2",
+   "sec": 1,
+   "q": "Name the 5-part structure for presenting your project.",
+   "a": "Problem, constraints, 2–3 design options with tradeoffs, chosen design rationale, measured outcome."
+  },
+  {
+   "id": "s01-3",
+   "sec": 1,
+   "q": "Who gates the assessment attempt?",
+   "a": "Your manager (sponsorship) plus a readiness review."
+  },
+  {
+   "id": "s01-4",
+   "sec": 1,
+   "q": "What is the single biggest defense mistake?",
+   "a": "Describing team achievements with \"we\" and never owning a decision with \"I\"."
+  },
+  {
+   "id": "s16-1",
+   "sec": 16,
+   "q": "What is the repeating framework across all 11 GenAI design chapters?",
+   "a": "Clarify requirements → frame as ML task → data preparation → model development → evaluation → overall system design, with deployment + monitoring on top."
+  },
+  {
+   "id": "s16-2",
+   "sec": 16,
+   "q": "How do you pick the generative model family?",
+   "a": "Requirements arithmetic: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → autoregressive tokens, video economics → latent diffusion."
+  },
+  {
+   "id": "s16-3",
+   "sec": 16,
+   "q": "Why retrieval (RAG) before finetuning for knowledge injection?",
+   "a": "Finetuning can't cite sources and needs constant retraining; RAG balances cost, scalability, freshness — RAFT finetuning only after retrieval is fixed."
+  },
+  {
+   "id": "s16-4",
+   "sec": 16,
+   "q": "What must accompany offline metrics in a GenAI evaluation answer?",
+   "a": "Online business metrics — CTR, adoption, cost per user per month — because users re-roll failed generations and burn GPU money; name both unprompted."
+  }
+ ],
+ "terms": [
+  {
+   "t": "Watermark",
+   "def": "Event-time progress marker; windows close and late data is judged against it."
+  },
+  {
+   "t": "Idempotency",
+   "def": "An operation safe to retry — same input, same final state, no duplicate effects."
+  },
+  {
+   "t": "Exactly-once",
+   "def": "Effect semantics built from at-least-once delivery + idempotent writes or transactional commits."
+  },
+  {
+   "t": "Medallion",
+   "def": "Bronze (raw) → silver (validated) → gold (business-ready) layering of lakehouse data."
+  },
+  {
+   "t": "RAG",
+   "def": "Retrieval-augmented generation — ground an LLM answer in retrieved documents."
+  },
+  {
+   "t": "Embedding",
+   "def": "Dense vector representation of text/image such that semantic similarity ≈ vector distance."
+  },
+  {
+   "t": "AQE",
+   "def": "Adaptive Query Execution — Spark re-plans joins/partitions at shuffle boundaries using runtime stats."
+  },
+  {
+   "t": "ISR",
+   "def": "In-sync replicas — Kafka followers caught up enough to acknowledge writes."
+  },
+  {
+   "t": "Parquet",
+   "def": "Columnar file format with per-column encoding and nested-type support."
+  },
+  {
+   "t": "CDC",
+   "def": "Change data capture — stream of row-level changes from an OLTP log."
+  },
+  {
+   "t": "SCD Type 2",
+   "def": "Slowly changing dimension keeping history as new versioned rows."
+  },
+  {
+   "t": "Backfill",
+   "def": "Reprocessing historical data with new logic into the same destination."
+  },
+  {
+   "t": "Lambda architecture",
+   "def": "Batch + speed layers serving merged views; Kappa collapses both onto one stream."
+  },
+  {
+   "t": "Shuffle",
+   "def": "Redistributing data across partitions between stages; the dominant Spark cost."
+  },
+  {
+   "t": "Skew",
+   "def": "Uneven key distribution making one partition dominate stage time."
+  },
+  {
+   "t": "Checkpoint",
+   "def": "Durable snapshot of Flink state enabling exactly-once recovery."
+  },
+  {
+   "t": "Compaction",
+   "def": "Merging small files into fewer large ones to restore read performance."
+  },
+  {
+   "t": "Z-ordering",
+   "def": "Multi-column clustering of lakehouse files to prune scans on any column."
+  },
+  {
+   "t": "Distributed join strategy",
+   "def": "Broadcast vs sort-merge vs shuffle-hash — picked by size + skew stats."
+  },
+  {
+   "t": "Feature store",
+   "def": "Versioned repository of point-in-time-correct features for training and serving."
+  }
+ ],
+ "edges": [
+  {
+   "a": "Checkpoint",
+   "b": "Exactly-once",
+   "why": "exactly-once recovery replays from durable state snapshots."
+  },
+  {
+   "a": "Idempotency",
+   "b": "exactly-once",
+   "why": "exactly-once is engineered from idempotent writes."
+  },
+  {
+   "a": "Medallion",
+   "b": "Parquet",
+   "why": "lakehouse layers are stored in open columnar formats."
+  },
+  {
+   "a": "RAG",
+   "b": "Embedding",
+   "why": "retrieval quality depends on embedding similarity."
+  },
+  {
+   "a": "AQE",
+   "b": "Skew",
+   "why": "AQE detects and rewrites skewed joins at runtime."
+  },
+  {
+   "a": "Shuffle",
+   "b": "Skew",
+   "why": "skew only matters where a shuffle redistributes keys."
+  }
+ ],
+ "termRefs": {
+  "Watermark": [
+   6,
+   10,
+   12,
+   14,
+   15
+  ],
+  "Idempotency": [
+   4,
+   6,
+   14,
+   15
+  ],
+  "Exactly-once": [
+   4,
+   6,
+   10,
+   12,
+   14,
+   15
+  ],
+  "Medallion": [
+   5
+  ],
+  "RAG": [
+   16,
+   19,
+   21
+  ],
+  "Embedding": [
+   16,
+   17,
+   20,
+   21,
+   23,
+   24,
+   25
+  ],
+  "AQE": [
+   3,
+   10,
+   11,
+   14
+  ],
+  "ISR": [
+   4,
+   12
+  ],
+  "Parquet": [
+   1,
+   3,
+   7,
+   9,
+   10,
+   11,
+   15,
+   16
+  ],
+  "CDC": [
+   1,
+   5,
+   9,
+   10,
+   12,
+   14,
+   15
+  ],
+  "SCD Type 2": [],
+  "Backfill": [
+   6,
+   7,
+   10,
+   13,
+   14,
+   15
+  ],
+  "Lambda architecture": [],
+  "Shuffle": [
+   1,
+   2,
+   3,
+   4,
+   10,
+   11
+  ],
+  "Skew": [
+   1,
+   3,
+   4,
+   10,
+   11,
+   17,
+   22
+  ],
+  "Checkpoint": [
+   1,
+   6,
+   9,
+   10,
+   18
+  ],
+  "Compaction": [
+   7,
+   9,
+   11,
+   12,
+   14,
+   15
+  ],
+  "Z-ordering": [],
+  "Distributed join strategy": [],
+  "Feature store": [
+   5,
+   7,
+   8,
+   17
+  ]
+ },
+ "tldr": {
+  "1": [
+   "Internal committee defense of YOUR project work — not external-style puzzles.",
+   "Bring: problem → constraints → 2–3 design options → tradeoff rationale → measured outcome.",
+   "Competency matrix is the rubric: map every claim to a matrix line.",
+   "Manager sponsorship + readiness review gate the attempt.",
+   "[WARN] Process details are reported, not officially documented."
+  ],
+  "16": [
+   "The skeleton is the transferable asset: clarify requirements → frame as ML task → data → model → eval → system design + deployment/monitoring — one rehearsal covers any prompt.",
+   "Model choice is requirements arithmetic, not fashion: one-pass latency → GAN/VAE, ceiling quality → diffusion, resolution at scale → AR, video economics → latent diffusion.",
+   "Exhaust retrieval + prompts before finetuning: finetuning can't cite sources and needs constant retraining; RAFT only when retrieval is fixed and answers are still bad.",
+   "RAG pipeline: parse → chunk (500 chars, 200 overlap) → embed → ANN-index; size it explicitly — 5M pages → 40M chunks, +20%/yr.",
+   "Retrieval quality is the ceiling: a better LLM cannot fix bad chunks.",
+   "Pair offline metrics (BLEU, CIDEr, CLIPScore, FID/FVD, DINO) with online business metrics (CTR, adoption, cost per user) — naming both unprompted is the scoring behavior.",
+   "Deployment is a named stage: safety chain, serving, monitoring, retraining loops — users re-rolling seeds quietly multiplies GPU spend."
+  ]
+ }
+}
