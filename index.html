@@ -679,14 +679,14 @@ function scLayout(d,W){
   const cv=document.createElement('canvas').getContext('2d');
   cv.font='18px Excalifont';
   const pos={};
-  const ROWH=124,PAD=30;
+  const ROWH=162,PAD=60;
   Object.keys(rows).sort((a,b)=>a-b).forEach(dp=>{
-    const ids=rows[dp];const ws=ids.map(id=>Math.max(140,cv.measureText(d.nodes.find(n=>n.id===id).label).width+48));
+    const ids=rows[dp];const ws=ids.map(id=>Math.max(160,cv.measureText(d.nodes.find(n=>n.id===id).label).width+64));
     const total=ws.reduce((a,b)=>a+b,0)+PAD*(ids.length-1);
     let x=Math.max(PAD,(W-total)/2);
-    ids.forEach((id,i)=>{pos[id]={x:x,y:60+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
+    ids.forEach((id,i)=>{pos[id]={x:x,y:64+dp*ROWH,w:ws[i],h:64};x+=ws[i]+PAD});
   });
-  const maxY=60+Math.max(...Object.values(depth))*ROWH+90;
+  const maxY=64+Math.max(...Object.values(depth))*ROWH+110;
   return {pos,W:Math.max(W,...Object.values(pos).map(p=>p.x+p.w))+PAD,H:maxY};
 }
 function scPath(a,b){ // cubic connector bottom->top
@@ -824,17 +824,20 @@ function mountScenario(div,d,idx){
   svg.addEventListener('pointerdown',e=>{
     if(e.button!==0||hlMode)return;
     drag={x:e.clientX,y:e.clientY,l:body.scrollLeft,t:body.scrollTop,moved:false};
-    svg.setPointerCapture(e.pointerId);});
-  svg.addEventListener('pointermove',e=>{
+    window.addEventListener('pointermove',dragMove);
+    window.addEventListener('pointerup',dragEnd,{once:true});
+    window.addEventListener('pointercancel',dragEnd,{once:true});});
+  const dragMove=e=>{
     if(!drag)return;
     const dx=drag.x-e.clientX,dy=drag.y-e.clientY;
     if(Math.abs(dx)+Math.abs(dy)>4){drag.moved=true;body.classList.add('dragging');}
-    if(drag.moved){body.scrollLeft=drag.l+dx;body.scrollTop=drag.t+dy;}});
-  const dragEnd=()=>{if(drag&&drag.moved){
-    svg.addEventListener('click',ev=>ev.stopPropagation(),{capture:true,once:true});}
+    if(drag.moved){body.scrollLeft=drag.l+dx;body.scrollTop=drag.t+dy;}};
+  const dragEnd=()=>{window.removeEventListener('pointermove',dragMove);
+    window.removeEventListener('pointerup',dragEnd);
+    window.removeEventListener('pointercancel',dragEnd);
+    if(drag&&drag.moved){
+      svg.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();},{capture:true,once:true});}
     drag=null;body.classList.remove('dragging');};
-  svg.addEventListener('pointerup',dragEnd);
-  svg.addEventListener('pointercancel',dragEnd);
   svg.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zIn(e.deltaY<0?1:-1)},{passive:false});
   enter(d.start);
 }
