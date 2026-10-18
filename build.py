@@ -106,7 +106,7 @@ CONTAINER_OPEN_RE = re.compile(r'^:{3,}\s*(info|tip|warning|glide|diagram|scenar
 GLIDE_STEP_RE = re.compile(r'^(\d+)\)\s+(.*?)\s*::\s*(.+)$')
 GLIDE_QUIZ_RE = re.compile(r'^\?\s+(.*?)\s*::\s*(.+)$')
 SC_NODE_RE  = re.compile(r'^@(\w+)\s+(.*?)\s*::\s*(.+)$')
-SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(.*?)\s*=>\s*@(\w+)(\s*\|\s*(success|fail))?$')
+SC_EDGE_RE  = re.compile(r'^(->|\?)\s*(?:(.*?)\s*=>\s*)?@(\w+)(\s*\|\s*(success|fail))?$')
 def preprocess(src):
     """Extract mermaid fences; convert :::containers (incl. glide) to placeholders."""
     mer, glides = [], []
