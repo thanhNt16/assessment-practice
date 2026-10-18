@@ -811,6 +811,7 @@ function scPath(a,b){ // cubic connector bottom->top
 }
 const NS='http://www.w3.org/2000/svg';
 function mountScenario(div,d,idx){
+  if(!d.start||!d.nodes.length){console.warn('scenario: empty payload, skipping mount',idx);return;}
   const body=div.querySelector('.sc-body'),cap=div.querySelector('.sc-cap'),
         ch=div.querySelector('.sc-choices');
   const W=Math.min(1100,body.clientWidth||900);
